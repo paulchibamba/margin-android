@@ -28,4 +28,8 @@ tasks.test {
     val fsrsGoldenVectors = rootProject.file("docs/engineering/fsrs-golden.json")
     systemProperty("margin.fsrsGoldenVectors", fsrsGoldenVectors.path)
     inputs.files(fsrsGoldenVectors).withPropertyName("fsrsGoldenVectors")
+
+    val contentPack = rootProject.file("content/pack")
+    systemProperty("margin.contentPack", contentPack.path)
+    inputs.files(fileTree(contentPack) { include("*.json") }).withPropertyName("contentPack")
 }
