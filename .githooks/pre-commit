@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Docs and content stay on this machine. Refuse any commit that stages them.
+set -euo pipefail
+
+private_paths="$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^(docs|content)/|^CLAUDE\.md$' || true)"
+
+if [[ -n "$private_paths" ]]; then
+  echo "Commit blocked: these paths are local-only and must never be committed:" >&2
+  echo "$private_paths" | sed 's/^/  /' >&2
+  exit 1
+fi
