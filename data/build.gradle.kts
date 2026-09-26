@@ -47,3 +47,9 @@ dependencies {
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.room.testing)
 }
+
+tasks.withType<Test>().configureEach {
+    val contentDirectory = rootProject.file("content")
+    systemProperty("margin.contentDirectory", contentDirectory.path)
+    inputs.files(fileTree(contentDirectory) { include("pack/*.json") }).withPropertyName("contentPack")
+}
