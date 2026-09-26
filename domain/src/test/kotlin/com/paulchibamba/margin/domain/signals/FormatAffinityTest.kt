@@ -16,7 +16,8 @@ class FormatAffinityTest {
 
     @Test
     fun `a fast skip on a checklist moves its affinity from half to three eighths`() {
-        val engagement = EngagementCalculator().score(checklistWithWords(10), PostExit(500.milliseconds, isEngaged = false))
+        val fastSkip = PostExit(dwell = 500.milliseconds, isEngaged = false)
+        val engagement = EngagementCalculator().score(checklistWithWords(10), fastSkip)
 
         val affinity = neutral.afterEngagement(Format.CHECKLIST, engagement)
 

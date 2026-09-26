@@ -28,7 +28,9 @@ class LearningLibrary(
 ) {
     private val unlockRule = UnlockRule(readingOnlyChapters)
     private val postsByConcept = posts.groupBy(Post::conceptId)
-    private val conceptsByBook = concepts.groupBy(Concept::bookSlug).mapValues { (_, bookConcepts) -> inBookOrder(bookConcepts) }
+    private val conceptsByBook = concepts
+        .groupBy(Concept::bookSlug)
+        .mapValues { (_, bookConcepts) -> inBookOrder(bookConcepts) }
     private val activeBookSlugs = bookSettings.filter(BookSettings::isActive).map(BookSettings::bookSlug).toSet()
     private val frontiers = books.associate { book -> book.slug to readingProgress.frontierOf(book.slug) }
 
@@ -64,7 +66,11 @@ class LearningLibrary(
             id = PostId("${concept.id.value}$SOURCE_POST_SUFFIX"),
             conceptId = concept.id,
             bookSlug = concept.bookSlug,
-            content = PostContent.Source(title = note.section.ifBlank { concept.title }, excerpt = excerpt, noteId = note.id),
+            content = PostContent.Source(
+                title = note.section.ifBlank { concept.title },
+                excerpt = excerpt,
+                noteId = note.id,
+            ),
         )
     }
 
