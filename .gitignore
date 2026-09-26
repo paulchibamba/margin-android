@@ -1,0 +1,21 @@
+# Local only: never leaves this machine
+/docs/
+/content/
+/CLAUDE.md
+/.claude/
+
+# Gradle and build output
+.gradle/
+build/
+.kotlin/
+local.properties
+
+# Android Studio
+*.iml
+/.idea/
+/captures
+.externalNativeBuild
+.cxx
+
+# macOS
+.DS_Store
