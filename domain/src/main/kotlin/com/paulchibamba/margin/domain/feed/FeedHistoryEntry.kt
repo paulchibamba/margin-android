@@ -11,4 +11,5 @@ data class FeedHistoryEntry(
     val conceptId: ConceptId,
     val format: Format,
     val role: PostRole,
+    val source: CandidateSource,
 )

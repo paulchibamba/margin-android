@@ -62,7 +62,7 @@ class ProgressDaoTest : DatabaseTest() {
     @Test
     fun `feed history keeps only the most recent steps`() = runTest {
         val dao = database.feedStateDao()
-        dao.upsertHistory((1..40).map { step -> FeedHistoryEntity(step, POST, CONCEPT, "tip", "teach") })
+        dao.upsertHistory((1..40).map { step -> FeedHistoryEntity(step, POST, CONCEPT, "tip", "teach", "new") })
 
         dao.trimHistory(keep = 30)
 

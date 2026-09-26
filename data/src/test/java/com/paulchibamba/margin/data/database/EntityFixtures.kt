@@ -95,7 +95,7 @@ suspend fun MarginDatabase.fillProgressTables() {
     feedLogDao().insertReview(reviewLog())
     feedStateDao().upsertSeen(listOf(PostSeenEntity(POST, 1_000, 2_000, 5, 2, 5_000, 0.8, true, "new")))
     feedStateDao().upsertAffinity(listOf(FormatAffinityEntity("tip", 0.62)))
-    feedStateDao().upsertHistory(listOf(FeedHistoryEntity(5, POST, CONCEPT, "tip", "teach")))
+    feedStateDao().upsertHistory(listOf(FeedHistoryEntity(5, POST, CONCEPT, "tip", "teach", "new")))
     feedStateDao().insertSaved(SavedPostEntity(POST, savedAt = 3_000))
     readingDao().markNoteRead(NoteReadEntity(NOTE, readAt = 4_000))
     readingDao().markChapterKnown(ChapterKnownEntity(BOOK, chapter = 2, markedAt = 5_000))

@@ -110,6 +110,9 @@ fun FeedState.afterShowing(vararg posts: Post): FeedState = posts.fold(this) { s
     state.copy(
         step = step,
         seenPosts = state.seenPosts + (post.id to step),
-        history = state.history + FeedHistoryEntry(step, post.id, post.conceptId, post.format, post.role),
+        history = state.history + historyEntryOf(post, step),
     )
 }
+
+fun historyEntryOf(post: Post, step: Int, source: CandidateSource = CandidateSource.ANGLE) =
+    FeedHistoryEntry(step, post.id, post.conceptId, post.format, post.role, source)

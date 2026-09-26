@@ -16,7 +16,7 @@ class FeedStepRecorder(private val delightSchedule: DelightSchedule) {
             step = step,
             conceptProgress = state.conceptProgress + (post.conceptId to progress),
             seenPosts = state.seenPosts + (post.id to step),
-            history = state.history + historyEntry(post, step),
+            history = state.history + historyEntry(candidate, step),
             bookLastNewStep = if (isIntroduction) state.bookLastNewStep + (post.bookSlug to step)
             else state.bookLastNewStep,
             delightAtStep = delightAtAfter(state, candidate, step),
@@ -45,8 +45,10 @@ class FeedStepRecorder(private val delightSchedule: DelightSchedule) {
     private fun isReteach(progress: ConceptProgress, post: Post): Boolean =
         progress.confidence == Confidence.LOST && post.role == PostRole.TEACH
 
-    private fun historyEntry(post: Post, step: Int) =
-        FeedHistoryEntry(step, post.id, post.conceptId, post.format, post.role)
+    private fun historyEntry(candidate: Candidate, step: Int): FeedHistoryEntry {
+        val post = candidate.post
+        return FeedHistoryEntry(step, post.id, post.conceptId, post.format, post.role, candidate.source)
+    }
 
     private fun delightAtAfter(state: FeedState, candidate: Candidate, step: Int): Int =
         if (candidate.source == CandidateSource.DELIGHT) delightSchedule.nextAfter(step) else state.delightAtStep
