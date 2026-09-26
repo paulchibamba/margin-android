@@ -17,7 +17,7 @@ class CandidateCollectorTest {
 
     @Test
     fun `with nothing read, the default providers offer only previews`() {
-        val candidates = CandidateCollector().collect(libraryWith(), freshState, now)
+        val candidates = CandidateCollector.from(FeedConfig()).collect(libraryWith(), freshState, now)
 
         assertEquals(setOf(CandidateSource.PREVIEW), candidates.map { it.source }.toSet())
     }
