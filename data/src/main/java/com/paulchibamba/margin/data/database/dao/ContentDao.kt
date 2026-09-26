@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import com.paulchibamba.margin.data.database.NoteOutlineRow
 import com.paulchibamba.margin.data.database.PackContent
 import com.paulchibamba.margin.data.database.entity.BookEntity
 import com.paulchibamba.margin.data.database.entity.ChapterEntity
@@ -38,6 +39,9 @@ abstract class ContentDao {
 
     @Query("SELECT * FROM note WHERE bookSlug = :bookSlug ORDER BY chapter, `order`")
     abstract suspend fun notesOf(bookSlug: String): List<NoteEntity>
+
+    @Query("SELECT id, bookSlug, chapter, `order`, section, minutes FROM note ORDER BY bookSlug, chapter, `order`")
+    abstract suspend fun noteOutlines(): List<NoteOutlineRow>
 
     @Query("SELECT * FROM note WHERE id IN (:ids)")
     abstract suspend fun notes(ids: List<String>): List<NoteEntity>

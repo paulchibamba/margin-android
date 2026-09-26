@@ -6,3 +6,5 @@ internal val PackJson = Json {
     ignoreUnknownKeys = true
     explicitNulls = false
 }
+
+internal fun decodePost(json: String): PostDto = PackJson.decodeFromString(PostDto.serializer(), json)

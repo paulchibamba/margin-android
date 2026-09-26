@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface ReadingDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun markNoteRead(noteRead: NoteReadEntity)
+    suspend fun markNoteRead(noteRead: NoteReadEntity): Long
 
     @Query("SELECT * FROM note_read")
     fun notesRead(): Flow<List<NoteReadEntity>>
