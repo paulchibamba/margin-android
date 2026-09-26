@@ -24,4 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Margin"
 include(":app")
+include(":domain")
+include(":data")
  
