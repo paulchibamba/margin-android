@@ -42,7 +42,12 @@ class FsrsSchedulerTest {
         val intervals = scheduler.previewIntervals(scheduler.createEmptyCard(now), now)
 
         assertEquals(
-            mapOf(Rating.AGAIN to 1.minutes, Rating.HARD to 6.minutes, Rating.GOOD to 10.minutes, Rating.EASY to 8.days),
+            mapOf(
+                Rating.AGAIN to 1.minutes,
+                Rating.HARD to 6.minutes,
+                Rating.GOOD to 10.minutes,
+                Rating.EASY to 8.days,
+            ),
             intervals,
         )
     }

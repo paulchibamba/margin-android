@@ -10,7 +10,8 @@ class AngleProviderTest {
 
     private val provider = AngleProvider()
     private val lost = introducedProgress().copy(confidence = Confidence.LOST, lostAtStep = 3)
-    private val sourceNote = sourceNoteOf(cia, "<h3>The Security Mandate</h3><p>Protect <b>confidentiality</b> &amp; integrity.</p>")
+    private val sourceNote =
+        sourceNoteOf(cia, "<h3>The Security Mandate</h3><p>Protect <b>confidentiality</b> &amp; integrity.</p>")
 
     @Test
     fun `an introduced concept offers its unseen explanations, except memes`() {

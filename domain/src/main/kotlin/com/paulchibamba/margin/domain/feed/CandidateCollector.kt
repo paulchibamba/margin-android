@@ -8,19 +8,21 @@ import com.paulchibamba.margin.domain.feed.source.ResurfaceProvider
 import com.paulchibamba.margin.domain.feed.source.ReviewProvider
 import java.time.Instant
 
-class CandidateCollector(private val providers: List<CandidateProvider> = DEFAULT_PROVIDERS) {
+class CandidateCollector(private val providers: List<CandidateProvider>) {
 
     fun collect(library: LearningLibrary, state: FeedState, now: Instant): List<Candidate> =
         providers.flatMap { provider -> provider.candidates(library, state, now) }
 
     companion object {
-        val DEFAULT_PROVIDERS: List<CandidateProvider> = listOf(
-            NewConceptProvider(),
-            PreviewProvider(),
-            DelightProvider(),
-            ReviewProvider(),
-            AngleProvider(),
-            ResurfaceProvider(),
+        fun from(config: FeedConfig) = CandidateCollector(
+            listOf(
+                NewConceptProvider(),
+                PreviewProvider(),
+                DelightProvider(),
+                ReviewProvider(),
+                AngleProvider(),
+                ResurfaceProvider(config.resurfaceAfter),
+            ),
         )
     }
 }

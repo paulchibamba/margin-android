@@ -41,7 +41,11 @@ class PostContentTest {
 
     @Test
     fun `a recall post does not count its hidden answer`() {
-        val recall = PostContent.Recall(title = "Factors", question = "Name the three factors", answer = "know have are")
+        val recall = PostContent.Recall(
+            title = "Factors",
+            question = "Name the three factors",
+            answer = "know have are",
+        )
 
         assertEquals(1 + 4, recall.wordCount())
     }

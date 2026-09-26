@@ -104,3 +104,12 @@ fun introducedProgress(due: Instant = now.plusSeconds(86_400)) =
 
 fun FeedState.withSeen(vararg posts: Post, atStep: Int = 1): FeedState =
     copy(seenPosts = seenPosts + posts.associate { it.id to atStep })
+
+fun FeedState.afterShowing(vararg posts: Post): FeedState = posts.fold(this) { state, post ->
+    val step = state.step + 1
+    state.copy(
+        step = step,
+        seenPosts = state.seenPosts + (post.id to step),
+        history = state.history + FeedHistoryEntry(step, post.id, post.conceptId, post.format, post.role),
+    )
+}
