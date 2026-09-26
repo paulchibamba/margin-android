@@ -1,0 +1,19 @@
+package com.paulchibamba.margin.domain.repository
+
+import com.paulchibamba.margin.domain.model.BookSettings
+import com.paulchibamba.margin.domain.model.BookSlug
+import com.paulchibamba.margin.domain.progression.ReadingOnlyChapters
+import kotlinx.coroutines.flow.Flow
+
+interface SettingsRepository {
+    suspend fun bookSettings(): List<BookSettings>
+    fun observeBookSettings(): Flow<List<BookSettings>>
+    suspend fun saveBookSettings(settings: BookSettings)
+
+    suspend fun readingOnlyChapters(): ReadingOnlyChapters
+    fun observeReadingOnlyChapters(): Flow<ReadingOnlyChapters>
+    suspend fun setReadingOnlyChapters(book: BookSlug, chapters: Set<Int>)
+
+    suspend fun desiredRetention(): Double
+    suspend fun setDesiredRetention(retention: Double)
+}
