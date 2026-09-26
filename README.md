@@ -15,4 +15,4 @@ The content pack isn't in this repository. It's generated locally and copied in 
 ## Development
 - `./gradlew build test`: build and run the unit tests.
 - Git hooks: `git config core.hooksPath .githooks`.
-- Branches: `<type>/t<NN>-<slug>`. Commits follow [Conventional Commits](https://www.conventionalcommits.org).
+- Branches: `<type>/m<NNN>-<slug>`. Commits follow [Conventional Commits](https://www.conventionalcommits.org).
