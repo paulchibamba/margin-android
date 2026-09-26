@@ -19,6 +19,18 @@ interface FeedStateDao {
     @Query("SELECT * FROM post_seen")
     suspend fun seenPosts(): List<PostSeenEntity>
 
+    @Query("SELECT * FROM post_seen WHERE postId = :postId")
+    suspend fun seen(postId: String): PostSeenEntity?
+
+    @Query("SELECT MAX(lastSeenStep) FROM post_seen")
+    suspend fun latestSeenStep(): Int?
+
+    @Query(
+        "UPDATE post_seen SET lastDwellMs = :dwellMs, lastEngagement = :engagement, lastCorrect = :isCorrect " +
+            "WHERE postId = :postId",
+    )
+    suspend fun recordExit(postId: String, dwellMs: Long, engagement: Double, isCorrect: Boolean?)
+
     @Upsert
     suspend fun upsertAffinity(affinity: List<FormatAffinityEntity>)
 

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "16d6251f1870bdfca8df3a7c96a3fe46",
+    "identityHash": "cc1ceeaf3f683196d4d360741ea22f4e",
     "entities": [
       {
         "tableName": "book",
@@ -785,7 +785,7 @@
       },
       {
         "tableName": "feed_history",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`step` INTEGER NOT NULL, `postId` TEXT NOT NULL, `conceptId` TEXT NOT NULL, `format` TEXT NOT NULL, `role` TEXT NOT NULL, PRIMARY KEY(`step`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`step` INTEGER NOT NULL, `postId` TEXT NOT NULL, `conceptId` TEXT NOT NULL, `format` TEXT NOT NULL, `role` TEXT NOT NULL, `source` TEXT NOT NULL, PRIMARY KEY(`step`))",
         "fields": [
           {
             "fieldPath": "step",
@@ -814,6 +814,12 @@
           {
             "fieldPath": "role",
             "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -858,7 +864,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '16d6251f1870bdfca8df3a7c96a3fe46')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cc1ceeaf3f683196d4d360741ea22f4e')"
     ]
   }
 }

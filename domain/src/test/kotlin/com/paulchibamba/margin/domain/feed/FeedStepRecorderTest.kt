@@ -55,6 +55,6 @@ class FeedStepRecorderTest {
         assertEquals(1, state.step)
         assertEquals(1, state.seenPosts[mcqOf(cia).id])
         val quiz = mcqOf(cia)
-        assertEquals(FeedHistoryEntry(1, quiz.id, cia.id, quiz.format, quiz.role), state.history.single())
+        assertEquals(historyEntryOf(quiz, step = 1, CandidateSource.REVIEW), state.history.single())
     }
 }

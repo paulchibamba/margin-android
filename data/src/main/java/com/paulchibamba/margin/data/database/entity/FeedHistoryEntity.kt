@@ -10,4 +10,5 @@ data class FeedHistoryEntity(
     val conceptId: String,
     val format: String,
     val role: String,
+    val source: String,
 )
