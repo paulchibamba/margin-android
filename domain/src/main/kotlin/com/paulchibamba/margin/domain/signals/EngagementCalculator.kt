@@ -8,7 +8,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class EngagementCalculator(private val fastSkip: Duration = 1200.milliseconds) {
 
     fun score(content: PostContent, exit: PostExit): Double {
-        if (isFastSkip(exit)) return 0.0
+        if (exit.isMarkedLess || isFastSkip(exit)) return 0.0
         val readFraction = readFraction(content, exit.dwell)
         return if (content.format.isInteractive) interactiveScore(readFraction, exit.isEngaged) else readFraction
     }
