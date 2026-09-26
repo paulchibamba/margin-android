@@ -21,4 +21,11 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.kotlinx.serialization.json)
+}
+
+tasks.test {
+    val fsrsGoldenVectors = rootProject.file("docs/engineering/fsrs-golden.json")
+    systemProperty("margin.fsrsGoldenVectors", fsrsGoldenVectors.path)
+    inputs.files(fsrsGoldenVectors).withPropertyName("fsrsGoldenVectors")
 }
