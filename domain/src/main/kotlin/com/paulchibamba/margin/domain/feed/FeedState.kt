@@ -15,6 +15,7 @@ data class FeedState(
     val bookLastNewStep: Map<BookSlug, Int> = emptyMap(),
     val lastPreviewAtStep: Int? = null,
     val affinity: FormatAffinity = FormatAffinity(),
+    val savedPosts: Set<PostId> = emptySet(),
 ) {
     val isDelightDue: Boolean
         get() = step >= delightAtStep
@@ -26,4 +27,7 @@ data class FeedState(
     fun isIntroduced(concept: Concept): Boolean = progressOf(concept).isIntroduced
 
     fun hasSeen(post: PostId): Boolean = post in seenPosts
+
+    fun withProgress(concept: ConceptId, progress: ConceptProgress): FeedState =
+        copy(conceptProgress = conceptProgress + (concept to progress))
 }
