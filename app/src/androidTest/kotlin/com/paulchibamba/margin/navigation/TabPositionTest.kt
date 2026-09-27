@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performScrollToNode
 import org.junit.Rule
 import org.junit.Test
@@ -29,12 +30,12 @@ class TabPositionTest {
     }
 
     @Test
-    fun `Feed keeps its scroll position after switching to Read and back`() {
+    fun `Feed keeps its page after switching to Read and back`() {
         compose.setContent { MarginApp() }
-        scrollTo("Row 50")
+        compose.onNode(hasScrollAction()).performScrollToIndex(3)
         selectTab("Read")
         selectTab("Feed")
-        compose.onNodeWithText("Row 50").assertIsDisplayed()
+        compose.onNodeWithText("Post 4 ·", substring = true).assertIsDisplayed()
     }
 
     @Test
