@@ -132,7 +132,7 @@ private fun NoteSummary(note: NextNote) {
         Text("Next note · $chapter", style = MarginTypography.label, color = MarginColors.White.copy(alpha = 0.6f))
         Text(note.outline.section, style = MarginTypography.noteTitle, color = MarginColors.White)
         Text(
-            "${readingTimeLabel(note.outline.readingTime)} · ${unlockedPostsLabel(note.unlockedPosts)}",
+            nextNoteDetail(note.outline.readingTime, note.unlockedPosts),
             style = MarginTypography.label,
             color = MarginColors.Lime,
         )

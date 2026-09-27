@@ -75,4 +75,11 @@ fun dueInLabel(dueIn: Duration): String = when {
     else -> "in ${dueIn.inWholeDays} d"
 }
 
-fun unlockedPostsLabel(count: Int): String = if (count == 1) "unlocks 1 post" else "unlocks $count posts"
+fun nextNoteDetail(readingTime: Duration, unlockedPosts: Int): String {
+    val time = readingTimeLabel(readingTime)
+    return when (unlockedPosts) {
+        0 -> time
+        1 -> "$time · unlocks 1 post"
+        else -> "$time · unlocks $unlockedPosts posts"
+    }
+}

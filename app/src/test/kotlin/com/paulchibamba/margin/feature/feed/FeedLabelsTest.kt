@@ -39,8 +39,13 @@ class FeedLabelsTest {
     }
 
     @Test
-    fun `one unlocked post is singular`() {
-        assertEquals("unlocks 1 post", unlockedPostsLabel(1))
-        assertEquals("unlocks 4 posts", unlockedPostsLabel(4))
+    fun `the next note spells out how many posts it unlocks`() {
+        assertEquals("~1 min · unlocks 1 post", nextNoteDetail(1.minutes, unlockedPosts = 1))
+        assertEquals("~1 min · unlocks 4 posts", nextNoteDetail(1.minutes, unlockedPosts = 4))
+    }
+
+    @Test
+    fun `a next note that unlocks nothing only shows its reading time`() {
+        assertEquals("~1 min", nextNoteDetail(1.minutes, unlockedPosts = 0))
     }
 }
