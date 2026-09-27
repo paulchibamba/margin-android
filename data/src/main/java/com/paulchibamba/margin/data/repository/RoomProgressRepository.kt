@@ -89,6 +89,10 @@ class RoomProgressRepository @Inject constructor(private val database: MarginDat
         database.readingDao().markChapterKnown(known)
     }
 
+    override suspend fun unmarkChapterKnown(chapter: ChapterRef) {
+        database.readingDao().unmarkChapterKnown(chapter.bookSlug.value, chapter.chapter)
+    }
+
     override fun observeActivity(): Flow<List<DailyActivity>> =
         database.activityDao().all().map { days -> days.map(SettingsMapper::toDomain) }
 

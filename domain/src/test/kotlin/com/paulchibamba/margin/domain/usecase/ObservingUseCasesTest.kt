@@ -2,24 +2,26 @@ package com.paulchibamba.margin.domain.usecase
 
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.Confidence
-import com.paulchibamba.margin.domain.feed.appSec
-import com.paulchibamba.margin.domain.progression.ReadingState
-import com.paulchibamba.margin.domain.model.Priority
-import com.paulchibamba.margin.domain.model.BookSettings
-import com.paulchibamba.margin.domain.feed.postsOf
 import com.paulchibamba.margin.domain.feed.aiSecurity
+import com.paulchibamba.margin.domain.feed.appSec
 import com.paulchibamba.margin.domain.feed.cia
 import com.paulchibamba.margin.domain.feed.defenceInDepth
+import com.paulchibamba.margin.domain.feed.freshState
 import com.paulchibamba.margin.domain.feed.grokking
 import com.paulchibamba.margin.domain.feed.introducedProgress
 import com.paulchibamba.margin.domain.feed.learnedCard
 import com.paulchibamba.margin.domain.feed.leastPrivilege
 import com.paulchibamba.margin.domain.feed.noteId
+import com.paulchibamba.margin.domain.feed.postsOf
+import com.paulchibamba.margin.domain.feed.readingOnlyIntro
 import com.paulchibamba.margin.domain.feed.tipOf
 import com.paulchibamba.margin.domain.feed.withIntroduced
 import com.paulchibamba.margin.domain.memory.CardState
+import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.ChapterRef
 import com.paulchibamba.margin.domain.model.NotePosition
+import com.paulchibamba.margin.domain.model.Priority
+import com.paulchibamba.margin.domain.progression.ReadingState
 import com.paulchibamba.margin.domain.rewards.Badge
 import com.paulchibamba.margin.domain.rewards.BadgeKind
 import com.paulchibamba.margin.domain.rewards.StreakDayStatus
@@ -96,6 +98,31 @@ class ObservingUseCasesTest {
         assertTrue(chapters.getValue(2).chapter.isReadingOnly)
         assertTrue(chapters.getValue(3).isDone)
         assertFalse(chapters.getValue(1).isDone)
+    }
+
+    @Test
+    fun `marking a chapter known moves the frontier to its end and undo restores it`() = runTest {
+        fixture.markNoteRead(noteId(appSec, 1, 0))
+        val chapterThree = ChapterRef(appSec.slug, 3)
+
+        fixture.markChapterKnown(chapterThree)
+        val isUnlockedWhenKnown = fixture.libraryLoader.load().isUnlocked(defenceInDepth)
+        fixture.unmarkChapterKnown(chapterThree)
+        val isUnlockedAfterUndo = fixture.libraryLoader.load().isUnlocked(defenceInDepth)
+
+        assertTrue(isUnlockedWhenKnown)
+        assertFalse(isUnlockedAfterUndo)
+        assertTrue(fixture.libraryLoader.load().isUnlocked(cia))
+    }
+
+    @Test
+    fun `a book's introduced count leaves out reading-only chapters`() = runTest {
+        fixture.progress.feedState.value = freshState.withIntroduced(cia, readingOnlyIntro)
+
+        val completion = fixture.observeBook(appSec.slug).first().completion
+
+        assertEquals(1, completion.introduced)
+        assertEquals(3, completion.total)
     }
 
     @Test

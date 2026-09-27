@@ -49,6 +49,10 @@ class FakeProgressRepository : ProgressRepository {
         reading.value = reading.value.copy(knownChapters = reading.value.knownChapters + chapter)
     }
 
+    override suspend fun unmarkChapterKnown(chapter: ChapterRef) {
+        reading.value = reading.value.copy(knownChapters = reading.value.knownChapters - chapter)
+    }
+
     override fun observeActivity(): Flow<List<DailyActivity>> = activity
 
     override suspend fun addActivity(date: LocalDate, postsSeen: Int, notesRead: Int): ActivityChange {

@@ -120,6 +120,16 @@ class RoomProgressRepositoryTest : DatabaseTest() {
     }
 
     @Test
+    fun `unmarking a known chapter leaves the other known chapters`() = runTest {
+        repository.markChapterKnown(ChapterRef(book, 3), now)
+        repository.markChapterKnown(ChapterRef(book, 4), now)
+
+        repository.unmarkChapterKnown(ChapterRef(book, 3))
+
+        assertEquals(setOf(ChapterRef(book, 4)), repository.reading().knownChapters)
+    }
+
+    @Test
     fun `activity adds up per day and reports the change`() = runTest {
         val day = LocalDate.of(2026, 10, 1)
 
