@@ -5,6 +5,7 @@ import com.paulchibamba.margin.domain.feed.ranking.ScorePart
 import com.paulchibamba.margin.domain.memory.CardState
 import com.paulchibamba.margin.domain.model.Format
 import kotlin.math.ceil
+import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -88,3 +89,21 @@ fun nextNoteDetail(readingTime: Duration, unlockedPosts: Int): String {
         else -> "$time · unlocks $unlockedPosts posts"
     }
 }
+
+fun approximateIntervalLabel(interval: Duration): String = when {
+    interval < 1.hours -> "~${roundedMinutesOf(interval)} min"
+    interval < 1.days -> "~${roundedHoursOf(interval)} h"
+    else -> roundedDaysOf(interval).let { days -> if (days == 1) "~1 day" else "~$days days" }
+}
+
+fun shortIntervalLabel(interval: Duration): String = when {
+    interval < 1.hours -> "${roundedMinutesOf(interval)}m"
+    interval < 1.days -> "${roundedHoursOf(interval)}h"
+    else -> "${roundedDaysOf(interval)}d"
+}
+
+private fun roundedMinutesOf(interval: Duration): Int = (interval / 1.minutes).roundToInt().coerceAtLeast(1)
+
+private fun roundedHoursOf(interval: Duration): Int = (interval / 1.hours).roundToInt()
+
+private fun roundedDaysOf(interval: Duration): Int = (interval / 1.days).roundToInt()

@@ -24,8 +24,10 @@ import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.CandidateSource
 import com.paulchibamba.margin.domain.model.PostContent
 import com.paulchibamba.margin.feature.feed.post.CarouselState
+import com.paulchibamba.margin.feature.feed.post.TestResponse
 import com.paulchibamba.margin.feature.feed.post.rememberCarouselState
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.minutes
 
 private const val SNACKBAR_MILLIS = 4_000L
 
@@ -40,7 +42,7 @@ fun FeedPostPage(
     onNudgeDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val snackbarNudge = nudge?.takeIf { it.kind == Nudge.TEST_COMING_SOON }
+    val snackbarNudge = nudge?.takeIf { it.kind.isSnackbar }
     SnackbarTimeout(snackbarNudge, onNudgeDismiss)
     val carousel = rememberCarouselState(page.item.post.id, slideCountOf(page))
     MarginTheme(page.skin) {
@@ -51,14 +53,14 @@ fun FeedPostPage(
             rail = { ActionRail(railStateOf(page), onAction) },
             modifier = modifier.fillMaxSize().background(page.skin.background),
             isSnackbarVisible = snackbarNudge != null,
-            snackbar = { NudgeSnackbar(snackbarNudge) },
+            snackbar = { NudgeSnackbar(snackbarNudge, readPageActionOf(page, callbacks)) },
         )
     }
 }
 
 @Composable
 private fun PageCaption(page: FeedPage, nudge: FeedNudge?, onReadSource: () -> Unit, onNudgeDismiss: () -> Unit) {
-    if (nudge?.kind == Nudge.ANOTHER_ANGLE_COMING) {
+    if (nudge?.kind == FeedNudgeKind.ANOTHER_ANGLE_COMING) {
         NudgeCard(
             title = nudge.title,
             detail = nudge.detail,
@@ -87,10 +89,20 @@ private fun PostCaptionOf(page: FeedPage) {
 }
 
 @Composable
-private fun NudgeSnackbar(nudge: FeedNudge?) {
+private fun NudgeSnackbar(nudge: FeedNudge?, readPage: (() -> Unit)?) {
     if (nudge == null) return
-    FeedSnackbar(nudge.title, nudge.detail, actionLabel = null, onAction = {}, modifier = Modifier.fillMaxWidth())
+    val action = readPage?.takeIf { nudge.kind == FeedNudgeKind.SEE_AGAIN }
+    FeedSnackbar(
+        message = nudge.title,
+        detail = nudge.detail,
+        actionLabel = action?.let { "Read page" },
+        onAction = { action?.invoke() },
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
+
+private fun readPageActionOf(page: FeedPage, callbacks: PostBodyCallbacks): (() -> Unit)? =
+    callbacks.onReadSource.takeIf { page.context.sourceNote != null }
 
 @Composable
 private fun SnackbarTimeout(nudge: FeedNudge?, onTimeout: () -> Unit) {
@@ -131,4 +143,20 @@ private fun FeedPostPageLostPreview() {
 private fun FeedPostPageGotItPreview() {
     val nudge = FeedNudge.of(0, Nudge.TEST_COMING_SOON, "Server-side validation")
     FeedPostPage(FeedPreviewData.page(Skins.Paper), 7, nudge, {}, PostBodyCallbacks(), {}, {})
+}
+
+@Preview(widthDp = 360, heightDp = 780)
+@Composable
+private fun FeedPostPageAnsweredWrongPreview() {
+    val content = PostContent.Mcq(
+        title = "Stored XSS",
+        question = "Which control stops stored XSS in an HTML body?",
+        options = listOf("Input length limit", "Context-aware output encoding", "HTTPS everywhere", "Block <script>"),
+        answerIndex = 1,
+        explanation = "Filters miss <img onerror> and hundreds of other vectors. Encoding stops them all at output.",
+    )
+    val page = FeedPreviewData.page(Skins.Ink, content, CandidateSource.REVIEW, readingAhead = null)
+    val answered = page.copy(answer = FeedPreviewData.answerTo(content, TestResponse.Choice(3)))
+    val nudge = FeedNudge.seeAgain(0, 10.minutes, page.context)
+    FeedPostPage(answered, 7, nudge, {}, PostBodyCallbacks(), {}, {})
 }

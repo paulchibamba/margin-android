@@ -20,6 +20,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.MarginColors
@@ -55,7 +56,13 @@ private fun SnackbarText(message: String, detail: String?, modifier: Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(message, style = MarginTypography.snackbarMessage, color = MarginColors.White)
         if (detail != null) {
-            Text(detail, style = MarginTypography.snackbarDetail, color = MarginColors.White.copy(alpha = 0.65f))
+            Text(
+                detail,
+                style = MarginTypography.snackbarDetail,
+                color = MarginColors.White.copy(alpha = 0.65f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.paulchibamba.margin.feature.feed
 
-import com.paulchibamba.margin.domain.actions.Nudge
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.Confidence
 import com.paulchibamba.margin.domain.signals.PostExit
@@ -26,6 +25,7 @@ import kotlin.time.Duration.Companion.seconds
 class FeedViewModelTest {
 
     private val useCases = FakeFeedUseCases()
+    private val clock = FakeClock()
 
     @Before
     fun setUp() {
@@ -164,7 +164,7 @@ class FeedViewModelTest {
         viewModel.onAction(0, PostAction.LOST)
 
         val nudge = viewModel.uiState.value.nudge
-        assertEquals(Nudge.ANOTHER_ANGLE_COMING, nudge?.kind)
+        assertEquals(FeedNudgeKind.ANOTHER_ANGLE_COMING, nudge?.kind)
         assertEquals("Got it. A different angle is next.", nudge?.title)
         assertEquals("No quiz on Concept concept-0 until it clicks.", nudge?.detail)
         assertEquals(0, nudge?.pageIndex)
@@ -177,7 +177,7 @@ class FeedViewModelTest {
         viewModel.onAction(0, PostAction.GOT)
 
         val nudge = viewModel.uiState.value.nudge
-        assertEquals(Nudge.TEST_COMING_SOON, nudge?.kind)
+        assertEquals(FeedNudgeKind.TEST_COMING_SOON, nudge?.kind)
         assertEquals("Nice. A quick check is coming up.", nudge?.title)
         assertEquals("No more explanations of Concept concept-0 for now.", nudge?.detail)
     }
@@ -256,7 +256,7 @@ class FeedViewModelTest {
         assertEquals(12, viewModel.uiState.value.streak)
     }
 
-    private fun feedViewModel() = FeedViewModel(useCases, Random(seed = 17))
+    private fun feedViewModel() = FeedViewModel(useCases, Random(seed = 17), clock)
 
     private fun postIdsOf(viewModel: FeedViewModel) = viewModel.uiState.value.pages.map { it.item.post.id.value }
 }

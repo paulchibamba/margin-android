@@ -9,6 +9,7 @@ import com.paulchibamba.margin.domain.feed.MemorySnapshot
 import com.paulchibamba.margin.domain.feed.ranking.ScoreBreakdown
 import com.paulchibamba.margin.domain.feed.ranking.ScorePart
 import com.paulchibamba.margin.domain.memory.CardState
+import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.ConceptId
 import com.paulchibamba.margin.domain.model.NoteId
@@ -18,13 +19,16 @@ import com.paulchibamba.margin.domain.model.Post
 import com.paulchibamba.margin.domain.model.PostContent
 import com.paulchibamba.margin.domain.model.PostId
 import com.paulchibamba.margin.domain.rewards.BookCompletion
+import com.paulchibamba.margin.domain.signals.GradeMapper
 import com.paulchibamba.margin.domain.usecase.CaughtUp
 import com.paulchibamba.margin.domain.usecase.NextNote
 import com.paulchibamba.margin.domain.usecase.PostContext
 import com.paulchibamba.margin.domain.usecase.ReadingAhead
+import com.paulchibamba.margin.feature.feed.post.TestResponse
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 internal object FeedPreviewData {
     private val book = BookSlug("alice-bob-appsec")
@@ -77,9 +81,17 @@ internal object FeedPreviewData {
         viewState = if (lost) PostViewState(setOf(PostAction.LOST)) else PostViewState(),
     )
 
+    val intervals = mapOf(Rating.AGAIN to 1.minutes, Rating.HARD to 6.minutes, Rating.GOOD to 10.minutes)
+
     fun page(skin: Skin, content: PostContent, source: CandidateSource, readingAhead: ReadingAhead?) = FeedPage(
         item = item.copy(post = item.post.copy(content = content), source = source),
         context = context.copy(readingAhead = readingAhead),
         skin = skin,
+        intervals = intervals,
     )
+
+    fun answerTo(content: PostContent, response: TestResponse): TestAnswer? {
+        val outcome = response.outcomeFor(content) ?: return null
+        return TestAnswer(response, outcome, 5.seconds, GradeMapper().gradeFor(outcome, 5.seconds, 5.seconds))
+    }
 }

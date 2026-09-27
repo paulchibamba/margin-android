@@ -21,6 +21,20 @@ fun tipPost(index: Int) = Post(
     content = PostContent.Tip("Tip $index", "Validate on the server."),
 )
 
+fun mcqPost(index: Int) = Post(
+    id = PostId("mcq-$index"),
+    conceptId = ConceptId("concept-$index"),
+    bookSlug = book,
+    content = PostContent.Mcq("Quiz $index", "Which one?", listOf("A", "B", "C", "D"), 1, "Because B."),
+)
+
+fun recallPost(index: Int) = Post(
+    id = PostId("recall-$index"),
+    conceptId = ConceptId("concept-$index"),
+    bookSlug = book,
+    content = PostContent.Recall("Recall $index", "Name the three factors.", "Know, have, are."),
+)
+
 fun itemOf(post: Post) = FeedItem(
     post = post,
     source = CandidateSource.NEW,

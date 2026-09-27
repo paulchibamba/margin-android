@@ -7,6 +7,7 @@ import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.ExitOutcome
 import com.paulchibamba.margin.domain.feed.FeedResult
 import com.paulchibamba.margin.domain.feed.FeedState
+import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.Post
 import com.paulchibamba.margin.domain.signals.PostExit
 import com.paulchibamba.margin.domain.usecase.CaughtUp
@@ -14,6 +15,9 @@ import com.paulchibamba.margin.domain.usecase.RecordedExit
 import com.paulchibamba.margin.domain.usecase.StreakSummary
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Instant
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) }) : FeedUseCases {
     val upcoming = ArrayDeque(posts)
@@ -22,6 +26,8 @@ class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) })
     val actions = mutableListOf<Pair<Post, PostAction>>()
     var nextPostCalls = 0
     var caughtUp = CaughtUp(nextNote = null, nextReviewIn = null)
+    var intervals: Map<Rating, Duration> =
+        mapOf(Rating.AGAIN to 1.minutes, Rating.HARD to 6.minutes, Rating.GOOD to 10.minutes, Rating.EASY to 8.days)
 
     override fun observeStreak() = streak
 
@@ -45,6 +51,8 @@ class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) })
     }
 
     override suspend fun caughtUp() = caughtUp
+
+    override suspend fun previewIntervals(post: Post) = intervals
 
     private fun nudgeFor(action: PostAction): Nudge? = when (action) {
         PostAction.GOT -> Nudge.TEST_COMING_SOON

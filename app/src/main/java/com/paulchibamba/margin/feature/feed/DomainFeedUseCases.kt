@@ -10,6 +10,7 @@ import com.paulchibamba.margin.domain.usecase.DescribePost
 import com.paulchibamba.margin.domain.usecase.GetCaughtUp
 import com.paulchibamba.margin.domain.usecase.GetNextPost
 import com.paulchibamba.margin.domain.usecase.ObserveStreak
+import com.paulchibamba.margin.domain.usecase.PreviewIntervals
 import com.paulchibamba.margin.domain.usecase.RecordPostExit
 import javax.inject.Inject
 
@@ -21,6 +22,7 @@ class DomainFeedUseCases @Inject constructor(
     private val applyPostAction: ApplyPostAction,
     private val getCaughtUp: GetCaughtUp,
     private val observeStreak: ObserveStreak,
+    private val previewIntervals: PreviewIntervals,
 ) : FeedUseCases {
 
     override fun observeStreak() = observeStreak.invoke()
@@ -37,4 +39,6 @@ class DomainFeedUseCases @Inject constructor(
     override suspend fun applyAction(post: Post, action: PostAction) = applyPostAction(post, action)
 
     override suspend fun caughtUp() = getCaughtUp()
+
+    override suspend fun previewIntervals(post: Post) = previewIntervals.invoke(post)
 }
