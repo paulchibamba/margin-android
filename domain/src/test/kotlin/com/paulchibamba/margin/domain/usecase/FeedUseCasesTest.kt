@@ -73,6 +73,24 @@ class FeedUseCasesTest {
     }
 
     @Test
+    fun `interval previews come from the scheduler for the concept's card`() = runTest {
+        val progress = learnedProgress()
+        fixture.progress.feedState.value = startingState().withIntroduced(cia, progress = progress)
+
+        val intervals = fixture.previewIntervals(mcqOf(cia))
+
+        val card = checkNotNull(progress.card)
+        assertEquals(fixture.engines.scheduler(0.9).previewIntervals(card, fixture.clock.now()), intervals)
+        assertTrue(intervals.getValue(Rating.AGAIN) < intervals.getValue(Rating.HARD))
+        assertTrue(intervals.getValue(Rating.HARD) < intervals.getValue(Rating.GOOD))
+    }
+
+    @Test
+    fun `a concept with no card has no interval previews`() = runTest {
+        assertTrue(fixture.previewIntervals(mcqOf(cia)).isEmpty())
+    }
+
+    @Test
     fun `the fifth post of the day extends the streak`() = runTest {
         val extended = (1..5).map { fixture.recordPostExit(tipOf(cia), PostExit(5.seconds, true)).isStreakExtended }
 
