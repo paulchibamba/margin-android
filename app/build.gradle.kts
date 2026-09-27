@@ -73,6 +73,7 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(testFixtures(project(":domain")))
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.kotlin.test)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

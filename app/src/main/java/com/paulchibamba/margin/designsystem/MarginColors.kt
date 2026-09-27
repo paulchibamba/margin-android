@@ -25,6 +25,7 @@ object MarginColors {
     val Paper = Color(0xFFF3F0E9)
     val PaperCard = Color(0xFFFBFAF7)
     val PaperDivider = Color(0xFFE8E4DB)
+    val PaperStripe = Color(0xFFDDD9CF)
     val PaperTextStrong = Color(0xFF3D3C39)
     val PaperTextMuted = Color(0xFF5B5A56)
     val PaperTextFaint = Color(0xFF6B6A66)
