@@ -28,6 +28,7 @@ import com.paulchibamba.margin.domain.usecase.ReadingAhead
 import com.paulchibamba.margin.feature.feed.FeedPage
 import com.paulchibamba.margin.feature.feed.FeedPostPage
 import com.paulchibamba.margin.feature.feed.FeedPreviewData
+import com.paulchibamba.margin.feature.feed.PostBodyCallbacks
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertTrue
@@ -59,6 +60,18 @@ class TeachPostFitTest {
     fun `every meme fits at 360 dp`() = assertEveryPostFits(Format.MEME)
 
     @Test
+    fun `every carousel fits at 360 dp`() = assertEveryPostFits(Format.CAROUSEL)
+
+    @Test
+    fun `every versus fits at 360 dp`() = assertEveryPostFits(Format.VERSUS)
+
+    @Test
+    fun `every myth fits at 360 dp`() = assertEveryPostFits(Format.MYTH)
+
+    @Test
+    fun `every checklist fits at 360 dp`() = assertEveryPostFits(Format.CHECKLIST)
+
+    @Test
     fun `every from-the-book post fits at 360 dp`() = assertEveryPageFits(sourcePages())
 
     @Test
@@ -72,14 +85,15 @@ class TeachPostFitTest {
         var current by mutableStateOf(pages.first())
         compose.setContent {
             Box(Modifier.requiredSize(360.dp, 703.dp)) {
-                FeedPostPage(current, 7, null, {}, {}, {}, {}, {})
+                FeedPostPage(current, 7, null, {}, PostBodyCallbacks(), {}, {})
             }
         }
-        pages.forEach { page ->
+        val overflows = pages.mapNotNull { page ->
             current = page
             compose.waitForIdle()
-            assertTrue(overflowOfBody() == 0f, "${page.item.post.content.title} overflows by ${overflowOfBody()} px")
+            overflowOfBody().takeIf { it > 0f }?.let { overflow -> "${page.item.post.content.title} by $overflow px" }
         }
+        assertTrue(overflows.isEmpty(), "Posts that overflow: $overflows")
     }
 
     private fun overflowOfBody(): Float {

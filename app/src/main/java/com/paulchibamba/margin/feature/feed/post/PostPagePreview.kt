@@ -7,6 +7,7 @@ import com.paulchibamba.margin.domain.model.PostContent
 import com.paulchibamba.margin.domain.usecase.ReadingAhead
 import com.paulchibamba.margin.feature.feed.FeedPostPage
 import com.paulchibamba.margin.feature.feed.FeedPreviewData
+import com.paulchibamba.margin.feature.feed.PostBodyCallbacks
 
 @Composable
 internal fun PostPagePreview(
@@ -20,8 +21,7 @@ internal fun PostPagePreview(
         streak = 7,
         nudge = null,
         onAction = {},
-        onReadSource = {},
-        onReadAhead = {},
+        callbacks = PostBodyCallbacks(),
         onMore = {},
         onNudgeDismiss = {},
     )

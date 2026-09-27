@@ -35,6 +35,7 @@ fun FeedScreen(
     onPageLeft: (Int, Duration) -> Unit,
     onAction: (Int, PostAction) -> Unit,
     onReadAhead: (Int) -> Unit,
+    onEngaged: (Int) -> Unit,
     onReadOn: (NextNote) -> Unit,
     onMore: () -> Unit,
     onSheetDismiss: () -> Unit,
@@ -52,7 +53,20 @@ fun FeedScreen(
             beyondViewportPageCount = 1,
             key = { index -> pageKeyOf(state, index) },
         ) { index ->
-            FeedPagerPage(state, index, onAction, onReadAhead, onReadOn, onMore, onNudgeDismiss, onCaughtUpShown)
+            FeedPagerPage(
+                state = state,
+                index = index,
+                onAction = onAction,
+                callbacks = PostBodyCallbacks(
+                    onReadSource = { onAction(index, PostAction.READ) },
+                    onReadAhead = { onReadAhead(index) },
+                    onEngaged = { onEngaged(index) },
+                ),
+                onReadOn = onReadOn,
+                onMore = onMore,
+                onNudgeDismiss = onNudgeDismiss,
+                onCaughtUpShown = onCaughtUpShown,
+            )
         }
         state.sheetPage?.let { page -> WhyThisPostSheet(page.item, onSheetDismiss) }
     }
@@ -63,7 +77,7 @@ private fun FeedPagerPage(
     state: FeedUiState,
     index: Int,
     onAction: (Int, PostAction) -> Unit,
-    onReadAhead: (Int) -> Unit,
+    callbacks: PostBodyCallbacks,
     onReadOn: (NextNote) -> Unit,
     onMore: () -> Unit,
     onNudgeDismiss: () -> Unit,
@@ -79,8 +93,7 @@ private fun FeedPagerPage(
         streak = state.streak,
         nudge = state.nudgeOn(index),
         onAction = { action -> onAction(index, action) },
-        onReadSource = { onAction(index, PostAction.READ) },
-        onReadAhead = { onReadAhead(index) },
+        callbacks = callbacks,
         onMore = onMore,
         onNudgeDismiss = onNudgeDismiss,
         modifier = Modifier.testTag("feed-page-$index"),
@@ -126,6 +139,7 @@ private fun FeedScreenPreviewOf(state: FeedUiState) {
         onPageLeft = { _, _ -> },
         onAction = { _, _ -> },
         onReadAhead = {},
+        onEngaged = {},
         onReadOn = {},
         onMore = {},
         onSheetDismiss = {},

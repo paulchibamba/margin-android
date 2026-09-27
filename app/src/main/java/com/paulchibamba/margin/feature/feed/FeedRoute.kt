@@ -25,6 +25,7 @@ fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = 
             else viewModel.onAction(index, action)
         },
         onReadAhead = { index -> readAhead(state, index, onOpenNote) },
+        onEngaged = viewModel::onEngaged,
         onReadOn = { next -> onOpenNote(next.outline.id, null) },
         onMore = viewModel::onMore,
         onSheetDismiss = viewModel::onSheetDismiss,

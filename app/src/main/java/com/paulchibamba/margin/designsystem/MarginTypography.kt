@@ -22,7 +22,9 @@ object MarginTypography {
     val noteTitle = geist(FontWeight.Bold, 16.sp)
 
     val body = geist(FontWeight.Normal, 17.sp, lineHeight = 1.5.em)
+    val slide = geist(FontWeight.SemiBold, 20.sp, lineHeight = 1.35.em, letterSpacing = (-0.01).em)
     val teaser = geist(FontWeight.Normal, 16.sp, lineHeight = 1.5.em)
+    val bubble = geist(FontWeight.Normal, 14.sp, lineHeight = 1.4.em)
     val bodySmall = geist(FontWeight.Normal, 15.sp, lineHeight = 1.5.em)
     val callout = geist(FontWeight.SemiBold, 15.sp, lineHeight = 1.4.em)
     val cardTitle = geist(FontWeight.Bold, 15.sp, lineHeight = 1.3.em)
