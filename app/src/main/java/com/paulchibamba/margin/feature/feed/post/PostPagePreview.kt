@@ -15,9 +15,11 @@ internal fun PostPagePreview(
     content: PostContent,
     source: CandidateSource = CandidateSource.NEW,
     readingAhead: ReadingAhead? = null,
+    response: TestResponse? = null,
 ) {
+    val page = FeedPreviewData.page(skin, content, source, readingAhead)
     FeedPostPage(
-        page = FeedPreviewData.page(skin, content, source, readingAhead),
+        page = page.copy(answer = response?.let { FeedPreviewData.answerTo(content, it) }),
         streak = 7,
         nudge = null,
         onAction = {},
