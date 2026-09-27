@@ -12,6 +12,7 @@ import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.model.PostId
+import com.paulchibamba.margin.placeholder.FeedChromeDemoScreen
 import com.paulchibamba.margin.placeholder.PlaceholderLink
 import com.paulchibamba.margin.placeholder.PlaceholderScreen
 
@@ -27,16 +28,11 @@ fun MarginNavHost(navController: NavHostController, modifier: Modifier = Modifie
 private fun NavGraphBuilder.feedGraph(navController: NavHostController) {
     navigation<TabGraph.Feed>(startDestination = MarginDestination.Feed) {
         composable<MarginDestination.Feed> {
-            PlaceholderScreen(
-                title = "Feed",
-                skin = Skins.Ink,
-                links = listOf(
-                    PlaceholderLink("Open a note from a post") {
-                        navController.navigate(MarginDestination.Note.of(NoteId(PLACEHOLDER_NOTE), PostId("post")))
-                    },
-                    PlaceholderLink("Settings") { navController.navigate(MarginDestination.Settings) },
-                    PlaceholderLink("Stats") { navController.navigate(MarginDestination.Stats) },
-                ),
+            FeedChromeDemoScreen(
+                onMoreClick = { navController.navigate(MarginDestination.Settings) },
+                onReadClick = {
+                    navController.navigate(MarginDestination.Note.of(NoteId(PLACEHOLDER_NOTE), PostId("post")))
+                },
             )
         }
     }
@@ -80,7 +76,12 @@ private fun NavGraphBuilder.secondaryDestinations(navController: NavHostControll
         PlaceholderScreen("Note$origin", Skins.Paper, onBack = navController::navigateUp)
     }
     composable<MarginDestination.Settings> {
-        PlaceholderScreen("Settings", Skins.Paper, onBack = navController::navigateUp)
+        PlaceholderScreen(
+            title = "Settings",
+            skin = Skins.Paper,
+            onBack = navController::navigateUp,
+            links = listOf(PlaceholderLink("Stats") { navController.navigate(MarginDestination.Stats) }),
+        )
     }
     composable<MarginDestination.Stats> {
         PlaceholderScreen("Stats", Skins.Paper, onBack = navController::navigateUp)
