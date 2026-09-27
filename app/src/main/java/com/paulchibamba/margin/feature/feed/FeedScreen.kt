@@ -20,6 +20,7 @@ import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.usecase.NextNote
+import com.paulchibamba.margin.feature.feed.post.TestResponse
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.time.Duration
 import kotlin.time.TimeMark
@@ -36,6 +37,7 @@ fun FeedScreen(
     onAction: (Int, PostAction) -> Unit,
     onReadAhead: (Int) -> Unit,
     onEngaged: (Int) -> Unit,
+    onRespond: (Int, TestResponse) -> Unit,
     onReadOn: (NextNote) -> Unit,
     onMore: () -> Unit,
     onSheetDismiss: () -> Unit,
@@ -61,6 +63,7 @@ fun FeedScreen(
                     onReadSource = { onAction(index, PostAction.READ) },
                     onReadAhead = { onReadAhead(index) },
                     onEngaged = { onEngaged(index) },
+                    onRespond = { response -> onRespond(index, response) },
                 ),
                 onReadOn = onReadOn,
                 onMore = onMore,
@@ -140,6 +143,7 @@ private fun FeedScreenPreviewOf(state: FeedUiState) {
         onAction = { _, _ -> },
         onReadAhead = {},
         onEngaged = {},
+        onRespond = { _, _ -> },
         onReadOn = {},
         onMore = {},
         onSheetDismiss = {},

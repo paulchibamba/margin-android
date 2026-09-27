@@ -59,4 +59,25 @@ class FeedLabelsTest {
     fun `a next note that unlocks nothing only shows its reading time`() {
         assertEquals("~1 min", nextNoteDetail(1.minutes, unlockedPosts = 0))
     }
+
+    @Test
+    fun `when a concept comes back reads in minutes, hours or days`() {
+        assertEquals("~10 min", approximateIntervalLabel(10.minutes))
+        assertEquals("~5 h", approximateIntervalLabel(5.hours))
+        assertEquals("~1 day", approximateIntervalLabel(1.days))
+        assertEquals("~6 days", approximateIntervalLabel(6.days))
+    }
+
+    @Test
+    fun `a grade interval under a minute still reads as a minute`() {
+        assertEquals("~1 min", approximateIntervalLabel(20.seconds))
+        assertEquals("1m", shortIntervalLabel(20.seconds))
+    }
+
+    @Test
+    fun `grade button intervals are short`() {
+        assertEquals("10m", shortIntervalLabel(10.minutes))
+        assertEquals("3h", shortIntervalLabel(3.hours))
+        assertEquals("2d", shortIntervalLabel(2.days))
+    }
 }

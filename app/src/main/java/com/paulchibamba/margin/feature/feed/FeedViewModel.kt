@@ -6,8 +6,12 @@ import com.paulchibamba.margin.designsystem.SkinRotation
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.FeedItem
 import com.paulchibamba.margin.domain.feed.FeedResult
-import com.paulchibamba.margin.domain.signals.AnswerOutcome
+import com.paulchibamba.margin.domain.memory.Rating
+import com.paulchibamba.margin.domain.repository.Clock
+import com.paulchibamba.margin.domain.signals.ExpectedReadTime
+import com.paulchibamba.margin.domain.signals.GradeMapper
 import com.paulchibamba.margin.domain.signals.PostExit
+import com.paulchibamba.margin.feature.feed.post.TestResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,11 +23,18 @@ import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.toKotlinDuration
+import java.time.Duration as JavaDuration
 
 @HiltViewModel
-class FeedViewModel @Inject constructor(private val useCases: FeedUseCases, random: Random) : ViewModel() {
+class FeedViewModel @Inject constructor(
+    private val useCases: FeedUseCases,
+    random: Random,
+    private val clock: Clock,
+) : ViewModel() {
 
     private val skinRotation = SkinRotation(random)
+    private val gradeMapper = GradeMapper()
     private val pageLoading = Mutex()
     private val state = MutableStateFlow(FeedUiState())
     val uiState: StateFlow<FeedUiState> = state.asStateFlow()
@@ -37,20 +48,30 @@ class FeedViewModel @Inject constructor(private val useCases: FeedUseCases, rand
 
     fun onPageEntered(index: Int) {
         state.update { it.copy(currentIndex = index, nudge = it.nudgeOn(index)) }
+        updatePage(index) { it.copy(enteredAt = clock.now()) }
+        loadIntervals(index)
         loadPagesAhead()
     }
 
-    fun onPageLeft(index: Int, dwell: Duration, isEngaged: Boolean = false, answer: AnswerOutcome? = null) {
+    fun onPageLeft(index: Int, dwell: Duration, isEngaged: Boolean = false) {
         val page = state.value.pages.getOrNull(index) ?: return
         if (page.isExitRecorded) return
         updatePage(index) { it.copy(isExitRecorded = true) }
         val exit = PostExit(
             dwell = dwell,
-            isEngaged = isEngaged || page.isEngaged || page.viewState.isEngagedByAction,
-            answer = answer,
+            isEngaged = isEngaged || page.isEngaged || page.answer != null || page.viewState.isEngagedByAction,
+            answer = page.answer?.outcome,
             isMarkedLess = page.viewState.isMarkedLess,
+            timeToAnswer = page.answer?.timeToAnswer,
         )
         viewModelScope.launch { useCases.recordExit(page.item.post, exit) }
+    }
+
+    fun onRespond(index: Int, response: TestResponse) {
+        val page = state.value.pages.getOrNull(index)?.takeIf { it.answer == null } ?: return
+        val answer = answerOf(page, response) ?: return
+        updatePage(index) { it.copy(answer = answer) }
+        showWhenSeenAgain(index, page, answer.rating)
     }
 
     fun onEngaged(index: Int) {
@@ -85,6 +106,35 @@ class FeedViewModel @Inject constructor(private val useCases: FeedUseCases, rand
         viewModelScope.launch {
             pageLoading.withLock { if (state.value.isCaughtUp) appendNext() }
             loadPagesAhead()
+        }
+    }
+
+    private fun answerOf(page: FeedPage, response: TestResponse): TestAnswer? {
+        val content = page.item.post.content
+        val outcome = response.outcomeFor(content) ?: return null
+        val timeToAnswer = timeOnPage(page)
+        val rating = gradeMapper.gradeFor(outcome, timeToAnswer, ExpectedReadTime.of(content))
+        return TestAnswer(response, outcome, timeToAnswer, rating)
+    }
+
+    private fun timeOnPage(page: FeedPage): Duration {
+        val enteredAt = page.enteredAt ?: return Duration.ZERO
+        return JavaDuration.between(enteredAt, clock.now()).toKotlinDuration()
+    }
+
+    private fun showWhenSeenAgain(index: Int, page: FeedPage, rating: Rating) {
+        viewModelScope.launch {
+            val intervals = page.intervals.ifEmpty { useCases.previewIntervals(page.item.post) }
+            val interval = intervals[rating] ?: return@launch
+            state.update { it.copy(nudge = FeedNudge.seeAgain(index, interval, page.context)) }
+        }
+    }
+
+    private fun loadIntervals(index: Int) {
+        val page = state.value.pages.getOrNull(index)?.takeIf { it.isTest && it.answer == null } ?: return
+        viewModelScope.launch {
+            val intervals = useCases.previewIntervals(page.item.post)
+            updatePage(index) { it.copy(intervals = intervals) }
         }
     }
 

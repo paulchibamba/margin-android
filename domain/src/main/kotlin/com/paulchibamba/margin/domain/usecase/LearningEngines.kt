@@ -22,6 +22,6 @@ class LearningEngines @Inject constructor(private val random: Random, private va
     fun exitHandler(retention: Double): PostExitHandler =
         PostExitHandler(EngagementCalculator(), GradeMapper(), scheduler(retention))
 
-    private fun scheduler(retention: Double): FsrsScheduler =
+    fun scheduler(retention: Double): FsrsScheduler =
         FsrsScheduler(FsrsParameters.Default.copy(requestRetention = retention), fuzz)
 }

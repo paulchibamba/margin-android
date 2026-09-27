@@ -34,7 +34,7 @@ import org.junit.Test
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
-class TeachPostFitTest {
+class PostFitTest {
 
     @get:Rule
     val compose = createComposeRule()
@@ -70,6 +70,24 @@ class TeachPostFitTest {
 
     @Test
     fun `every checklist fits at 360 dp`() = assertEveryPostFits(Format.CHECKLIST)
+
+    @Test
+    fun `every quiz fits at 360 dp`() = assertEveryPostFits(Format.MCQ)
+
+    @Test
+    fun `every scenario fits at 360 dp`() = assertEveryPostFits(Format.SCENARIO)
+
+    @Test
+    fun `every spot the bug fits at 360 dp`() = assertEveryPostFits(Format.SPOT_BUG)
+
+    @Test
+    fun `every true or false fits at 360 dp`() = assertEveryPostFits(Format.TRUE_FALSE)
+
+    @Test
+    fun `every recall fits at 360 dp`() = assertEveryPostFits(Format.RECALL)
+
+    @Test
+    fun `every fill the gap fits at 360 dp`() = assertEveryPostFits(Format.FILL_BLANK)
 
     @Test
     fun `every from-the-book post fits at 360 dp`() = assertEveryPageFits(sourcePages())

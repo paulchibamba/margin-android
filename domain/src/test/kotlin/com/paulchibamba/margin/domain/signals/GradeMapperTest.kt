@@ -45,6 +45,20 @@ class GradeMapperTest {
     }
 
     @Test
+    fun `a right answer is graded by the time it took to answer, not the time on the page`() {
+        val exit = answered(AnswerOutcome.Correct, 40.seconds).copy(timeToAnswer = 4.seconds)
+
+        assertEquals(Rating.GOOD, mapper.gradeFor(exit, expected))
+    }
+
+    @Test
+    fun `a right answer that took more than twice the reading time to give is hard however soon the page is left`() {
+        val exit = answered(AnswerOutcome.Correct, 12.seconds).copy(timeToAnswer = 11.seconds)
+
+        assertEquals(Rating.HARD, mapper.gradeFor(exit, expected))
+    }
+
+    @Test
     fun `leaving without answering gives no grade`() {
         assertNull(mapper.gradeFor(PostExit(dwell = 3.seconds, isEngaged = false), expected))
     }

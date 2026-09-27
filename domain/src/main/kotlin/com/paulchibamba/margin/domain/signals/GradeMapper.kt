@@ -5,14 +5,16 @@ import kotlin.time.Duration
 
 class GradeMapper(private val hardFactor: Double = DEFAULT_HARD_FACTOR) {
 
-    fun gradeFor(exit: PostExit, expected: Duration): Rating? = when (val answer = exit.answer) {
-        null -> null
+    fun gradeFor(exit: PostExit, expected: Duration): Rating? =
+        exit.answer?.let { answer -> gradeFor(answer, exit.timeToAnswer ?: exit.dwell, expected) }
+
+    fun gradeFor(answer: AnswerOutcome, timeToAnswer: Duration, expected: Duration): Rating = when (answer) {
         is AnswerOutcome.SelfGraded -> answer.rating
         AnswerOutcome.Wrong -> Rating.AGAIN
-        AnswerOutcome.Correct -> if (isSlow(exit.dwell, expected)) Rating.HARD else Rating.GOOD
+        AnswerOutcome.Correct -> if (isSlow(timeToAnswer, expected)) Rating.HARD else Rating.GOOD
     }
 
-    private fun isSlow(dwell: Duration, expected: Duration): Boolean = dwell > expected * hardFactor
+    private fun isSlow(timeToAnswer: Duration, expected: Duration): Boolean = timeToAnswer > expected * hardFactor
 
     companion object {
         const val DEFAULT_HARD_FACTOR = 2.0

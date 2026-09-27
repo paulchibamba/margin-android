@@ -7,4 +7,5 @@ data class PostExit(
     val isEngaged: Boolean,
     val answer: AnswerOutcome? = null,
     val isMarkedLess: Boolean = false,
+    val timeToAnswer: Duration? = null,
 )
