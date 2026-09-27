@@ -15,6 +15,16 @@ class FeedLabelsTest {
     }
 
     @Test
+    fun `a bare chapter number before the title is dropped`() {
+        assertEquals("Ch 1 · Know your enemy", chapterLabel(1, "1 Know your enemy"))
+    }
+
+    @Test
+    fun `a title that starts with a number is not a chapter number`() {
+        assertEquals("Ch 5 · 2FA in practice", chapterLabel(5, "2FA in practice"))
+    }
+
+    @Test
     fun `a chapter title without a prefix is kept whole`() {
         assertEquals("Ch 4 · XSS", chapterLabel(4, "XSS"))
     }

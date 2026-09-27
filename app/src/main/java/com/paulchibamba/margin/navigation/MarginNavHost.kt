@@ -10,8 +10,8 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.feature.feed.FeedRoute
+import com.paulchibamba.margin.feature.read.book.BookRoute
 import com.paulchibamba.margin.feature.read.home.ReadHomeRoute
-import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.placeholder.PlaceholderLink
 import com.paulchibamba.margin.placeholder.PlaceholderScreen
 
@@ -41,22 +41,13 @@ private fun NavGraphBuilder.readGraph(navController: NavHostController) {
                 onOpenSettings = { navController.navigate(MarginDestination.Settings) },
             )
         }
-        composable<MarginDestination.Book> { entry -> BookPlaceholder(entry.toRoute(), navController) }
+        composable<MarginDestination.Book> {
+            BookRoute(
+                onBack = navController::navigateUp,
+                onOpenNote = { note -> navController.navigate(MarginDestination.Note.of(note)) },
+            )
+        }
     }
-}
-
-@Composable
-private fun BookPlaceholder(book: MarginDestination.Book, navController: NavHostController) {
-    PlaceholderScreen(
-        title = "Book · ${book.bookSlug.value}",
-        skin = Skins.Paper,
-        onBack = navController::navigateUp,
-        links = listOf(
-            PlaceholderLink("Open a note") {
-                navController.navigate(MarginDestination.Note.of(NoteId(PLACEHOLDER_NOTE)))
-            },
-        ),
-    )
 }
 
 private fun NavGraphBuilder.secondaryDestinations(navController: NavHostController) {
@@ -78,4 +69,3 @@ private fun NavGraphBuilder.secondaryDestinations(navController: NavHostControll
     }
 }
 
-private const val PLACEHOLDER_NOTE = "placeholder-note"

@@ -11,7 +11,8 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-private val CHAPTER_PREFIX = Regex("""^\s*chapter\s+\d+\s*[:.\-–—]?\s*""", RegexOption.IGNORE_CASE)
+private val CHAPTER_PREFIX =
+    Regex("""^\s*(chapter\s+\d+\s*[:.\-–—]?|\d+[:.\-–—]?\s)\s*""", RegexOption.IGNORE_CASE)
 
 fun Format.label(): String = when (this) {
     Format.CAROUSEL -> "Carousel"
@@ -62,9 +63,11 @@ fun CardState.label(): String = when (this) {
 }
 
 fun chapterLabel(number: Int, title: String): String {
-    val shortTitle = title.replace(CHAPTER_PREFIX, "").trim()
+    val shortTitle = shortChapterTitle(title)
     return if (shortTitle.isEmpty()) "Ch $number" else "Ch $number · $shortTitle"
 }
+
+fun shortChapterTitle(title: String): String = title.replace(CHAPTER_PREFIX, "").trim()
 
 fun readingTimeLabel(readingTime: Duration): String = "~${wholeMinutesOf(readingTime)} min"
 
