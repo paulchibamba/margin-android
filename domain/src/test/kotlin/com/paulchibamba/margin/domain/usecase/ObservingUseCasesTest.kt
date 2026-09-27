@@ -3,6 +3,11 @@ package com.paulchibamba.margin.domain.usecase
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.Confidence
 import com.paulchibamba.margin.domain.feed.appSec
+import com.paulchibamba.margin.domain.progression.ReadingState
+import com.paulchibamba.margin.domain.model.Priority
+import com.paulchibamba.margin.domain.model.BookSettings
+import com.paulchibamba.margin.domain.feed.postsOf
+import com.paulchibamba.margin.domain.feed.aiSecurity
 import com.paulchibamba.margin.domain.feed.cia
 import com.paulchibamba.margin.domain.feed.defenceInDepth
 import com.paulchibamba.margin.domain.feed.grokking
@@ -36,9 +41,48 @@ class ObservingUseCasesTest {
 
         val home = fixture.observeReadingHome().first()
 
-        assertEquals(noteId(appSec, 1, 1), home.continueNote?.id)
+        assertEquals(noteId(appSec, 1, 1), home.continueNote?.outline?.id)
         val appSecTally = home.books.first { it.book == appSec }.tally
         assertEquals(NoteTally(notesRead = 1, noteCount = 4, timeLeft = 3.minutes), appSecTally)
+    }
+
+    @Test
+    fun `the reading home continues at the last note when it is still unread`() = runTest {
+        fixture.progress.reading.value = ReadingState(lastNote = noteId(grokking, 1, 0))
+
+        assertEquals(noteId(grokking, 1, 0), fixture.observeReadingHome().first().continueNote?.outline?.id)
+    }
+
+    @Test
+    fun `with no last note the reading home continues at the main book's first unread note`() = runTest {
+        fixture.progress.reading.value = ReadingState(knownChapters = setOf(ChapterRef(appSec.slug, 1)))
+
+        assertEquals(noteId(appSec, 2, 0), fixture.observeReadingHome().first().continueNote?.outline?.id)
+    }
+
+    @Test
+    fun `the continue note knows its place in the chapter and the posts it unlocks`() = runTest {
+        fixture.markNoteRead(noteId(appSec, 1, 0))
+
+        val continueNote = fixture.observeReadingHome().first().continueNote
+
+        assertEquals(PlaceInChapter(order = 2, noteCount = 2), continueNote?.place)
+        assertEquals(postsOf(leastPrivilege).size, continueNote?.unlockedPosts)
+        assertEquals("Chapter 1", continueNote?.chapterTitle)
+    }
+
+    @Test
+    fun `the reading home lists active books by priority before inactive ones`() = runTest {
+        fixture.settings.bookSettings.value = listOf(
+            BookSettings(appSec.slug, isActive = true, priority = Priority.NORMAL),
+            BookSettings(grokking.slug, isActive = true, priority = Priority.MAIN),
+            BookSettings(aiSecurity.slug, isActive = false, priority = Priority.LOW),
+        )
+
+        val books = fixture.observeReadingHome().first().books
+
+        assertEquals(listOf(grokking, appSec, aiSecurity), books.map { it.book })
+        assertEquals(listOf(true, true, false), books.map { it.isActive })
     }
 
     @Test

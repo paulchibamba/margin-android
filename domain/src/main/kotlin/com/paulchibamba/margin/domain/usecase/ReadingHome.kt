@@ -1,5 +1,3 @@
 package com.paulchibamba.margin.domain.usecase
 
-import com.paulchibamba.margin.domain.model.NoteOutline
-
-data class ReadingHome(val continueNote: NoteOutline?, val books: List<BookReading>)
+data class ReadingHome(val continueNote: ContinueNote?, val books: List<BookReading>)
