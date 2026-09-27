@@ -10,4 +10,5 @@ data class PostContext(
     val chapterTitle: String,
     val completion: BookCompletion,
     val sourceNote: NoteId?,
+    val readingAhead: ReadingAhead? = null,
 )
