@@ -17,6 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +32,7 @@ import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.domain.model.PostContent
 
 private val CodeCardShape = RoundedCornerShape(18.dp)
+private val CODE_FADE_WIDTH = 28.dp
 
 @Composable
 fun CodeExamplePost(content: PostContent.CodeExample, modifier: Modifier = Modifier) {
@@ -49,14 +54,32 @@ private fun CodeCard(code: String, verdict: CodeVerdict?) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         verdict?.let { VerdictTag(it) }
-        Text(
-            code,
-            Modifier.horizontalScroll(rememberScrollState()),
-            style = MarginTypography.code,
-            color = MarginColors.CodeText,
-            softWrap = false,
-        )
+        ScrollingCode(code)
     }
+}
+
+@Composable
+private fun ScrollingCode(code: String) {
+    val scroll = rememberScrollState()
+    Text(
+        code,
+        Modifier.fadeRightEdge(isVisible = scroll.canScrollForward).horizontalScroll(scroll),
+        style = MarginTypography.code,
+        color = MarginColors.CodeText,
+        softWrap = false,
+    )
+}
+
+private fun Modifier.fadeRightEdge(isVisible: Boolean): Modifier = drawWithContent {
+    drawContent()
+    if (!isVisible) return@drawWithContent
+    val fadeWidth = CODE_FADE_WIDTH.toPx()
+    val left = size.width - fadeWidth
+    drawRect(
+        Brush.horizontalGradient(listOf(Color.Transparent, MarginColors.InkText), startX = left, endX = size.width),
+        topLeft = Offset(left, 0f),
+        size = Size(fadeWidth, size.height),
+    )
 }
 
 @Composable
