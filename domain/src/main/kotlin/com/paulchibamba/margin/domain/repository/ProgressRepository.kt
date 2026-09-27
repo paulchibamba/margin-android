@@ -30,6 +30,7 @@ interface ProgressRepository {
     fun observeReading(): Flow<ReadingState>
     suspend fun markNoteRead(note: NoteId, at: Instant): Boolean
     suspend fun markChapterKnown(chapter: ChapterRef, at: Instant)
+    suspend fun unmarkChapterKnown(chapter: ChapterRef)
 
     fun observeActivity(): Flow<List<DailyActivity>>
     suspend fun addActivity(date: LocalDate, postsSeen: Int, notesRead: Int): ActivityChange

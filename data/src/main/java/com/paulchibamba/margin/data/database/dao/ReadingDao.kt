@@ -20,6 +20,9 @@ interface ReadingDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun markChapterKnown(chapterKnown: ChapterKnownEntity)
 
+    @Query("DELETE FROM chapter_known WHERE bookSlug = :bookSlug AND chapter = :chapter")
+    suspend fun unmarkChapterKnown(bookSlug: String, chapter: Int)
+
     @Query("SELECT * FROM chapter_known")
     fun chaptersKnown(): Flow<List<ChapterKnownEntity>>
 }
