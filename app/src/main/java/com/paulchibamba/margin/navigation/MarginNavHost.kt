@@ -9,10 +9,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.paulchibamba.margin.designsystem.Skins
+import com.paulchibamba.margin.feature.feed.FeedRoute
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.NoteId
-import com.paulchibamba.margin.domain.model.PostId
-import com.paulchibamba.margin.placeholder.FeedChromeDemoScreen
 import com.paulchibamba.margin.placeholder.PlaceholderLink
 import com.paulchibamba.margin.placeholder.PlaceholderScreen
 
@@ -28,12 +27,7 @@ fun MarginNavHost(navController: NavHostController, modifier: Modifier = Modifie
 private fun NavGraphBuilder.feedGraph(navController: NavHostController) {
     navigation<TabGraph.Feed>(startDestination = MarginDestination.Feed) {
         composable<MarginDestination.Feed> {
-            FeedChromeDemoScreen(
-                onMoreClick = { navController.navigate(MarginDestination.Settings) },
-                onReadClick = {
-                    navController.navigate(MarginDestination.Note.of(NoteId(PLACEHOLDER_NOTE), PostId("post")))
-                },
-            )
+            FeedRoute(onOpenNote = { note, post -> navController.navigate(MarginDestination.Note.of(note, post)) })
         }
     }
 }

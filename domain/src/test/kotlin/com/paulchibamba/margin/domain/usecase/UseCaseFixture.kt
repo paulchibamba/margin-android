@@ -24,4 +24,6 @@ class UseCaseFixture {
     val observeStats = ObserveStats(content, progress)
     val updateBookSettings = UpdateBookSettings(settings)
     val consumeNewBadges = ConsumeNewBadges(content, progress, settings, lock)
+    val describePost = DescribePost(content, progress, settings)
+    val getCaughtUp = GetCaughtUp(content, progress, settings, clock)
 }

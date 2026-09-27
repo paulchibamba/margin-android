@@ -14,8 +14,10 @@ object MarginColors {
     val Ink = Color(0xFF0D0D11)
     val InkText = Color(0xFF141414)
     val InkRaised = Color(0xFF1A1A20)
+    val InkSheet = Color(0xFF17171C)
     val InkButton = Color(0xFF1C1C22)
     val InkCard = Color(0xFF24242B)
+    val InkStripe = Color(0xFF23232A)
     val InkSnackbar = Color(0xFF2A2A31)
     val White = Color(0xFFFFFFFF)
 

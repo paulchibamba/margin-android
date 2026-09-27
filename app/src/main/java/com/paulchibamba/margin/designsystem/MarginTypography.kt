@@ -17,6 +17,9 @@ object MarginTypography {
     val quizQuestion = geist(FontWeight.Bold, 20.sp, lineHeight = 1.25.em, letterSpacing = (-0.015).em)
     val wordmark = geist(FontWeight.ExtraBold, 17.sp, letterSpacing = (-0.04).em)
     val conceptTitle = geist(FontWeight.Bold, 16.sp, lineHeight = 1.25.em, letterSpacing = (-0.01).em)
+    val sheetTitle = geist(FontWeight.Bold, 19.sp)
+    val tileValue = geist(FontWeight.Bold, 17.sp)
+    val noteTitle = geist(FontWeight.Bold, 16.sp)
 
     val body = geist(FontWeight.Normal, 17.sp, lineHeight = 1.5.em)
     val bodySmall = geist(FontWeight.Normal, 15.sp, lineHeight = 1.5.em)
@@ -36,6 +39,8 @@ object MarginTypography {
     val navLabelActive = geist(FontWeight.Bold, 12.sp)
     val meta = geist(FontWeight.Medium, 11.5.sp)
     val pill = geist(FontWeight.SemiBold, 11.5.sp)
+    val chip = geist(FontWeight.SemiBold, 12.sp)
+    val footnote = geist(FontWeight.Medium, 12.5.sp)
     val railLabel = geist(FontWeight.SemiBold, 11.sp)
 
     val mono = style(MarginFonts.GeistMono, FontWeight.Medium, 12.sp)
