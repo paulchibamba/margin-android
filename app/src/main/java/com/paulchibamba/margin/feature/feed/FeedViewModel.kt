@@ -46,11 +46,15 @@ class FeedViewModel @Inject constructor(private val useCases: FeedUseCases, rand
         updatePage(index) { it.copy(isExitRecorded = true) }
         val exit = PostExit(
             dwell = dwell,
-            isEngaged = isEngaged || page.viewState.isEngagedByAction,
+            isEngaged = isEngaged || page.isEngaged || page.viewState.isEngagedByAction,
             answer = answer,
             isMarkedLess = page.viewState.isMarkedLess,
         )
         viewModelScope.launch { useCases.recordExit(page.item.post, exit) }
+    }
+
+    fun onEngaged(index: Int) {
+        updatePage(index) { it.copy(isEngaged = true) }
     }
 
     fun onAction(index: Int, action: PostAction) {

@@ -18,9 +18,13 @@ import com.paulchibamba.margin.designsystem.component.FeedTopBar
 import com.paulchibamba.margin.designsystem.component.NudgeAction
 import com.paulchibamba.margin.designsystem.component.NudgeCard
 import com.paulchibamba.margin.designsystem.component.PostCaption
+import com.paulchibamba.margin.designsystem.component.SegmentProgress
 import com.paulchibamba.margin.domain.actions.Nudge
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.CandidateSource
+import com.paulchibamba.margin.domain.model.PostContent
+import com.paulchibamba.margin.feature.feed.post.CarouselState
+import com.paulchibamba.margin.feature.feed.post.rememberCarouselState
 import kotlinx.coroutines.delay
 
 private const val SNACKBAR_MILLIS = 4_000L
@@ -31,19 +35,19 @@ fun FeedPostPage(
     streak: Int,
     nudge: FeedNudge?,
     onAction: (PostAction) -> Unit,
-    onReadSource: () -> Unit,
-    onReadAhead: () -> Unit,
+    callbacks: PostBodyCallbacks,
     onMore: () -> Unit,
     onNudgeDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarNudge = nudge?.takeIf { it.kind == Nudge.TEST_COMING_SOON }
     SnackbarTimeout(snackbarNudge, onNudgeDismiss)
+    val carousel = rememberCarouselState(page.item.post.id, slideCountOf(page))
     MarginTheme(page.skin) {
         FeedLayout(
-            topBar = { FeedTopBar(streak = streak, segments = null, onMoreClick = onMore) },
-            body = { PostBody(page, onReadSource, onReadAhead) },
-            caption = { PageCaption(page, nudge, onReadSource, onNudgeDismiss) },
+            topBar = { FeedTopBar(streak = streak, segments = segmentsOf(page, carousel), onMoreClick = onMore) },
+            body = { PostBody(page, carousel, callbacks) },
+            caption = { PageCaption(page, nudge, callbacks.onReadSource, onNudgeDismiss) },
             rail = { ActionRail(railStateOf(page), onAction) },
             modifier = modifier.fillMaxSize().background(page.skin.background),
             isSnackbarVisible = snackbarNudge != null,
@@ -98,6 +102,12 @@ private fun SnackbarTimeout(nudge: FeedNudge?, onTimeout: () -> Unit) {
     }
 }
 
+private fun slideCountOf(page: FeedPage): Int =
+    (page.item.post.content as? PostContent.Carousel)?.slides?.size ?: 1
+
+private fun segmentsOf(page: FeedPage, carousel: CarouselState): SegmentProgress? =
+    carousel.segments.takeIf { page.item.post.content is PostContent.Carousel && !page.isLockedPreview }
+
 private fun railStateOf(page: FeedPage): ActionRailState {
     val unavailable = if (page.context.sourceNote == null) setOf(PostAction.READ) else emptySet()
     return ActionRailState.of(page.viewState, unavailable)
@@ -106,19 +116,19 @@ private fun railStateOf(page: FeedPage): ActionRailState {
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun FeedPostPageInkPreview() {
-    FeedPostPage(FeedPreviewData.page(Skins.Ink), 7, null, {}, {}, {}, {}, {})
+    FeedPostPage(FeedPreviewData.page(Skins.Ink), 7, null, {}, PostBodyCallbacks(), {}, {})
 }
 
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun FeedPostPageLostPreview() {
     val nudge = FeedNudge.of(0, Nudge.ANOTHER_ANGLE_COMING, "CORS")
-    FeedPostPage(FeedPreviewData.page(Skins.Cobalt, lost = true), 7, nudge, {}, {}, {}, {}, {})
+    FeedPostPage(FeedPreviewData.page(Skins.Cobalt, lost = true), 7, nudge, {}, PostBodyCallbacks(), {}, {})
 }
 
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun FeedPostPageGotItPreview() {
     val nudge = FeedNudge.of(0, Nudge.TEST_COMING_SOON, "Server-side validation")
-    FeedPostPage(FeedPreviewData.page(Skins.Paper), 7, nudge, {}, {}, {}, {}, {})
+    FeedPostPage(FeedPreviewData.page(Skins.Paper), 7, nudge, {}, PostBodyCallbacks(), {}, {})
 }

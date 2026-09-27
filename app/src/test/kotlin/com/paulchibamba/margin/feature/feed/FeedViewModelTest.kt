@@ -86,6 +86,26 @@ class FeedViewModelTest {
     }
 
     @Test
+    fun `an interaction reported by the post counts as engagement when the page is left`() {
+        val viewModel = feedViewModel()
+        viewModel.onEngaged(0)
+
+        viewModel.onPageLeft(0, 4.seconds)
+
+        assertTrue(useCases.exits.single().second.isEngaged)
+    }
+
+    @Test
+    fun `an interaction on one page does not engage the next`() {
+        val viewModel = feedViewModel()
+        viewModel.onEngaged(0)
+
+        viewModel.onPageLeft(1, 4.seconds)
+
+        assertFalse(useCases.exits.single().second.isEngaged)
+    }
+
+    @Test
     fun `leaving a page without acting records an unengaged exit`() {
         val viewModel = feedViewModel()
 
