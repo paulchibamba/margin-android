@@ -24,6 +24,7 @@ fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = 
             if (action == PostAction.READ) readSource(state, index, viewModel, onOpenNote)
             else viewModel.onAction(index, action)
         },
+        onReadAhead = { index -> readAhead(state, index, onOpenNote) },
         onReadOn = { next -> onOpenNote(next.outline.id, null) },
         onMore = viewModel::onMore,
         onSheetDismiss = viewModel::onSheetDismiss,
@@ -41,5 +42,11 @@ private fun readSource(
     val page = state.pages.getOrNull(index) ?: return
     val note = page.context.sourceNote ?: return
     viewModel.onReadSource(index)
+    onOpenNote(note, page.item.post.id)
+}
+
+private fun readAhead(state: FeedUiState, index: Int, onOpenNote: (NoteId, PostId?) -> Unit) {
+    val page = state.pages.getOrNull(index) ?: return
+    val note = page.context.readingAhead?.firstNote ?: return
     onOpenNote(note, page.item.post.id)
 }

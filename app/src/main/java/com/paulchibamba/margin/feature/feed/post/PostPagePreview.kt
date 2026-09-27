@@ -1,0 +1,28 @@
+package com.paulchibamba.margin.feature.feed.post
+
+import androidx.compose.runtime.Composable
+import com.paulchibamba.margin.designsystem.Skin
+import com.paulchibamba.margin.domain.feed.CandidateSource
+import com.paulchibamba.margin.domain.model.PostContent
+import com.paulchibamba.margin.domain.usecase.ReadingAhead
+import com.paulchibamba.margin.feature.feed.FeedPostPage
+import com.paulchibamba.margin.feature.feed.FeedPreviewData
+
+@Composable
+internal fun PostPagePreview(
+    skin: Skin,
+    content: PostContent,
+    source: CandidateSource = CandidateSource.NEW,
+    readingAhead: ReadingAhead? = null,
+) {
+    FeedPostPage(
+        page = FeedPreviewData.page(skin, content, source, readingAhead),
+        streak = 7,
+        nudge = null,
+        onAction = {},
+        onReadSource = {},
+        onReadAhead = {},
+        onMore = {},
+        onNudgeDismiss = {},
+    )
+}

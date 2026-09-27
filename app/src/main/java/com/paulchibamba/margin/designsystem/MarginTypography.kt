@@ -22,6 +22,7 @@ object MarginTypography {
     val noteTitle = geist(FontWeight.Bold, 16.sp)
 
     val body = geist(FontWeight.Normal, 17.sp, lineHeight = 1.5.em)
+    val teaser = geist(FontWeight.Normal, 16.sp, lineHeight = 1.5.em)
     val bodySmall = geist(FontWeight.Normal, 15.sp, lineHeight = 1.5.em)
     val callout = geist(FontWeight.SemiBold, 15.sp, lineHeight = 1.4.em)
     val cardTitle = geist(FontWeight.Bold, 15.sp, lineHeight = 1.3.em)
@@ -40,6 +41,7 @@ object MarginTypography {
     val meta = geist(FontWeight.Medium, 11.5.sp)
     val pill = geist(FontWeight.SemiBold, 11.5.sp)
     val chip = geist(FontWeight.SemiBold, 12.sp)
+    val sticker = geist(FontWeight.Bold, 12.sp)
     val footnote = geist(FontWeight.Medium, 12.5.sp)
     val railLabel = geist(FontWeight.SemiBold, 11.sp)
 

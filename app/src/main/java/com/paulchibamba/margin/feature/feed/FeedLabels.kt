@@ -65,8 +65,13 @@ fun chapterLabel(number: Int, title: String): String {
     return if (shortTitle.isEmpty()) "Ch $number" else "Ch $number · $shortTitle"
 }
 
-fun readingTimeLabel(readingTime: Duration): String =
-    "~${ceil(readingTime.inWholeSeconds / 60.0).toInt().coerceAtLeast(1)} min"
+fun readingTimeLabel(readingTime: Duration): String = "~${wholeMinutesOf(readingTime)} min"
+
+fun readToUnlockLabel(readingTime: Duration): String = "Read to unlock · ${wholeMinutesOf(readingTime)} min"
+
+fun notesAheadLabel(noteCount: Int): String = if (noteCount == 1) "1 note ahead" else "$noteCount notes ahead"
+
+private fun wholeMinutesOf(duration: Duration): Int = ceil(duration.inWholeSeconds / 60.0).toInt().coerceAtLeast(1)
 
 fun dueInLabel(dueIn: Duration): String = when {
     dueIn < 1.minutes -> "in under a minute"

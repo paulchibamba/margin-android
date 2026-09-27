@@ -2,6 +2,7 @@ package com.paulchibamba.margin.domain.usecase
 
 import com.paulchibamba.margin.domain.feed.appSec
 import com.paulchibamba.margin.domain.feed.cia
+import com.paulchibamba.margin.domain.feed.defenceInDepth
 import com.paulchibamba.margin.domain.feed.introducedProgress
 import com.paulchibamba.margin.domain.feed.leastPrivilege
 import com.paulchibamba.margin.domain.feed.noteId
@@ -16,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 class FeedPageUseCasesTest {
 
@@ -41,6 +43,27 @@ class FeedPageUseCasesTest {
         val post = tipOf(cia).copy(content = PostContent.Source("Section", "The book's words.", sourceNote))
 
         assertEquals(sourceNote, fixture.describePost(post).sourceNote)
+    }
+
+    @Test
+    fun `a concept past the frontier counts the notes and minutes left to read up to it`() = runTest {
+        fixture.progress.reading.value = ReadingState(readNotes = setOf(cia.sourceNoteId!!))
+
+        val ahead = fixture.describePost(tipOf(defenceInDepth)).readingAhead
+
+        assertEquals(ReadingAhead(leastPrivilege.sourceNoteId!!, noteCount = 3, readingTime = 3.minutes), ahead)
+    }
+
+    @Test
+    fun `a concept already read up to has nothing ahead`() = runTest {
+        fixture.progress.reading.value = ReadingState(readNotes = setOf(leastPrivilege.sourceNoteId!!))
+
+        assertNull(fixture.describePost(tipOf(cia)).readingAhead)
+    }
+
+    @Test
+    fun `with nothing read the first concept is one note ahead`() = runTest {
+        assertEquals(1, fixture.describePost(tipOf(cia)).readingAhead?.noteCount)
     }
 
     @Test

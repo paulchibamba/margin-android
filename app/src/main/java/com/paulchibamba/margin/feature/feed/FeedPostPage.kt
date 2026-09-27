@@ -32,6 +32,7 @@ fun FeedPostPage(
     nudge: FeedNudge?,
     onAction: (PostAction) -> Unit,
     onReadSource: () -> Unit,
+    onReadAhead: () -> Unit,
     onMore: () -> Unit,
     onNudgeDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -41,7 +42,7 @@ fun FeedPostPage(
     MarginTheme(page.skin) {
         FeedLayout(
             topBar = { FeedTopBar(streak = streak, segments = null, onMoreClick = onMore) },
-            body = { PostBody(page.item.post.content) },
+            body = { PostBody(page, onReadSource, onReadAhead) },
             caption = { PageCaption(page, nudge, onReadSource, onNudgeDismiss) },
             rail = { ActionRail(railStateOf(page), onAction) },
             modifier = modifier.fillMaxSize().background(page.skin.background),
@@ -105,19 +106,19 @@ private fun railStateOf(page: FeedPage): ActionRailState {
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun FeedPostPageInkPreview() {
-    FeedPostPage(FeedPreviewData.page(Skins.Ink), 7, null, {}, {}, {}, {})
+    FeedPostPage(FeedPreviewData.page(Skins.Ink), 7, null, {}, {}, {}, {}, {})
 }
 
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun FeedPostPageLostPreview() {
     val nudge = FeedNudge.of(0, Nudge.ANOTHER_ANGLE_COMING, "CORS")
-    FeedPostPage(FeedPreviewData.page(Skins.Cobalt, lost = true), 7, nudge, {}, {}, {}, {})
+    FeedPostPage(FeedPreviewData.page(Skins.Cobalt, lost = true), 7, nudge, {}, {}, {}, {}, {})
 }
 
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun FeedPostPageGotItPreview() {
     val nudge = FeedNudge.of(0, Nudge.TEST_COMING_SOON, "Server-side validation")
-    FeedPostPage(FeedPreviewData.page(Skins.Paper), 7, nudge, {}, {}, {}, {})
+    FeedPostPage(FeedPreviewData.page(Skins.Paper), 7, nudge, {}, {}, {}, {}, {})
 }

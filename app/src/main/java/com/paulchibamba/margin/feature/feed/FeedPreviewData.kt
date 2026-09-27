@@ -21,6 +21,7 @@ import com.paulchibamba.margin.domain.rewards.BookCompletion
 import com.paulchibamba.margin.domain.usecase.CaughtUp
 import com.paulchibamba.margin.domain.usecase.NextNote
 import com.paulchibamba.margin.domain.usecase.PostContext
+import com.paulchibamba.margin.domain.usecase.ReadingAhead
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -74,5 +75,11 @@ internal object FeedPreviewData {
         context = context,
         skin = skin,
         viewState = if (lost) PostViewState(setOf(PostAction.LOST)) else PostViewState(),
+    )
+
+    fun page(skin: Skin, content: PostContent, source: CandidateSource, readingAhead: ReadingAhead?) = FeedPage(
+        item = item.copy(post = item.post.copy(content = content), source = source),
+        context = context.copy(readingAhead = readingAhead),
+        skin = skin,
     )
 }

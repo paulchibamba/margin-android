@@ -25,6 +25,17 @@ class FeedLabelsTest {
     }
 
     @Test
+    fun `the unlock label names the whole minutes of reading left`() {
+        assertEquals("Read to unlock · 3 min", readToUnlockLabel(150.seconds))
+    }
+
+    @Test
+    fun `one note ahead is singular`() {
+        assertEquals("1 note ahead", notesAheadLabel(1))
+        assertEquals("3 notes ahead", notesAheadLabel(3))
+    }
+
+    @Test
     fun `reading time rounds up to whole minutes, at least one`() {
         assertEquals("~1 min", readingTimeLabel(40.seconds))
         assertEquals("~2 min", readingTimeLabel(70.seconds))
