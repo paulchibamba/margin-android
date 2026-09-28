@@ -5,6 +5,7 @@ import com.paulchibamba.margin.data.database.MetaKey
 import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.data.repository.mapper.SettingsMapper
 import com.paulchibamba.margin.data.startup.StartupInitializer
+import com.paulchibamba.margin.domain.memory.DesiredRetention
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.progression.ReadingOnlyChapters
@@ -43,14 +44,12 @@ class RoomSettingsRepository @Inject constructor(
         settingsDao.replaceReadingOnlyChapters(book.value, chapters.sorted())
     }
 
-    override suspend fun desiredRetention(): Double =
-        database.metaDao().get(MetaKey.DESIRED_RETENTION)?.toDoubleOrNull() ?: DEFAULT_RETENTION
+    override suspend fun desiredRetention(): Double = observeDesiredRetention().first()
+
+    override fun observeDesiredRetention(): Flow<Double> = database.metaDao().observe(MetaKey.DESIRED_RETENTION)
+        .map { stored -> stored?.toDoubleOrNull() ?: DesiredRetention.DEFAULT }
 
     override suspend fun setDesiredRetention(retention: Double) {
         database.metaDao().put(listOf(MetaEntity(MetaKey.DESIRED_RETENTION, retention.toString())))
-    }
-
-    private companion object {
-        const val DEFAULT_RETENTION = 0.9
     }
 }
