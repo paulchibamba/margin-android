@@ -32,6 +32,7 @@ fun SettingsScreen(
     onBookSettingsChange: (BookSettings) -> Unit,
     onRetentionChange: (Double) -> Unit,
     onRetentionChangeFinished: () -> Unit,
+    onReviewReminderChange: (Boolean) -> Unit,
     onOpenReadingOnlyChapters: () -> Unit,
     onOpenStats: () -> Unit,
     modifier: Modifier = Modifier,
@@ -53,6 +54,8 @@ fun SettingsScreen(
                 SectionTitle("Memory", Modifier.padding(start = 4.dp, top = 4.dp))
                 RetentionCard(state.retention, onRetentionChange, onRetentionChangeFinished)
                 SettingsLinksCard(onOpenReadingOnlyChapters, onOpenStats)
+                SectionTitle("Reminders", Modifier.padding(start = 4.dp, top = 4.dp))
+                ReviewReminderCard(state.isReviewReminderOn, onReviewReminderChange)
             }
         }
     }
@@ -78,6 +81,7 @@ private fun SettingsScreenPreview() {
         onBookSettingsChange = {},
         onRetentionChange = {},
         onRetentionChangeFinished = {},
+        onReviewReminderChange = {},
         onOpenReadingOnlyChapters = {},
         onOpenStats = {},
     )

@@ -12,6 +12,7 @@ import com.paulchibamba.margin.domain.usecase.FakeContentRepository
 import com.paulchibamba.margin.domain.usecase.FakeSettingsRepository
 import com.paulchibamba.margin.domain.usecase.ObserveLearningSettings
 import com.paulchibamba.margin.domain.usecase.SetDesiredRetention
+import com.paulchibamba.margin.domain.usecase.SetReviewReminder
 import com.paulchibamba.margin.domain.usecase.UpdateBookSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +37,7 @@ class SettingsViewModelTest {
     private val fourthBook = Book(BookSlug("threat-modeling"), "Threat Modeling")
     private val content = FakeContentRepository(books = listOf(appSec, grokking, aiSecurity, fourthBook))
     private val settings = FakeSettingsRepository(defaultSettings + BookSettings(fourthBook.slug, false, Priority.LOW))
+    private val scheduler = FakeReminderScheduler()
 
     @Before
     fun setUp() {
@@ -95,11 +97,35 @@ class SettingsViewModelTest {
         assertEquals(0.93, settings.retention.value)
     }
 
+    @Test
+    fun `turning the review reminder on saves it and schedules the daily check`() = runTest {
+        val viewModel = settingsViewModel()
+
+        viewModel.onReviewReminderChange(true)
+
+        assertTrue(viewModel.loadedState().isReviewReminderOn)
+        assertTrue(settings.reviewReminder.value)
+        assertTrue(scheduler.isScheduled)
+    }
+
+    @Test
+    fun `turning the review reminder off cancels the daily check`() = runTest {
+        val viewModel = settingsViewModel()
+        viewModel.onReviewReminderChange(true)
+
+        viewModel.onReviewReminderChange(false)
+
+        assertFalse(viewModel.loadedState().isReviewReminderOn)
+        assertFalse(scheduler.isScheduled)
+    }
+
     private fun TestScope.settingsViewModel(): SettingsViewModel {
         val viewModel = SettingsViewModel(
             ObserveLearningSettings(content, settings),
             UpdateBookSettings(settings),
             SetDesiredRetention(settings),
+            SetReviewReminder(settings),
+            scheduler,
         )
         backgroundScope.launch { viewModel.uiState.collect() }
         return viewModel
