@@ -75,6 +75,15 @@ class DebugClockViewModelTest {
         assertEquals("1 concept is due", viewModel.uiState.value.dueCountLabel)
     }
 
+    @Test
+    fun `showing the tools again forgets the last due count`() {
+        viewModel.onShowDueCount()
+
+        viewModel.onShown()
+
+        assertNull(viewModel.uiState.value.dueCount)
+    }
+
     private fun cardDueIn(duration: Duration): ConceptProgress {
         val due = systemClock.instant.plus(duration.toJavaDuration())
         return ConceptProgress(introducedAtStep = 1, card = MemoryCard.new(systemClock.instant).copy(due = due))

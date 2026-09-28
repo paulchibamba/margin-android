@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +51,7 @@ private const val SCRIM_ALPHA = 0.55f
 fun WhyThisPostSheet(item: FeedItem, onDismiss: () -> Unit, debugTools: DebugToolsSlot? = null) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = debugTools != null),
         shape = SheetShape,
         containerColor = MarginColors.InkSheet,
         contentColor = MarginColors.White,

@@ -22,6 +22,8 @@ class DebugClockViewModel @Inject constructor(
     private val state = MutableStateFlow(DebugClockUiState(offset = clock.offset))
     val uiState: StateFlow<DebugClockUiState> = state.asStateFlow()
 
+    fun onShown() = showOffset()
+
     fun onAdvance(by: Duration) {
         clock.advance(by)
         showOffset()

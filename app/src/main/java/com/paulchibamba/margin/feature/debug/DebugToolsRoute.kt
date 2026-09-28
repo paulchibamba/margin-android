@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.feature.debug
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -13,6 +14,7 @@ fun DebugToolsRoute(
     viewModel: DebugClockViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(viewModel) { viewModel.onShown() }
     DebugToolsSection(
         state = state,
         onAdvance = { duration ->
