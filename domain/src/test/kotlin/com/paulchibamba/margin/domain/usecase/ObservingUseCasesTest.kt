@@ -2,6 +2,7 @@ package com.paulchibamba.margin.domain.usecase
 
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.Confidence
+import com.paulchibamba.margin.domain.feed.ReviewLogEntry
 import com.paulchibamba.margin.domain.feed.aiSecurity
 import com.paulchibamba.margin.domain.feed.appSec
 import com.paulchibamba.margin.domain.feed.cia
@@ -12,13 +13,16 @@ import com.paulchibamba.margin.domain.feed.introducedProgress
 import com.paulchibamba.margin.domain.feed.learnedCard
 import com.paulchibamba.margin.domain.feed.leastPrivilege
 import com.paulchibamba.margin.domain.feed.noteId
+import com.paulchibamba.margin.domain.feed.now
 import com.paulchibamba.margin.domain.feed.postsOf
 import com.paulchibamba.margin.domain.feed.readingOnlyIntro
 import com.paulchibamba.margin.domain.feed.tipOf
 import com.paulchibamba.margin.domain.feed.withIntroduced
 import com.paulchibamba.margin.domain.memory.CardState
+import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.ChapterRef
+import com.paulchibamba.margin.domain.model.Concept
 import com.paulchibamba.margin.domain.model.NotePosition
 import com.paulchibamba.margin.domain.model.Priority
 import com.paulchibamba.margin.domain.progression.ReadingState
@@ -27,6 +31,7 @@ import com.paulchibamba.margin.domain.rewards.BadgeKind
 import com.paulchibamba.margin.domain.rewards.StreakDayStatus
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -179,9 +184,22 @@ class ObservingUseCasesTest {
 
         assertEquals(mapOf(PostAction.LOST to 1), stats.actionCounts)
         assertEquals(listOf(cia), stats.lostConcepts)
-        assertEquals(NotePosition(1, 0), stats.frontiers[grokking.slug])
-        assertEquals(null, stats.frontiers[appSec.slug])
+        assertEquals(BookFrontier(grokking, NotePosition(1, 0)), stats.frontiers.single { it.book == grokking })
+        assertEquals(BookFrontier(appSec, null), stats.frontiers.single { it.book == appSec })
         assertEquals(1, stats.postsSeen)
+    }
+
+    @Test
+    fun `stats report the day streak and review accuracy`() = runTest {
+        fixture.markNoteRead(noteId(appSec, 1, 0))
+        fixture.progress.appendReview(reviewOf(cia, Rating.AGAIN))
+        fixture.progress.appendReview(reviewOf(cia, Rating.GOOD))
+
+        val stats = fixture.observeStats().first()
+
+        assertEquals(1, stats.currentStreak)
+        assertEquals(0.5, stats.reviewAccuracy)
+        assertEquals(LocalDate.parse("2026-10-01"), stats.date)
     }
 
     @Test
@@ -216,4 +234,7 @@ class ObservingUseCasesTest {
         val kinds = fixture.consumeNewBadges().map { it.kind }.toSet()
         assertEquals(setOf(BadgeKind.INTRODUCED, BadgeKind.REMEMBERED), kinds)
     }
+
+    private fun reviewOf(concept: Concept, rating: Rating) =
+        ReviewLogEntry(now, concept.id, tipOf(concept).id, rating, CardState.REVIEW, 1.0, 2.0, dwell = null)
 }

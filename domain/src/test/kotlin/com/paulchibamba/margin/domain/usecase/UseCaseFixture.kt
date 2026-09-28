@@ -26,7 +26,7 @@ class UseCaseFixture {
     val observeReadingHome = ObserveReadingHome(content, progress, settings, unlockedPostCount)
     val observeBook = ObserveBook(content, progress, settings)
     val observeStreak = ObserveStreak(progress, clock)
-    val observeStats = ObserveStats(content, progress)
+    val observeStats = ObserveStats(content, progress, clock)
     val updateBookSettings = UpdateBookSettings(settings)
     val observeLearningSettings = ObserveLearningSettings(content, settings)
     val setDesiredRetention = SetDesiredRetention(settings)
