@@ -35,4 +35,5 @@ class UseCaseFixture {
     val describePost = DescribePost(content, progress, settings)
     val getCaughtUp = GetCaughtUp(content, progress, settings, clock, unlockedPostCount)
     val previewIntervals = PreviewIntervals(stateSource, settings, engines, clock)
+    val countDueReviews = CountDueReviews(progress, clock)
 }

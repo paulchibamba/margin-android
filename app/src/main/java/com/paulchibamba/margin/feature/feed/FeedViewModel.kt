@@ -102,7 +102,11 @@ class FeedViewModel @Inject constructor(
         state.update { it.copy(nudge = null) }
     }
 
-    fun onCaughtUpShown() {
+    fun onCaughtUpShown() = retryWhenCaughtUp()
+
+    fun onClockChanged() = retryWhenCaughtUp()
+
+    private fun retryWhenCaughtUp() {
         viewModelScope.launch {
             pageLoading.withLock { if (state.value.isCaughtUp) appendNext() }
             loadPagesAhead()

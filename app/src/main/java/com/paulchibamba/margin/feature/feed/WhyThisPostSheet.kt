@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,21 +48,27 @@ private const val SCRIM_ALPHA = 0.55f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WhyThisPostSheet(item: FeedItem, onDismiss: () -> Unit) {
+fun WhyThisPostSheet(item: FeedItem, onDismiss: () -> Unit, debugTools: DebugToolsSlot? = null) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = debugTools != null),
         shape = SheetShape,
         containerColor = MarginColors.InkSheet,
         contentColor = MarginColors.White,
         scrimColor = Color.Black.copy(alpha = SCRIM_ALPHA),
         dragHandle = { DragHandle() },
     ) {
-        WhyThisPostContent(item, onClose = onDismiss)
+        WhyThisPostContent(item, onClose = onDismiss, debugTools = debugTools)
     }
 }
 
 @Composable
-fun WhyThisPostContent(item: FeedItem, onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun WhyThisPostContent(
+    item: FeedItem,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+    debugTools: DebugToolsSlot? = null,
+) {
     Column(
         modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 30.dp).navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -71,6 +78,7 @@ fun WhyThisPostContent(item: FeedItem, onClose: () -> Unit, modifier: Modifier =
         ScoreBars(item)
         MemoryTiles(item.memory)
         FiltersPassed(item.appliedFilters)
+        debugTools?.invoke(Modifier.padding(top = 8.dp))
     }
 }
 
