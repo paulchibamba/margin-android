@@ -16,6 +16,7 @@ import com.paulchibamba.margin.domain.model.ChapterRef
 import com.paulchibamba.margin.domain.signals.AnswerOutcome
 import com.paulchibamba.margin.domain.signals.PostExit
 import kotlinx.coroutines.test.runTest
+import java.time.temporal.ChronoUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -95,6 +96,20 @@ class FeedUseCasesTest {
         val extended = (1..5).map { fixture.recordPostExit(tipOf(cia), PostExit(5.seconds, true)).isStreakExtended }
 
         assertEquals(listOf(false, false, false, false, true), extended)
+    }
+
+    @Test
+    fun `the streak extends once a day however the day is kept`() = runTest {
+        val firstDay = (1..6).map { fixture.recordPostExit(tipOf(cia), PostExit(5.seconds, true)).isStreakExtended }
+        val noteOnFirstDay = fixture.markNoteRead(noteId(appSec, 1, 0)).isStreakExtended
+        fixture.clock.instant = fixture.clock.instant.plus(1, ChronoUnit.DAYS)
+        val noteOnNextDay = fixture.markNoteRead(noteId(appSec, 1, 1)).isStreakExtended
+        val postOnNextDay = fixture.recordPostExit(tipOf(cia), PostExit(5.seconds, true)).isStreakExtended
+
+        assertEquals(1, firstDay.count { it })
+        assertFalse(noteOnFirstDay)
+        assertTrue(noteOnNextDay)
+        assertFalse(postOnNextDay)
     }
 
     @Test

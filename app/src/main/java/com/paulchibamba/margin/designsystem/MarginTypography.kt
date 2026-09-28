@@ -14,6 +14,7 @@ object MarginTypography {
     val postHeadline = geist(FontWeight.ExtraBold, 40.sp, lineHeight = 1.02.em, letterSpacing = (-0.035).em)
     val postTitle = geist(FontWeight.ExtraBold, 32.sp, lineHeight = 1.05.em, letterSpacing = (-0.03).em)
     val homeTitle = geist(FontWeight.ExtraBold, 30.sp, letterSpacing = (-0.03).em)
+    val badgeTitle = geist(FontWeight.ExtraBold, 36.sp, lineHeight = 1.em, letterSpacing = (-0.035).em)
     val screenTitle = geist(FontWeight.ExtraBold, 26.sp, lineHeight = 1.1.em, letterSpacing = (-0.025).em)
     val quizQuestion = geist(FontWeight.Bold, 20.sp, lineHeight = 1.25.em, letterSpacing = (-0.015).em)
     val prompt = geist(FontWeight.ExtraBold, 24.sp, lineHeight = 1.1.em, letterSpacing = (-0.03).em)
@@ -30,6 +31,8 @@ object MarginTypography {
     val noteTitle = geist(FontWeight.Bold, 16.sp)
 
     val body = geist(FontWeight.Normal, 17.sp, lineHeight = 1.5.em)
+    val celebrationDetail = geist(FontWeight.Normal, 14.sp, lineHeight = 1.5.em)
+    val celebrationBook = geist(FontWeight.SemiBold, 16.sp)
     val slide = geist(FontWeight.SemiBold, 20.sp, lineHeight = 1.35.em, letterSpacing = (-0.01).em)
     val teaser = geist(FontWeight.Normal, 16.sp, lineHeight = 1.5.em)
     val bubble = geist(FontWeight.Normal, 14.sp, lineHeight = 1.4.em)
@@ -63,6 +66,8 @@ object MarginTypography {
     val footnote = geist(FontWeight.Medium, 12.5.sp)
     val tag = geist(FontWeight.SemiBold, 10.5.sp)
     val railLabel = geist(FontWeight.SemiBold, 11.sp)
+    val weekDay = geist(FontWeight.Medium, 11.sp)
+    val weekDayToday = geist(FontWeight.Bold, 11.sp)
 
     val mono = style(MarginFonts.GeistMono, FontWeight.Medium, 12.sp)
     val monoStrong = style(MarginFonts.GeistMono, FontWeight.SemiBold, 12.sp)
@@ -71,6 +76,7 @@ object MarginTypography {
     val code = style(MarginFonts.GeistMono, FontWeight.Medium, 12.sp, lineHeight = 1.6.em)
     val monoLarge = style(MarginFonts.GeistMono, FontWeight.SemiBold, 19.sp)
     val monoValue = style(MarginFonts.GeistMono, FontWeight.Bold, 15.sp)
+    val badgeEyebrow = style(MarginFonts.GeistMono, FontWeight.SemiBold, 12.sp, letterSpacing = 0.1.em)
 
     val bookText = style(MarginFonts.Newsreader, FontWeight.Normal, 18.sp, lineHeight = 1.6.em)
 

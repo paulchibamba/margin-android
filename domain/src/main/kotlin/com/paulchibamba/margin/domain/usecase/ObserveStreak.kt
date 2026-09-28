@@ -12,6 +12,6 @@ class ObserveStreak @Inject constructor(private val progress: ProgressRepository
     operator fun invoke(): Flow<StreakSummary> = progress.observeActivity().map { activities ->
         val calculator = StreakCalculator(clock.zone())
         val today = calculator.today(clock.now())
-        StreakSummary(calculator.currentStreak(activities, today), calculator.weekStrip(activities, today))
+        StreakSummary(calculator.currentStreak(activities, today), calculator.weekStrip(activities, today), today)
     }
 }

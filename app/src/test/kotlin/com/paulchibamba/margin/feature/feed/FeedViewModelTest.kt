@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import java.time.LocalDate
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -251,7 +252,7 @@ class FeedViewModelTest {
     fun `the streak follows the recorded activity`() {
         val viewModel = feedViewModel()
 
-        useCases.streak.value = StreakSummary(currentStreak = 12, week = emptyList())
+        useCases.streak.value = StreakSummary(currentStreak = 12, week = emptyList(), today = LocalDate.EPOCH)
 
         assertEquals(12, viewModel.uiState.value.streak)
     }

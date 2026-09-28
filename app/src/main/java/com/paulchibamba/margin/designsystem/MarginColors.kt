@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.Color
 
 object MarginColors {
     val Lime = Color(0xFFC5F55A)
+    val BadgeLimeLight = Color(0xFFDBFF8A)
+    val BadgeLimeDeep = Color(0xFF9ED437)
     val DeepLime = Color(0xFF6BA80F)
     val Mint = Color(0xFF6FE3C1)
     val Wrong = Color(0xFFFF6B5E)

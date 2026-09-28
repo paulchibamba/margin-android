@@ -12,6 +12,7 @@ import com.paulchibamba.margin.domain.usecase.MarkNoteRead
 import com.paulchibamba.margin.domain.usecase.NoteReading
 import com.paulchibamba.margin.domain.usecase.ObserveNote
 import com.paulchibamba.margin.domain.usecase.RememberLastNote
+import com.paulchibamba.margin.feature.celebration.CelebrationTrigger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
@@ -44,6 +45,7 @@ class NoteViewModel @Inject constructor(
     observeNote: ObserveNote,
     private val markNoteRead: MarkNoteRead,
     private val rememberLastNote: RememberLastNote,
+    private val celebrations: CelebrationTrigger,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -93,7 +95,9 @@ class NoteViewModel @Inject constructor(
 
     private suspend fun markIfRead(current: NoteReading) {
         if (current.isRead || !readRule.isRead(dwellSinceOpened(), current.note.wordCount)) return
-        withContext(NonCancellable) { markNoteRead(current.note.id) }
+        withContext(NonCancellable) {
+            celebrations.onStreakSignal(markNoteRead(current.note.id).isStreakExtended)
+        }
     }
 
     private fun dwellSinceOpened(): Duration = JavaDuration.between(openedAt, clock.now()).toKotlinDuration()

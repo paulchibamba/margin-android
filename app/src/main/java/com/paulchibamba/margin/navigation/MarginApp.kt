@@ -17,6 +17,7 @@ import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.NavigationBarAppearance
 import com.paulchibamba.margin.designsystem.component.MarginNavigationBar
 import com.paulchibamba.margin.designsystem.component.NavigationTab
+import com.paulchibamba.margin.feature.celebration.CelebrationHost
 
 @Composable
 fun MarginApp(navController: NavHostController = rememberNavController()) {
@@ -26,6 +27,7 @@ fun MarginApp(navController: NavHostController = rememberNavController()) {
     NavigationBarAppearance(isLight = destination?.hasDarkBackground() != true)
     Column(Modifier.fillMaxSize().background(MarginColors.Ink)) {
         MarginNavHost(navController, Modifier.weight(1f))
+        CelebrationHost(onCelebrate = navController::showCelebration)
         if (selectedTab != null) {
             MarginNavigationBar(
                 selectedTab = selectedTab,
@@ -43,8 +45,13 @@ private fun NavDestination.selectedTab(): NavigationTab? = when {
     else -> null
 }
 
-private fun NavDestination.hasDarkBackground(): Boolean =
-    selectedTab() == NavigationTab.Feed || hasRoute<MarginDestination.Stats>()
+private fun NavDestination.hasDarkBackground(): Boolean = selectedTab() == NavigationTab.Feed ||
+    hasRoute<MarginDestination.Stats>() || hasRoute<MarginDestination.Celebration>()
+
+private fun NavHostController.showCelebration() {
+    val destination = currentDestination ?: return
+    if (!destination.hasRoute<MarginDestination.Celebration>()) navigate(MarginDestination.Celebration)
+}
 
 private fun NavHostController.navigateToTab(tab: NavigationTab) {
     val graph: TabGraph = when (tab) {
