@@ -9,4 +9,7 @@ sealed interface TabGraph {
 
     @Serializable
     data object Read : TabGraph
+
+    @Serializable
+    data object Settings : TabGraph
 }

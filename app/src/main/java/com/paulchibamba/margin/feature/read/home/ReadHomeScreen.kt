@@ -30,7 +30,6 @@ fun ReadHomeScreen(
     state: ReadHomeUiState,
     onOpenBook: (BookSlug) -> Unit,
     onOpenNote: (NoteId) -> Unit,
-    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     MarginTheme(Skins.Paper) {
@@ -44,7 +43,7 @@ fun ReadHomeScreen(
                 .padding(start = 18.dp, top = 10.dp, end = 18.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            ReadHomeHeader(state.streak, onOpenSettings)
+            ReadHomeHeader(state.streak)
             if (!state.isLoading) ReadHomeContent(state, onOpenBook, onOpenNote)
         }
     }
@@ -75,13 +74,13 @@ private fun BookRings(rings: List<BookRingState>, onOpenBook: (BookSlug) -> Unit
 @Preview(widthDp = 360, heightDp = 703)
 @Composable
 private fun ReadHomeThreeBooksPreview() {
-    ReadHomeScreen(ReadHomePreviewData.threeBooks, onOpenBook = {}, onOpenNote = {}, onOpenSettings = {})
+    ReadHomeScreen(ReadHomePreviewData.threeBooks, onOpenBook = {}, onOpenNote = {})
 }
 
 @Preview(widthDp = 360, heightDp = 703)
 @Composable
 private fun ReadHomeOneBookPreview() {
-    ReadHomeScreen(ReadHomePreviewData.oneBook, onOpenBook = {}, onOpenNote = {}, onOpenSettings = {})
+    ReadHomeScreen(ReadHomePreviewData.oneBook, onOpenBook = {}, onOpenNote = {})
 }
 
 @Preview(widthDp = 360, heightDp = 703)
@@ -91,6 +90,5 @@ private fun ReadHomeAllReadPreview() {
         ReadHomePreviewData.oneBook.copy(continueNote = null),
         onOpenBook = {},
         onOpenNote = {},
-        onOpenSettings = {},
     )
 }

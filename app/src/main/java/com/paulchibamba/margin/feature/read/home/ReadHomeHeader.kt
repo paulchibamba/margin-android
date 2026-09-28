@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +28,7 @@ import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.designsystem.Skins
 
 @Composable
-fun ReadHomeHeader(streak: Int, onOpenSettings: () -> Unit, modifier: Modifier = Modifier) {
+fun ReadHomeHeader(streak: Int, modifier: Modifier = Modifier) {
     Row(
         modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -44,12 +43,7 @@ fun ReadHomeHeader(streak: Int, onOpenSettings: () -> Unit, modifier: Modifier =
                 modifier = Modifier.semantics { heading() },
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            StreakChip(streak)
-            IconButton(onClick = onOpenSettings, modifier = Modifier.size(40.dp)) {
-                Icon(painterResource(MarginIcons.Settings), "Settings", Modifier.size(24.dp), MarginColors.InkText)
-            }
-        }
+        StreakChip(streak)
     }
 }
 
@@ -71,5 +65,5 @@ private fun StreakChip(streak: Int) {
 @Preview(widthDp = 360, backgroundColor = 0xFFF3F0E9, showBackground = true)
 @Composable
 private fun ReadHomeHeaderPreview() {
-    MarginTheme(Skins.Paper) { ReadHomeHeader(streak = 7, onOpenSettings = {}, modifier = Modifier.padding(18.dp)) }
+    MarginTheme(Skins.Paper) { ReadHomeHeader(streak = 7, modifier = Modifier.padding(18.dp)) }
 }

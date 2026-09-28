@@ -15,5 +15,6 @@ interface SettingsRepository {
     suspend fun setReadingOnlyChapters(book: BookSlug, chapters: Set<Int>)
 
     suspend fun desiredRetention(): Double
+    fun observeDesiredRetention(): Flow<Double>
     suspend fun setDesiredRetention(retention: Double)
 }

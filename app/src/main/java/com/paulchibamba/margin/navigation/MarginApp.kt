@@ -29,7 +29,7 @@ fun MarginApp(navController: NavHostController = rememberNavController()) {
             MarginNavigationBar(
                 selectedTab = selectedTab,
                 onTabSelect = navController::navigateToTab,
-                isLight = selectedTab == NavigationTab.Read,
+                isLight = selectedTab != NavigationTab.Feed,
             )
         }
     }
@@ -38,6 +38,7 @@ fun MarginApp(navController: NavHostController = rememberNavController()) {
 private fun NavDestination.selectedTab(): NavigationTab? = when {
     hierarchy.any { it.hasRoute<TabGraph.Feed>() } -> NavigationTab.Feed
     hierarchy.any { it.hasRoute<TabGraph.Read>() } -> NavigationTab.Read
+    hierarchy.any { it.hasRoute<TabGraph.Settings>() } -> NavigationTab.Settings
     else -> null
 }
 
@@ -45,6 +46,7 @@ private fun NavHostController.navigateToTab(tab: NavigationTab) {
     val graph: TabGraph = when (tab) {
         NavigationTab.Feed -> TabGraph.Feed
         NavigationTab.Read -> TabGraph.Read
+        NavigationTab.Settings -> TabGraph.Settings
     }
     navigate(graph) {
         popUpTo(this@navigateToTab.graph.findStartDestination().id) { saveState = true }

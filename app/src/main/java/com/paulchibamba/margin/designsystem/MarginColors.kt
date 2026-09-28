@@ -38,4 +38,6 @@ object MarginColors {
     val CorrectOnLight = Color(0xFF2E7D32)
     val WrongOnLight = Color(0xFFD32F2F)
     val SaveOnLight = Color(0xFFB26A00)
+    val WarningSurface = Color(0xFFFFF1D6)
+    val WarningText = Color(0xFF5B4A1F)
 }
