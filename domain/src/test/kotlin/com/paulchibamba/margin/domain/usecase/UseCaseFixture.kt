@@ -19,6 +19,8 @@ class UseCaseFixture {
     val markNoteRead = MarkNoteRead(progress, clock)
     val markChapterKnown = MarkChapterKnown(progress, clock)
     val unmarkChapterKnown = UnmarkChapterKnown(progress)
+    val observeNote = ObserveNote(content, progress)
+    val rememberLastNote = RememberLastNote(progress)
     val libraryLoader = LibraryLoader(content, progress, settings)
     val unlockedPostCount = UnlockedPostCount(content, settings)
     val observeReadingHome = ObserveReadingHome(content, progress, settings, unlockedPostCount)

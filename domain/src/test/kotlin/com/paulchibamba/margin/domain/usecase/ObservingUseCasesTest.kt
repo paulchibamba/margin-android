@@ -30,6 +30,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
@@ -123,6 +124,39 @@ class ObservingUseCasesTest {
 
         assertEquals(1, completion.introduced)
         assertEquals(3, completion.total)
+    }
+
+    @Test
+    fun `a note knows its place in the chapter and its neighbours across chapters`() = runTest {
+        val reading = fixture.observeNote(noteId(appSec, 1, 1)).first()
+
+        assertEquals(PlaceInChapter(order = 2, noteCount = 2), reading.place)
+        assertEquals(noteId(appSec, 1, 0), reading.previous)
+        assertEquals(noteId(appSec, 2, 0), reading.next)
+        assertEquals("Chapter 1", reading.chapterTitle)
+    }
+
+    @Test
+    fun `a note's read state follows the reading progress`() = runTest {
+        val note = noteId(appSec, 1, 0)
+
+        fixture.markNoteRead(note)
+
+        assertTrue(fixture.observeNote(note).first().isRead)
+    }
+
+    @Test
+    fun `the first and last notes of a book have no neighbour beyond the book`() = runTest {
+        assertNull(fixture.observeNote(noteId(appSec, 1, 0)).first().previous)
+        assertNull(fixture.observeNote(noteId(appSec, 3, 0)).first().next)
+    }
+
+    @Test
+    fun `the reading home continues at the note last opened`() = runTest {
+        fixture.markNoteRead(noteId(appSec, 1, 0))
+        fixture.rememberLastNote(noteId(appSec, 2, 0))
+
+        assertEquals(noteId(appSec, 2, 0), fixture.observeReadingHome().first().continueNote?.outline?.id)
     }
 
     @Test
