@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -36,16 +39,40 @@ fun FeedLayout(
     val railLift by animateFloatAsState(if (isSnackbarVisible) 1f else 0f, label = "rail lift")
     Layout(
         contents = listOf(
-            { Box(Modifier.statusBarsPadding()) { topBar() } },
-            body,
-            { AnimatedVisibility(!isSnackbarVisible, enter = fadeIn(), exit = fadeOut()) { caption() } },
-            rail,
-            { AnimatedVisibility(isSnackbarVisible, enter = snackbarEnter, exit = snackbarExit) { snackbar() } },
+            { ReadingOrder(TOP_BAR_ORDER, Modifier.statusBarsPadding()) { topBar() } },
+            { ReadingOrder(BODY_ORDER) { body() } },
+            {
+                ReadingOrder(CAPTION_ORDER) {
+                    AnimatedVisibility(!isSnackbarVisible, enter = fadeIn(), exit = fadeOut()) { caption() }
+                }
+            },
+            { ReadingOrder(RAIL_ORDER) { rail() } },
+            {
+                ReadingOrder(CAPTION_ORDER) {
+                    AnimatedVisibility(isSnackbarVisible, enter = snackbarEnter, exit = snackbarExit) { snackbar() }
+                }
+            },
         ),
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().semantics { isTraversalGroup = true },
         measurePolicy = FeedLayoutMeasurePolicy(bodyPlacement, railLift),
     )
 }
+
+@Composable
+private fun ReadingOrder(order: Float, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Box(
+        modifier.semantics {
+            isTraversalGroup = true
+            traversalIndex = order
+        },
+        propagateMinConstraints = true,
+    ) { content() }
+}
+
+private const val TOP_BAR_ORDER = 0f
+private const val BODY_ORDER = 1f
+private const val CAPTION_ORDER = 2f
+private const val RAIL_ORDER = 3f
 
 private val snackbarEnter = fadeIn() + slideInVertically { it / 2 }
 private val snackbarExit = fadeOut() + slideOutVertically { it / 2 }

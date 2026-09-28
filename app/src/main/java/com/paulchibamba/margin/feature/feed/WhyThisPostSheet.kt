@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
+import com.paulchibamba.margin.designsystem.component.BarRow
 import com.paulchibamba.margin.domain.feed.FeedItem
 import com.paulchibamba.margin.domain.feed.MemorySnapshot
 import com.paulchibamba.margin.domain.feed.ranking.ScorePart
@@ -119,6 +121,8 @@ private fun Chip(
     )
 }
 
+private val scoreLabelWhite = MarginColors.White.copy(alpha = 0.7f)
+
 @Composable
 private fun ScoreBars(item: FeedItem) {
     val parts = item.score.parts.entries.sortedByDescending { it.value }
@@ -130,13 +134,7 @@ private fun ScoreBars(item: FeedItem) {
 
 @Composable
 private fun ScoreBar(part: ScorePart, value: Double, fraction: Float) {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            part.label(),
-            style = MarginTypography.caption,
-            color = MarginColors.White.copy(alpha = 0.7f),
-            modifier = Modifier.width(72.dp),
-        )
+    BarRow(labelWidth = 72.dp, label = { modifier -> ScoreLabel(part, modifier) }) {
         Box(Modifier.weight(1f).height(8.dp).background(MarginColors.White.copy(alpha = 0.08f), BarShape)) {
             Box(Modifier.fillMaxHeight().fillMaxWidth(fraction).background(MarginColors.Lime, BarShape))
         }
@@ -145,9 +143,15 @@ private fun ScoreBar(part: ScorePart, value: Double, fraction: Float) {
             style = MarginTypography.mono,
             color = MarginColors.White,
             textAlign = TextAlign.End,
-            modifier = Modifier.width(40.dp),
+            softWrap = false,
+            modifier = Modifier.widthIn(min = 40.dp),
         )
     }
+}
+
+@Composable
+private fun ScoreLabel(part: ScorePart, modifier: Modifier) {
+    Text(part.label(), style = MarginTypography.caption, color = scoreLabelWhite, modifier = modifier)
 }
 
 @Composable

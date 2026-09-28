@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.feature.feed
 
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -13,6 +14,7 @@ import com.paulchibamba.margin.domain.model.PostId
 @Composable
 fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    ReportDrawnWhen { state.pages.isNotEmpty() || state.isCaughtUp }
     val pageCount by rememberUpdatedState(state.pageCount)
     val pagerState = rememberPagerState(initialPage = state.currentIndex) { pageCount }
     FeedScreen(

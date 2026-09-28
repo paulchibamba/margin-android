@@ -42,6 +42,14 @@ private fun NoteScreenFromPostPreview() {
     })
 }
 
+@Preview(widthDp = 360, heightDp = 780, fontScale = 2f)
+@Composable
+private fun NoteScreenLargeTextPreview() {
+    NoteScreen(NotePreviewData.fromPost, onBack = {}, onPrevious = {}, onNext = {}, body = { _, bodyModifier ->
+        NotePreviewData.Body(bodyModifier)
+    })
+}
+
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun NoteScreenFromBookPreview() {

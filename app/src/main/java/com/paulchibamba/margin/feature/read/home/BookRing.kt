@@ -24,12 +24,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginTypography
+import com.paulchibamba.margin.designsystem.withFontScaleCap
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.feature.read.StripedCover
 import kotlin.math.roundToInt
@@ -60,7 +62,7 @@ fun BookRing(ring: BookRingState, onClick: () -> Unit, modifier: Modifier = Modi
         }
         Text(
             ring.label,
-            style = MarginTypography.pill,
+            style = MarginTypography.pill.withFontScaleCap().copy(hyphens = Hyphens.Auto),
             color = MarginColors.InkText,
             textAlign = TextAlign.Center,
             maxLines = 2,

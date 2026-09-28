@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginTypography
+import com.paulchibamba.margin.designsystem.withFontScaleCap
 
 private const val INACTIVE_ALPHA = 0.6f
 
@@ -42,7 +44,7 @@ fun MarginNavigationBar(
     Column(modifier.fillMaxWidth().background(colors.background).navigationBarsPadding()) {
         HorizontalDivider(thickness = 1.dp, color = colors.divider)
         Row(
-            Modifier.fillMaxWidth().height(60.dp).selectableGroup(),
+            Modifier.fillMaxWidth().heightIn(min = 60.dp).selectableGroup(),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -70,7 +72,7 @@ private fun NavigationTabItem(
         TabPill(tab, isSelected, colors)
         Spacer(Modifier.height(4.dp))
         val style = if (isSelected) MarginTypography.navLabelActive else MarginTypography.navLabel
-        Text(tab.label, style = style, color = colors.content)
+        Text(tab.label, style = style.withFontScaleCap(), color = colors.content, maxLines = 1, softWrap = false)
     }
 }
 
