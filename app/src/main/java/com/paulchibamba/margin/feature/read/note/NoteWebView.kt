@@ -9,8 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import com.paulchibamba.margin.designsystem.MarginColors
+import kotlin.math.roundToInt
 
 const val NOTE_BASE_URL = "file:///android_asset/pack/"
+private const val PERCENT = 100
 
 @Composable
 fun NoteWebView(html: String, modifier: Modifier = Modifier) {
@@ -30,9 +32,12 @@ fun lockedDownWebView(context: Context): WebView = WebView(context).apply {
     settings.setSupportZoom(true)
     settings.builtInZoomControls = true
     settings.displayZoomControls = false
+    settings.textZoom = textZoomFor(context.resources.configuration.fontScale)
     webViewClient = StayOnNoteClient()
     setBackgroundColor(MarginColors.PaperCard.toArgb())
 }
+
+fun textZoomFor(fontScale: Float): Int = (fontScale * PERCENT).roundToInt()
 
 private fun loadIfChanged(webView: WebView, html: String) {
     if (webView.tag == html) return

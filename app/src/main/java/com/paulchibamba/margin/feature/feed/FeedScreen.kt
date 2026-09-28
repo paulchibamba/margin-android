@@ -158,6 +158,12 @@ private fun FeedScreenPreview() {
     FeedScreenPreviewOf(FeedUiState(pages = listOf(FeedPreviewData.page(Skins.Ink)), streak = 7))
 }
 
+@Preview(widthDp = 360, heightDp = 780, fontScale = 2f)
+@Composable
+private fun FeedScreenLargeTextPreview() {
+    FeedScreenPreviewOf(FeedUiState(pages = listOf(FeedPreviewData.page(Skins.Ink)), streak = 7))
+}
+
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun FeedScreenCaughtUpPreview() {

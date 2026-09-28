@@ -77,6 +77,12 @@ private fun ReadHomeThreeBooksPreview() {
     ReadHomeScreen(ReadHomePreviewData.threeBooks, onOpenBook = {}, onOpenNote = {})
 }
 
+@Preview(widthDp = 360, heightDp = 703, fontScale = 2f)
+@Composable
+private fun ReadHomeLargeTextPreview() {
+    ReadHomeScreen(ReadHomePreviewData.threeBooks, onOpenBook = {}, onOpenNote = {})
+}
+
 @Preview(widthDp = 360, heightDp = 703)
 @Composable
 private fun ReadHomeOneBookPreview() {
