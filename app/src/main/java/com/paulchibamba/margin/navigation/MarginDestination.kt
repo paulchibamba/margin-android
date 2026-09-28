@@ -36,5 +36,8 @@ sealed interface MarginDestination {
     data object Settings : MarginDestination
 
     @Serializable
+    data object ReadingOnlyChapters : MarginDestination
+
+    @Serializable
     data object Stats : MarginDestination
 }

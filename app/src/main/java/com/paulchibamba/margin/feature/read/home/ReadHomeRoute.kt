@@ -11,9 +11,8 @@ import com.paulchibamba.margin.domain.model.NoteId
 fun ReadHomeRoute(
     onOpenBook: (BookSlug) -> Unit,
     onOpenNote: (NoteId) -> Unit,
-    onOpenSettings: () -> Unit,
     viewModel: ReadHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    ReadHomeScreen(state, onOpenBook = onOpenBook, onOpenNote = onOpenNote, onOpenSettings = onOpenSettings)
+    ReadHomeScreen(state, onOpenBook = onOpenBook, onOpenNote = onOpenNote)
 }

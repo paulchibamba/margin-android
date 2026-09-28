@@ -31,7 +31,8 @@ object MarginIcons {
     val Key = R.drawable.ic_key
     val Smartphone = R.drawable.ic_smartphone
     val Fingerprint = R.drawable.ic_fingerprint
-    val Settings = R.drawable.ic_settings
+    val Settings = R.drawable.ic_settings_filled
+    val SettingsOutlined = R.drawable.ic_settings_outlined
     val PlayArrow = R.drawable.ic_play_arrow
     val MoreVert = R.drawable.ic_more_vert
     val Psychology = R.drawable.ic_psychology
@@ -45,9 +46,9 @@ object MarginIcons {
 
     val all: List<Int> = listOf(
         ThumbUp, SentimentStressed, MenuBook, Bookmark, Block, BlockOutlined, LocalFireDepartment, MoreHoriz,
-        PlayCircle, PlayCircleOutlined, AutoStories, AutoStoriesOutlined, Check, CheckCircle, Cancel, Close,
-        Replay, Visibility, Schedule, Lock, ArrowForward, ArrowBack, Autorenew, AutoAwesome, VerifiedUser, Key,
-        Smartphone, Fingerprint, Settings, PlayArrow, MoreVert, Psychology, DoneAll, ChevronLeft, ChevronRight,
-        PinchZoomOut, ContentCopy, IosShare, Warning,
+        PlayCircle, PlayCircleOutlined, AutoStories, AutoStoriesOutlined, Check, CheckCircle, Cancel, Close, Replay,
+        Visibility, Schedule, Lock, ArrowForward, ArrowBack, Autorenew, AutoAwesome, VerifiedUser, Key, Smartphone,
+        Fingerprint, Settings, SettingsOutlined, PlayArrow, MoreVert, Psychology, DoneAll, ChevronLeft,
+        ChevronRight, PinchZoomOut, ContentCopy, IosShare, Warning,
     )
 }

@@ -12,7 +12,8 @@ import com.paulchibamba.margin.feature.feed.FeedRoute
 import com.paulchibamba.margin.feature.read.book.BookRoute
 import com.paulchibamba.margin.feature.read.home.ReadHomeRoute
 import com.paulchibamba.margin.feature.read.note.NoteRoute
-import com.paulchibamba.margin.placeholder.PlaceholderLink
+import com.paulchibamba.margin.feature.settings.SettingsRoute
+import com.paulchibamba.margin.feature.settings.chapters.ReadingOnlyChaptersRoute
 import com.paulchibamba.margin.placeholder.PlaceholderScreen
 
 @Composable
@@ -20,7 +21,8 @@ fun MarginNavHost(navController: NavHostController, modifier: Modifier = Modifie
     NavHost(navController, startDestination = TabGraph.Feed, modifier = modifier) {
         feedGraph(navController)
         readGraph(navController)
-        secondaryDestinations(navController)
+        settingsGraph(navController)
+        composable<MarginDestination.Note> { NoteRoute(onBack = navController::navigateUp) }
     }
 }
 
@@ -38,7 +40,6 @@ private fun NavGraphBuilder.readGraph(navController: NavHostController) {
             ReadHomeRoute(
                 onOpenBook = { book -> navController.navigate(MarginDestination.Book.of(book)) },
                 onOpenNote = { note -> navController.navigate(MarginDestination.Note.of(note)) },
-                onOpenSettings = { navController.navigate(MarginDestination.Settings) },
             )
         }
         composable<MarginDestination.Book> {
@@ -50,18 +51,20 @@ private fun NavGraphBuilder.readGraph(navController: NavHostController) {
     }
 }
 
-private fun NavGraphBuilder.secondaryDestinations(navController: NavHostController) {
-    composable<MarginDestination.Note> { NoteRoute(onBack = navController::navigateUp) }
-    composable<MarginDestination.Settings> {
-        PlaceholderScreen(
-            title = "Settings",
-            skin = Skins.Paper,
-            onBack = navController::navigateUp,
-            links = listOf(PlaceholderLink("Stats") { navController.navigate(MarginDestination.Stats) }),
-        )
-    }
-    composable<MarginDestination.Stats> {
-        PlaceholderScreen("Stats", Skins.Paper, onBack = navController::navigateUp)
+private fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
+    navigation<TabGraph.Settings>(startDestination = MarginDestination.Settings) {
+        composable<MarginDestination.Settings> {
+            SettingsRoute(
+                onOpenReadingOnlyChapters = { navController.navigate(MarginDestination.ReadingOnlyChapters) },
+                onOpenStats = { navController.navigate(MarginDestination.Stats) },
+            )
+        }
+        composable<MarginDestination.ReadingOnlyChapters> {
+            ReadingOnlyChaptersRoute(onBack = navController::navigateUp)
+        }
+        composable<MarginDestination.Stats> {
+            PlaceholderScreen("Stats", Skins.Paper, onBack = navController::navigateUp)
+        }
     }
 }
 
