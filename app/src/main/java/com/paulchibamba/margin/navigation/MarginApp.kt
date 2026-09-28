@@ -21,8 +21,9 @@ import com.paulchibamba.margin.designsystem.component.NavigationTab
 @Composable
 fun MarginApp(navController: NavHostController = rememberNavController()) {
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val selectedTab = backStackEntry?.destination?.selectedTab()
-    NavigationBarAppearance(isLight = selectedTab != NavigationTab.Feed)
+    val destination = backStackEntry?.destination
+    val selectedTab = destination?.selectedTab()
+    NavigationBarAppearance(isLight = destination?.hasDarkBackground() != true)
     Column(Modifier.fillMaxSize().background(MarginColors.Ink)) {
         MarginNavHost(navController, Modifier.weight(1f))
         if (selectedTab != null) {
@@ -41,6 +42,9 @@ private fun NavDestination.selectedTab(): NavigationTab? = when {
     hierarchy.any { it.hasRoute<TabGraph.Settings>() } -> NavigationTab.Settings
     else -> null
 }
+
+private fun NavDestination.hasDarkBackground(): Boolean =
+    selectedTab() == NavigationTab.Feed || hasRoute<MarginDestination.Stats>()
 
 private fun NavHostController.navigateToTab(tab: NavigationTab) {
     val graph: TabGraph = when (tab) {
