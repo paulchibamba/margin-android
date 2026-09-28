@@ -18,6 +18,9 @@ class StreakCalculator(private val zone: ZoneId, private val rule: StreakRule = 
             .count()
     }
 
+    fun isKeptOn(day: LocalDate, activities: Collection<DailyActivity>): Boolean =
+        rule.countsTowardStreak(activities.firstOrNull { it.date == day })
+
     fun weekStrip(activities: Collection<DailyActivity>, today: LocalDate): List<StreakDay> {
         val byDate = activities.associateBy(DailyActivity::date)
         val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
