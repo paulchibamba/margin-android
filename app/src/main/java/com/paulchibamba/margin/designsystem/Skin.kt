@@ -12,5 +12,6 @@ data class Skin(
     val surface: Color,
     val correct: Color,
     val wrong: Color,
+    val save: Color,
     val isLight: Boolean,
 )

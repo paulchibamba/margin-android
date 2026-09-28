@@ -10,9 +10,6 @@ internal class FeedChromeColors private constructor(
     val outline: Color,
     val segmentTrack: Color,
     val progressTrack: Color,
-    val gotIt: Color,
-    val lost: Color,
-    val save: Color,
     val shadow: Color,
 ) {
     companion object {
@@ -23,9 +20,6 @@ internal class FeedChromeColors private constructor(
             outline = MarginColors.InkText.copy(alpha = 0.35f),
             segmentTrack = MarginColors.InkText.copy(alpha = 0.18f),
             progressTrack = MarginColors.InkText.copy(alpha = 0.15f),
-            gotIt = MarginColors.CorrectOnLight,
-            lost = MarginColors.WrongOnLight,
-            save = MarginColors.SaveOnLight,
             shadow = Color.Transparent,
         )
         private val Dark = FeedChromeColors(
@@ -35,9 +29,6 @@ internal class FeedChromeColors private constructor(
             outline = MarginColors.White.copy(alpha = 0.55f),
             segmentTrack = MarginColors.White.copy(alpha = 0.3f),
             progressTrack = MarginColors.White.copy(alpha = 0.25f),
-            gotIt = MarginColors.Lime,
-            lost = MarginColors.Wrong,
-            save = MarginColors.Save,
             shadow = Color.Black,
         )
 
