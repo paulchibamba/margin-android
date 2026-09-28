@@ -15,13 +15,14 @@ import com.paulchibamba.margin.domain.usecase.RecordedExit
 import com.paulchibamba.margin.domain.usecase.StreakSummary
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Instant
+import java.time.LocalDate
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) }) : FeedUseCases {
     val upcoming = ArrayDeque(posts)
-    val streak = MutableStateFlow(StreakSummary(currentStreak = 3, week = emptyList()))
+    val streak = MutableStateFlow(StreakSummary(currentStreak = 3, week = emptyList(), today = LocalDate.EPOCH))
     val exits = mutableListOf<Pair<Post, PostExit>>()
     val actions = mutableListOf<Pair<Post, PostAction>>()
     var nextPostCalls = 0

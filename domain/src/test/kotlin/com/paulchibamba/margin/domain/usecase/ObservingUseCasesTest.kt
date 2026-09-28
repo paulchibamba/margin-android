@@ -221,7 +221,11 @@ class ObservingUseCasesTest {
         fixture.progress.feedState.value = fixture.engines.feedEngine(0.9).startingState()
             .withIntroduced(*introduced.toTypedArray(), progress = introducedProgress())
 
-        assertEquals(listOf(Badge(appSec.slug, BadgeKind.INTRODUCED)), fixture.consumeNewBadges())
+        val earned = fixture.consumeNewBadges().single()
+
+        assertEquals(Badge(appSec.slug, BadgeKind.INTRODUCED), earned.badge)
+        assertEquals(appSec, earned.book)
+        assertEquals(3, earned.completion.introduced)
         assertEquals(emptyList(), fixture.consumeNewBadges())
     }
 
@@ -231,7 +235,7 @@ class ObservingUseCasesTest {
         fixture.progress.feedState.value = fixture.engines.feedEngine(0.9).startingState()
             .withIntroduced(cia, leastPrivilege, defenceInDepth, progress = mature.copy(confidence = Confidence.GOT))
 
-        val kinds = fixture.consumeNewBadges().map { it.kind }.toSet()
+        val kinds = fixture.consumeNewBadges().map { it.badge.kind }.toSet()
         assertEquals(setOf(BadgeKind.INTRODUCED, BadgeKind.REMEMBERED), kinds)
     }
 
