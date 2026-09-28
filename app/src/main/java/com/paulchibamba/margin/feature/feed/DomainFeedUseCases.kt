@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.feature.feed
 
 import com.paulchibamba.margin.data.startup.StartupInitializer
+import com.paulchibamba.margin.domain.actions.ActionOutcome
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.FeedResult
 import com.paulchibamba.margin.domain.model.Post
@@ -12,6 +13,8 @@ import com.paulchibamba.margin.domain.usecase.GetNextPost
 import com.paulchibamba.margin.domain.usecase.ObserveStreak
 import com.paulchibamba.margin.domain.usecase.PreviewIntervals
 import com.paulchibamba.margin.domain.usecase.RecordPostExit
+import com.paulchibamba.margin.domain.usecase.RecordedExit
+import com.paulchibamba.margin.feature.celebration.CelebrationTrigger
 import javax.inject.Inject
 
 class DomainFeedUseCases @Inject constructor(
@@ -23,6 +26,7 @@ class DomainFeedUseCases @Inject constructor(
     private val getCaughtUp: GetCaughtUp,
     private val observeStreak: ObserveStreak,
     private val previewIntervals: PreviewIntervals,
+    private val celebrations: CelebrationTrigger,
 ) : FeedUseCases {
 
     override fun observeStreak() = observeStreak.invoke()
@@ -34,9 +38,15 @@ class DomainFeedUseCases @Inject constructor(
 
     override suspend fun describe(post: Post) = describePost(post)
 
-    override suspend fun recordExit(post: Post, exit: PostExit) = recordPostExit(post, exit)
+    override suspend fun recordExit(post: Post, exit: PostExit): RecordedExit {
+        val recorded = recordPostExit(post, exit)
+        celebrations.onStreakSignal(recorded.isStreakExtended)
+        celebrations.checkBadges()
+        return recorded
+    }
 
-    override suspend fun applyAction(post: Post, action: PostAction) = applyPostAction(post, action)
+    override suspend fun applyAction(post: Post, action: PostAction): ActionOutcome =
+        applyPostAction(post, action).also { celebrations.checkBadges() }
 
     override suspend fun caughtUp() = getCaughtUp()
 

@@ -40,4 +40,7 @@ sealed interface MarginDestination {
 
     @Serializable
     data object Stats : MarginDestination
+
+    @Serializable
+    data object Celebration : MarginDestination
 }

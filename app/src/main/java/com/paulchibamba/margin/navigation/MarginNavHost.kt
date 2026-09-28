@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.paulchibamba.margin.feature.celebration.CelebrationRoute
 import com.paulchibamba.margin.feature.feed.FeedRoute
 import com.paulchibamba.margin.feature.read.book.BookRoute
 import com.paulchibamba.margin.feature.read.home.ReadHomeRoute
@@ -23,6 +24,9 @@ fun MarginNavHost(navController: NavHostController, modifier: Modifier = Modifie
         settingsGraph(navController)
         composable<MarginDestination.Note> { NoteRoute(onBack = navController::navigateUp) }
         composable<MarginDestination.Stats> { StatsRoute(onBack = navController::navigateUp) }
+        composable<MarginDestination.Celebration> {
+            CelebrationRoute(onFinished = navController::closeCelebration)
+        }
     }
 }
 
@@ -65,3 +69,6 @@ private fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
     }
 }
 
+private fun NavHostController.closeCelebration() {
+    popBackStack<MarginDestination.Celebration>(inclusive = true)
+}

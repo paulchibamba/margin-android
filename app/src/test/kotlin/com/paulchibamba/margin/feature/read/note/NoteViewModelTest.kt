@@ -7,14 +7,19 @@ import com.paulchibamba.margin.domain.model.Note
 import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.model.NotePosition
 import com.paulchibamba.margin.domain.model.PostId
+import com.paulchibamba.margin.domain.usecase.ConsumeNewBadges
 import com.paulchibamba.margin.domain.usecase.FakeContentRepository
 import com.paulchibamba.margin.domain.usecase.FakeProgressRepository
 import com.paulchibamba.margin.domain.usecase.FakeSettingsRepository
+import com.paulchibamba.margin.domain.usecase.FeedStateLock
 import com.paulchibamba.margin.domain.usecase.MarkNoteRead
 import com.paulchibamba.margin.domain.usecase.ObserveNote
 import com.paulchibamba.margin.domain.usecase.ObserveReadingHome
 import com.paulchibamba.margin.domain.usecase.RememberLastNote
 import com.paulchibamba.margin.domain.usecase.UnlockedPostCount
+import com.paulchibamba.margin.feature.celebration.Celebration
+import com.paulchibamba.margin.feature.celebration.CelebrationQueue
+import com.paulchibamba.margin.feature.celebration.CelebrationTrigger
 import com.paulchibamba.margin.feature.feed.FakeClock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,6 +50,7 @@ class NoteViewModelTest {
     private val notes = (1..7).map { order -> noteOf(order, wordCount = 200) } + noteOf(8, wordCount = 30)
     private val content = FakeContentRepository(notes = notes)
     private val progress = FakeProgressRepository()
+    private val celebrations = CelebrationQueue()
 
     @Before
     fun setUp() {
@@ -67,6 +73,22 @@ class NoteViewModelTest {
 
         assertEquals(setOf(noteId(appSec, 1, 1)), progress.reading.value.readNotes)
         assertEquals(noteId(appSec, 1, 2), viewModel.uiState.value.note)
+    }
+
+    @Test
+    fun `the day's first note read queues the streak celebration once`() = runTest(dispatcher) {
+        val viewModel = noteViewModel(noteId(appSec, 1, 1))
+        runCurrent()
+
+        wait(8.seconds)
+        viewModel.onNext()
+        runCurrent()
+        wait(8.seconds)
+        viewModel.onNext()
+        runCurrent()
+
+        assertEquals(2, progress.reading.value.readNotes.size)
+        assertEquals(listOf<Celebration>(Celebration.StreakExtended), celebrations.pending.value)
     }
 
     @Test
@@ -172,8 +194,11 @@ class NoteViewModelTest {
             ObserveNote(content, progress),
             MarkNoteRead(progress, clock),
             RememberLastNote(progress),
+            CelebrationTrigger(celebrations, consumeNewBadges()),
             clock,
         )
+
+    private fun consumeNewBadges() = ConsumeNewBadges(content, progress, FakeSettingsRepository(), FeedStateLock())
 
     private fun unlockedPosts() = UnlockedPostCount(content, FakeSettingsRepository())
 
