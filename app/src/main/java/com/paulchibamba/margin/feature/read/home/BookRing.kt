@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -61,7 +62,7 @@ fun BookRing(ring: BookRingState, onClick: () -> Unit, modifier: Modifier = Modi
         }
         Text(
             ring.label,
-            style = MarginTypography.pill.withFontScaleCap(),
+            style = MarginTypography.pill.withFontScaleCap().copy(hyphens = Hyphens.Auto),
             color = MarginColors.InkText,
             textAlign = TextAlign.Center,
             maxLines = 2,
