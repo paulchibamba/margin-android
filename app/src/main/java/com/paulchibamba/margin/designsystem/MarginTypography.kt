@@ -42,6 +42,8 @@ object MarginTypography {
     val smallButton = geist(FontWeight.SemiBold, 13.sp)
     val detail = geist(FontWeight.Normal, 13.sp, lineHeight = 1.4.em)
     val snackbarDetail = geist(FontWeight.Normal, 12.sp)
+    val readerButton = geist(FontWeight.SemiBold, 14.sp)
+    val readerButtonStrong = geist(FontWeight.Bold, 14.sp)
     val button = geist(FontWeight.Bold, 15.sp)
     val streakChip = geist(FontWeight.Bold, 14.sp)
     val option = geist(FontWeight.Medium, 14.sp)
