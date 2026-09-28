@@ -75,7 +75,7 @@ private fun RailItem(
         Modifier
             .alpha(if (isEnabled) 1f else DISABLED_ALPHA)
             .clickable(enabled = isEnabled, role = Role.Button, onClick = onClick)
-            .semantics { selected = isActive },
+            .semantics { if (action.isToggle) selected = isActive },
         verticalArrangement = Arrangement.spacedBy(3.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -86,6 +86,9 @@ private fun RailItem(
             modifier = Modifier.clearAndSetSemantics {})
     }
 }
+
+private val PostAction.isToggle: Boolean
+    get() = this != PostAction.READ
 
 private fun HapticFeedback.tick() = performHapticFeedback(HapticFeedbackType.ContextClick)
 

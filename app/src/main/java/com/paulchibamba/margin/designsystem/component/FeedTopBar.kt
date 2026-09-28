@@ -21,8 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.BrandMark
@@ -71,7 +71,7 @@ private fun StreakChip(streak: Int, colors: FeedChromeColors) {
         Modifier
             .background(colors.chip, CircleShape)
             .padding(PaddingValues(start = 8.dp, top = 6.dp, end = 11.dp, bottom = 6.dp))
-            .semantics(mergeDescendants = true) { contentDescription = "$streak day streak" },
+            .clearAndSetSemantics { contentDescription = "$streak day streak" },
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

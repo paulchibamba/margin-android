@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -53,7 +54,7 @@ private fun StreakChip(streak: Int) {
         Modifier
             .background(Skins.Paper.surface, CircleShape)
             .padding(PaddingValues(start = 8.dp, top = 6.dp, end = 11.dp, bottom = 6.dp))
-            .semantics(mergeDescendants = true) { contentDescription = "$streak day streak" },
+            .clearAndSetSemantics { contentDescription = "$streak day streak" },
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
