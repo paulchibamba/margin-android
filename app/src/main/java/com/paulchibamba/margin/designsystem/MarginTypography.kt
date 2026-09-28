@@ -24,6 +24,7 @@ object MarginTypography {
     val bookTitle = geist(FontWeight.ExtraBold, 21.sp, lineHeight = 1.12.em, letterSpacing = (-0.02).em)
     val continueTitle = geist(FontWeight.Bold, 21.sp, lineHeight = 1.2.em, letterSpacing = (-0.015).em)
     val sheetTitle = geist(FontWeight.Bold, 19.sp)
+    val barTitle = geist(FontWeight.Bold, 20.sp)
     val tileValue = geist(FontWeight.Bold, 17.sp)
     val noteTitle = geist(FontWeight.Bold, 16.sp)
 
@@ -34,6 +35,8 @@ object MarginTypography {
     val bodySmall = geist(FontWeight.Normal, 15.sp, lineHeight = 1.5.em)
     val callout = geist(FontWeight.SemiBold, 15.sp, lineHeight = 1.4.em)
     val chapterTitle = geist(FontWeight.SemiBold, 15.sp)
+    val settingTitle = geist(FontWeight.SemiBold, 15.sp)
+    val sectionTitle = geist(FontWeight.Bold, 14.sp)
     val currentChapterTitle = geist(FontWeight.Bold, 15.sp)
     val libraryTitle = geist(FontWeight.SemiBold, 14.5.sp, lineHeight = 1.3.em)
     val cardTitle = geist(FontWeight.Bold, 15.sp, lineHeight = 1.3.em)
@@ -66,6 +69,7 @@ object MarginTypography {
     val monoSmall = style(MarginFonts.GeistMono, FontWeight.Medium, 11.sp)
     val code = style(MarginFonts.GeistMono, FontWeight.Medium, 12.sp, lineHeight = 1.6.em)
     val monoLarge = style(MarginFonts.GeistMono, FontWeight.SemiBold, 19.sp)
+    val monoValue = style(MarginFonts.GeistMono, FontWeight.Bold, 15.sp)
 
     val bookText = style(MarginFonts.Newsreader, FontWeight.Normal, 18.sp, lineHeight = 1.6.em)
 
