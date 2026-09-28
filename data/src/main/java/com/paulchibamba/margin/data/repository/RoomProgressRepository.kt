@@ -84,6 +84,10 @@ class RoomProgressRepository @Inject constructor(private val database: MarginDat
         rowId != NOT_INSERTED
     }
 
+    override suspend fun setLastNote(note: NoteId) {
+        database.metaDao().put(listOf(MetaEntity(MetaKey.LAST_NOTE, note.value)))
+    }
+
     override suspend fun markChapterKnown(chapter: ChapterRef, at: Instant) {
         val known = ChapterKnownEntity(chapter.bookSlug.value, chapter.chapter, at.toEpochMilli())
         database.readingDao().markChapterKnown(known)

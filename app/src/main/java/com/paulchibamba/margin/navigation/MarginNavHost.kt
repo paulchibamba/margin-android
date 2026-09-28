@@ -7,11 +7,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import androidx.navigation.toRoute
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.feature.feed.FeedRoute
 import com.paulchibamba.margin.feature.read.book.BookRoute
 import com.paulchibamba.margin.feature.read.home.ReadHomeRoute
+import com.paulchibamba.margin.feature.read.note.NoteRoute
 import com.paulchibamba.margin.placeholder.PlaceholderLink
 import com.paulchibamba.margin.placeholder.PlaceholderScreen
 
@@ -51,11 +51,7 @@ private fun NavGraphBuilder.readGraph(navController: NavHostController) {
 }
 
 private fun NavGraphBuilder.secondaryDestinations(navController: NavHostController) {
-    composable<MarginDestination.Note> { entry ->
-        val note = entry.toRoute<MarginDestination.Note>()
-        val origin = note.fromPostId?.let { " · from ${it.value}" }.orEmpty()
-        PlaceholderScreen("Note$origin", Skins.Paper, onBack = navController::navigateUp)
-    }
+    composable<MarginDestination.Note> { NoteRoute(onBack = navController::navigateUp) }
     composable<MarginDestination.Settings> {
         PlaceholderScreen(
             title = "Settings",

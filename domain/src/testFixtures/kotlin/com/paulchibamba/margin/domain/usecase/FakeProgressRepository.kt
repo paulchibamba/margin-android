@@ -45,6 +45,10 @@ class FakeProgressRepository : ProgressRepository {
         return isNew
     }
 
+    override suspend fun setLastNote(note: NoteId) {
+        reading.value = reading.value.copy(lastNote = note)
+    }
+
     override suspend fun markChapterKnown(chapter: ChapterRef, at: Instant) {
         reading.value = reading.value.copy(knownChapters = reading.value.knownChapters + chapter)
     }

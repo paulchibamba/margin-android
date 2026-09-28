@@ -29,6 +29,7 @@ interface ProgressRepository {
     suspend fun reading(): ReadingState
     fun observeReading(): Flow<ReadingState>
     suspend fun markNoteRead(note: NoteId, at: Instant): Boolean
+    suspend fun setLastNote(note: NoteId)
     suspend fun markChapterKnown(chapter: ChapterRef, at: Instant)
     suspend fun unmarkChapterKnown(chapter: ChapterRef)
 

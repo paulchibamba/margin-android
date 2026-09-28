@@ -120,6 +120,16 @@ class RoomProgressRepositoryTest : DatabaseTest() {
     }
 
     @Test
+    fun `the last note is the one set most recently`() = runTest {
+        val opened = NoteId("alice-bob-appsec/ch01/n002")
+        repository.markNoteRead(NoteId("alice-bob-appsec/ch01/n001"), now)
+
+        repository.setLastNote(opened)
+
+        assertEquals(opened, repository.reading().lastNote)
+    }
+
+    @Test
     fun `unmarking a known chapter leaves the other known chapters`() = runTest {
         repository.markChapterKnown(ChapterRef(book, 3), now)
         repository.markChapterKnown(ChapterRef(book, 4), now)
