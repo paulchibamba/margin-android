@@ -26,6 +26,7 @@ object MarginTypography {
     val sheetTitle = geist(FontWeight.Bold, 19.sp)
     val barTitle = geist(FontWeight.Bold, 20.sp)
     val tileValue = geist(FontWeight.Bold, 17.sp)
+    val statValue = geist(FontWeight.ExtraBold, 26.sp, letterSpacing = (-0.02).em)
     val noteTitle = geist(FontWeight.Bold, 16.sp)
 
     val body = geist(FontWeight.Normal, 17.sp, lineHeight = 1.5.em)
