@@ -249,6 +249,17 @@ class FeedViewModelTest {
     }
 
     @Test
+    fun `a caught-up feed looks again for posts once the clock moves on`() {
+        useCases.upcoming.clear()
+        val viewModel = feedViewModel()
+        useCases.upcoming.add(tipPost(7))
+
+        viewModel.onClockChanged()
+
+        assertEquals(listOf("post-7"), postIdsOf(viewModel))
+    }
+
+    @Test
     fun `the streak follows the recorded activity`() {
         val viewModel = feedViewModel()
 

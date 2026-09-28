@@ -10,6 +10,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.model.PostId
+import com.paulchibamba.margin.feature.debug.DebugTools
+import com.paulchibamba.margin.feature.debug.DebugToolsRoute
 
 @Composable
 fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = hiltViewModel()) {
@@ -34,8 +36,12 @@ fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = 
         onSheetDismiss = viewModel::onSheetDismiss,
         onNudgeDismiss = viewModel::onNudgeDismiss,
         onCaughtUpShown = viewModel::onCaughtUpShown,
+        debugTools = debugToolsFor(viewModel),
     )
 }
+
+private fun debugToolsFor(viewModel: FeedViewModel): DebugToolsSlot? =
+    if (DebugTools.isEnabled) { modifier -> DebugToolsRoute(viewModel::onClockChanged, modifier) } else null
 
 private fun readSource(
     state: FeedUiState,

@@ -9,6 +9,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -20,6 +23,7 @@ import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.usecase.NextNote
+import com.paulchibamba.margin.feature.debug.DebugToolsSheet
 import com.paulchibamba.margin.feature.feed.post.TestResponse
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.time.Duration
@@ -44,7 +48,9 @@ fun FeedScreen(
     onNudgeDismiss: () -> Unit,
     onCaughtUpShown: () -> Unit,
     modifier: Modifier = Modifier,
+    debugTools: DebugToolsSlot? = null,
 ) {
+    var isDebugSheetOpen by rememberSaveable { mutableStateOf(false) }
     Box(modifier.fillMaxSize().background(Skins.Ink.background)) {
         if (state.isLoading) return@Box
         MarginTheme(skinAt(state, pagerState.currentPage)) { StatusBarFollowsSkin() }
@@ -67,11 +73,13 @@ fun FeedScreen(
                 ),
                 onReadOn = onReadOn,
                 onMore = onMore,
+                onCaughtUpMore = { isDebugSheetOpen = debugTools != null },
                 onNudgeDismiss = onNudgeDismiss,
                 onCaughtUpShown = onCaughtUpShown,
             )
         }
-        state.sheetPage?.let { page -> WhyThisPostSheet(page.item, onSheetDismiss) }
+        state.sheetPage?.let { page -> WhyThisPostSheet(page.item, onSheetDismiss, debugTools) }
+        if (isDebugSheetOpen && debugTools != null) DebugToolsSheet({ isDebugSheetOpen = false }, debugTools)
     }
 }
 
@@ -83,12 +91,14 @@ private fun FeedPagerPage(
     callbacks: PostBodyCallbacks,
     onReadOn: (NextNote) -> Unit,
     onMore: () -> Unit,
+    onCaughtUpMore: () -> Unit,
     onNudgeDismiss: () -> Unit,
     onCaughtUpShown: () -> Unit,
 ) {
     val caughtUp = state.caughtUp
     if (caughtUp != null && state.isCaughtUpPage(index)) {
-        CaughtUpState(caughtUp, state.streak, onReadOn, onMore, onCaughtUpShown, Modifier.testTag("feed-caught-up"))
+        val tag = Modifier.testTag("feed-caught-up")
+        CaughtUpState(caughtUp, state.streak, onReadOn, onCaughtUpMore, onCaughtUpShown, tag)
         return
     }
     FeedPostPage(
