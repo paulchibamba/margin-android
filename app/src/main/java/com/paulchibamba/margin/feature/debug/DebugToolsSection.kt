@@ -32,6 +32,7 @@ fun DebugToolsSection(
     onAdvance: (Duration) -> Unit,
     onReset: () -> Unit,
     onShowDueCount: () -> Unit,
+    onSendReviewReminder: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -46,6 +47,7 @@ fun DebugToolsSection(
             DebugButton("+1 day") { onAdvance(1.days) }
             DebugButton("Reset clock", onReset)
             DebugButton("Show due count", onShowDueCount)
+            DebugButton("Send reminder", onSendReviewReminder)
         }
         state.dueCountLabel?.let { label ->
             Text(label, style = MarginTypography.label, color = MarginColors.Lime)
@@ -78,6 +80,7 @@ private fun DebugToolsSectionPreview() {
             onAdvance = {},
             onReset = {},
             onShowDueCount = {},
+            onSendReviewReminder = {},
         )
     }
 }

@@ -26,6 +26,7 @@ fun DebugToolsRoute(
             onClockChanged()
         },
         onShowDueCount = viewModel::onShowDueCount,
+        onSendReviewReminder = viewModel::onSendReviewReminder,
         modifier = modifier,
     )
 }

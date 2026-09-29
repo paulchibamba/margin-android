@@ -5,6 +5,8 @@ import com.paulchibamba.margin.feature.reminder.ReminderScheduler
 class FakeReminderScheduler : ReminderScheduler {
     var isScheduled = false
         private set
+    var runCount = 0
+        private set
 
     override fun schedule() {
         isScheduled = true
@@ -12,5 +14,9 @@ class FakeReminderScheduler : ReminderScheduler {
 
     override fun cancel() {
         isScheduled = false
+    }
+
+    override fun runOnce() {
+        runCount++
     }
 }

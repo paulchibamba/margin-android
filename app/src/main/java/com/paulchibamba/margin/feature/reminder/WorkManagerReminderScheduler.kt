@@ -2,6 +2,7 @@ package com.paulchibamba.margin.feature.reminder
 
 import android.content.Context
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,6 +26,10 @@ class WorkManagerReminderScheduler @Inject constructor(
 
     override fun cancel() {
         workManager.cancelUniqueWork(WORK_NAME)
+    }
+
+    override fun runOnce() {
+        workManager.enqueue(OneTimeWorkRequestBuilder<ReviewReminderWorker>().build())
     }
 
     private companion object {
