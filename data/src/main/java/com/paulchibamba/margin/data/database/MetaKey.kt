@@ -7,6 +7,7 @@ object MetaKey {
     const val LAST_PREVIEW_AT = "last_preview_at"
     const val LAST_NOTE = "last_note"
     const val DESIRED_RETENTION = "desired_retention"
+    const val REVIEW_REMINDER = "review_reminder"
 
     fun bookLastNew(bookSlug: String): String = "book_last_new:$bookSlug"
 

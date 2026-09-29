@@ -9,6 +9,7 @@ import com.paulchibamba.margin.domain.time.OffsetClock
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
 import com.paulchibamba.margin.domain.usecase.FakeProgressRepository
 import com.paulchibamba.margin.domain.usecase.FixedClock
+import com.paulchibamba.margin.feature.settings.FakeReminderScheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -30,7 +31,8 @@ class DebugClockViewModelTest {
     private val systemClock = FixedClock()
     private val clock = OffsetClock(systemClock, MemoryOffsetStore())
     private val progress = FakeProgressRepository()
-    private val viewModel by lazy { DebugClockViewModel(clock, CountDueReviews(progress, clock)) }
+    private val scheduler = FakeReminderScheduler()
+    private val viewModel by lazy { DebugClockViewModel(clock, CountDueReviews(progress, clock), scheduler) }
 
     @Before
     fun setUp() {
@@ -82,6 +84,13 @@ class DebugClockViewModelTest {
         viewModel.onShown()
 
         assertNull(viewModel.uiState.value.dueCount)
+    }
+
+    @Test
+    fun `sending a reminder runs the reminder check once`() {
+        viewModel.onSendReviewReminder()
+
+        assertEquals(1, scheduler.runCount)
     }
 
     private fun cardDueIn(duration: Duration): ConceptProgress {

@@ -9,6 +9,7 @@ data class SettingsUiState(
     val activeCount: Int = 0,
     val maxActive: Int = ActiveBookLimit.ALLOWED.last,
     val retention: Double = DesiredRetention.DEFAULT,
+    val isReviewReminderOn: Boolean = false,
     val isLoading: Boolean = true,
 ) {
     companion object {
@@ -18,6 +19,7 @@ data class SettingsUiState(
             },
             activeCount = settings.activeCount,
             retention = retentionDraft ?: settings.desiredRetention,
+            isReviewReminderOn = settings.isReviewReminderOn,
             isLoading = false,
         )
     }

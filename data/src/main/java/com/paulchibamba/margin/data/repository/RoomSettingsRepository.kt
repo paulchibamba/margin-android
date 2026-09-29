@@ -52,4 +52,13 @@ class RoomSettingsRepository @Inject constructor(
     override suspend fun setDesiredRetention(retention: Double) {
         database.metaDao().put(listOf(MetaEntity(MetaKey.DESIRED_RETENTION, retention.toString())))
     }
+
+    override suspend fun isReviewReminderOn(): Boolean = observeReviewReminder().first()
+
+    override fun observeReviewReminder(): Flow<Boolean> = database.metaDao().observe(MetaKey.REVIEW_REMINDER)
+        .map { stored -> stored.toBoolean() }
+
+    override suspend fun setReviewReminder(isOn: Boolean) {
+        database.metaDao().put(listOf(MetaEntity(MetaKey.REVIEW_REMINDER, isOn.toString())))
+    }
 }

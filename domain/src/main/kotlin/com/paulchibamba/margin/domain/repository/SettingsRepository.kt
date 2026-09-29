@@ -17,4 +17,8 @@ interface SettingsRepository {
     suspend fun desiredRetention(): Double
     fun observeDesiredRetention(): Flow<Double>
     suspend fun setDesiredRetention(retention: Double)
+
+    suspend fun isReviewReminderOn(): Boolean
+    fun observeReviewReminder(): Flow<Boolean>
+    suspend fun setReviewReminder(isOn: Boolean)
 }

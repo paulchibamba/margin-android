@@ -6,7 +6,9 @@ import com.paulchibamba.margin.domain.memory.DesiredRetention
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.usecase.ObserveLearningSettings
 import com.paulchibamba.margin.domain.usecase.SetDesiredRetention
+import com.paulchibamba.margin.domain.usecase.SetReviewReminder
 import com.paulchibamba.margin.domain.usecase.UpdateBookSettings
+import com.paulchibamba.margin.feature.reminder.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,6 +25,8 @@ class SettingsViewModel @Inject constructor(
     observeLearningSettings: ObserveLearningSettings,
     private val updateBookSettings: UpdateBookSettings,
     private val setDesiredRetention: SetDesiredRetention,
+    private val setReviewReminder: SetReviewReminder,
+    private val reminderScheduler: ReminderScheduler,
 ) : ViewModel() {
 
     private val retentionDraft = MutableStateFlow<Double?>(null)
@@ -41,5 +45,12 @@ class SettingsViewModel @Inject constructor(
     fun onRetentionChangeFinished() {
         val retention = retentionDraft.value ?: return
         viewModelScope.launch { setDesiredRetention(retention) }
+    }
+
+    fun onReviewReminderChange(isOn: Boolean) {
+        viewModelScope.launch {
+            setReviewReminder(isOn)
+            if (isOn) reminderScheduler.schedule() else reminderScheduler.cancel()
+        }
     }
 }
