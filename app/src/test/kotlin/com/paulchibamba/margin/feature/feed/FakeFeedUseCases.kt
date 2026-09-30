@@ -8,6 +8,8 @@ import com.paulchibamba.margin.domain.feed.ExitOutcome
 import com.paulchibamba.margin.domain.feed.FeedResult
 import com.paulchibamba.margin.domain.feed.FeedState
 import com.paulchibamba.margin.domain.memory.Rating
+import com.paulchibamba.margin.domain.model.BookCover
+import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.Post
 import com.paulchibamba.margin.domain.signals.PostExit
 import com.paulchibamba.margin.domain.usecase.CaughtUp
@@ -23,6 +25,7 @@ import kotlin.time.Duration.Companion.minutes
 class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) }) : FeedUseCases {
     val upcoming = ArrayDeque(posts)
     val streak = MutableStateFlow(StreakSummary(currentStreak = 3, week = emptyList(), today = LocalDate.EPOCH))
+    val covers = MutableStateFlow(emptyMap<BookSlug, BookCover>())
     val exits = mutableListOf<Pair<Post, PostExit>>()
     val actions = mutableListOf<Pair<Post, PostAction>>()
     var nextPostCalls = 0
@@ -31,6 +34,8 @@ class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) })
         mapOf(Rating.AGAIN to 1.minutes, Rating.HARD to 6.minutes, Rating.GOOD to 10.minutes, Rating.EASY to 8.days)
 
     override fun observeStreak() = streak
+
+    override fun observeBookCovers() = covers
 
     override suspend fun nextPost(): FeedResult {
         nextPostCalls++

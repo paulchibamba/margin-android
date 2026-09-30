@@ -43,6 +43,11 @@ class FeedViewModel @Inject constructor(
         viewModelScope.launch {
             useCases.observeStreak().collect { streak -> state.update { it.copy(streak = streak.currentStreak) } }
         }
+        viewModelScope.launch {
+            useCases.observeBookCovers().collect { covers ->
+                state.update { it.copy(coverPaths = covers.mapValues { (_, cover) -> cover.imagePath }) }
+            }
+        }
         loadPagesAhead()
     }
 

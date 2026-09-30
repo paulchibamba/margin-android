@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.domain.model.Priority
+import com.paulchibamba.margin.feature.read.BookCover
 import com.paulchibamba.margin.feature.read.ReadingProgressBar
-import com.paulchibamba.margin.feature.read.StripedCover
 import com.paulchibamba.margin.feature.read.bookProgressLabel
 import com.paulchibamba.margin.feature.read.label
 import com.paulchibamba.margin.feature.read.progress
@@ -35,7 +35,7 @@ fun LibraryRow(row: LibraryRowState, onClick: () -> Unit, modifier: Modifier = M
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        StripedCover(CoverShape, Modifier.size(width = 42.dp, height = 58.dp))
+        BookCover(row.coverPath, CoverShape, Modifier.size(width = 42.dp, height = 58.dp))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(

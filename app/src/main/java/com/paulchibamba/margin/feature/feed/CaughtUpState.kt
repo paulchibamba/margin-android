@@ -39,6 +39,7 @@ import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.component.FeedTopBar
 import com.paulchibamba.margin.domain.usecase.CaughtUp
 import com.paulchibamba.margin.domain.usecase.NextNote
+import com.paulchibamba.margin.feature.read.BookCover
 
 private val CardShape = RoundedCornerShape(22.dp)
 private val CoverShape = RoundedCornerShape(6.dp)
@@ -53,6 +54,7 @@ fun CaughtUpState(
     onMore: () -> Unit,
     onShown: () -> Unit,
     modifier: Modifier = Modifier,
+    coverPath: String? = null,
 ) {
     LaunchedEffect(Unit) { onShown() }
     MarginTheme(Skins.Ink) {
@@ -64,7 +66,7 @@ fun CaughtUpState(
             ) {
                 DoneRing()
                 CaughtUpMessage(hasNextNote = caughtUp.nextNote != null)
-                caughtUp.nextNote?.let { note -> NextNoteCard(note, onReadOn = { onReadOn(note) }) }
+                caughtUp.nextNote?.let { note -> NextNoteCard(note, coverPath, onReadOn = { onReadOn(note) }) }
                 caughtUp.nextReviewIn?.let { dueIn ->
                     Text("Next review due ${dueInLabel(dueIn)}", style = MarginTypography.footnote, color = faintWhite)
                 }
@@ -99,13 +101,15 @@ private fun CaughtUpMessage(hasNextNote: Boolean) {
 }
 
 @Composable
-private fun NextNoteCard(note: NextNote, onReadOn: () -> Unit) {
+private fun NextNoteCard(note: NextNote, coverPath: String?, onReadOn: () -> Unit) {
     Column(
         Modifier.padding(top = 14.dp).fillMaxWidth().background(MarginColors.InkRaised, CardShape).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            StripedCover()
+            BookCover(coverPath, CoverShape, Modifier.size(width = 44.dp, height = 60.dp)) { placeholderModifier ->
+                InkStripes(placeholderModifier)
+            }
             NoteSummary(note)
         }
         ReadOnButton(onReadOn)
@@ -113,8 +117,8 @@ private fun NextNoteCard(note: NextNote, onReadOn: () -> Unit) {
 }
 
 @Composable
-private fun StripedCover() {
-    Canvas(Modifier.size(width = 44.dp, height = 60.dp).clip(CoverShape).background(MarginColors.InkStripe)) {
+private fun InkStripes(modifier: Modifier) {
+    Canvas(modifier.clip(CoverShape).background(MarginColors.InkStripe)) {
         val spacing = STRIPE_SPACING_DP.dp.toPx()
         val band = spacing / 2
         var start = -size.height

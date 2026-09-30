@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.feature.read.book
 
+import com.paulchibamba.margin.domain.model.BookCover
 import com.paulchibamba.margin.domain.model.ChapterRef
 import com.paulchibamba.margin.domain.usecase.BookChapters
 import com.paulchibamba.margin.domain.usecase.ChapterReading
@@ -12,10 +13,14 @@ data class BookUiState(
     val conceptCount: Int = 0,
     val chapters: List<ChapterRowState> = emptyList(),
     val undoChapter: ChapterRef? = null,
+    val coverPath: String? = null,
     val isLoading: Boolean = true,
 ) {
+    val hasCover: Boolean
+        get() = coverPath != null
+
     companion object {
-        fun of(book: BookChapters, undoChapter: ChapterRef?): BookUiState {
+        fun of(book: BookChapters, undoChapter: ChapterRef?, cover: BookCover? = null): BookUiState {
             val current = book.chapters.indexOfFirst { !isFinished(it) }
             return BookUiState(
                 title = book.book.title,
@@ -24,6 +29,7 @@ data class BookUiState(
                 conceptCount = book.completion.total,
                 chapters = book.chapters.mapIndexed { index, chapter -> rowOf(chapter, index, current) },
                 undoChapter = undoChapter,
+                coverPath = cover?.imagePath,
                 isLoading = false,
             )
         }

@@ -16,6 +16,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -42,17 +46,37 @@ fun BookScreen(
     onUndo: () -> Unit,
     onUndoDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    onChooseCover: () -> Unit = {},
+    onRemoveCover: () -> Unit = {},
 ) {
+    var isCoverSheetOpen by rememberSaveable { mutableStateOf(false) }
     MarginTheme(Skins.Paper) {
         StatusBarFollowsSkin()
         Box(modifier.fillMaxSize().background(Skins.Paper.background).statusBarsPadding()) {
             Column {
                 BackBar(onBack)
-                if (!state.isLoading) ChapterList(state, onOpenNote, onMarkKnown)
+                if (!state.isLoading) ChapterList(state, onOpenNote, onMarkKnown) { isCoverSheetOpen = true }
             }
             state.undoChapter?.let { chapter -> UndoSnackbar(chapter, onUndo, onUndoDismiss) }
         }
+        if (isCoverSheetOpen) CoverSheet(state.hasCover, onChooseCover, onRemoveCover) { isCoverSheetOpen = false }
     }
+}
+
+@Composable
+private fun CoverSheet(hasCover: Boolean, onChooseCover: () -> Unit, onRemoveCover: () -> Unit, onClose: () -> Unit) {
+    BookCoverSheet(
+        hasCover = hasCover,
+        onChooseFromGallery = {
+            onClose()
+            onChooseCover()
+        },
+        onRemove = {
+            onClose()
+            onRemoveCover()
+        },
+        onDismiss = onClose,
+    )
 }
 
 @Composable
@@ -65,9 +89,14 @@ private fun BackBar(onBack: () -> Unit) {
 }
 
 @Composable
-private fun ChapterList(state: BookUiState, onOpenNote: (NoteId) -> Unit, onMarkKnown: (ChapterRef) -> Unit) {
+private fun ChapterList(
+    state: BookUiState,
+    onOpenNote: (NoteId) -> Unit,
+    onMarkKnown: (ChapterRef) -> Unit,
+    onCoverClick: () -> Unit,
+) {
     LazyColumn(contentPadding = PaddingValues(bottom = 96.dp)) {
-        item { BookHeader(state) }
+        item { BookHeader(state, onCoverClick) }
         item { Box(Modifier.fillMaxWidth().height(1.dp).background(MarginColors.InkText.copy(alpha = 0.08f))) }
         items(state.chapters, key = { it.chapter.chapter }) { row ->
             SwipeableChapterRow(
