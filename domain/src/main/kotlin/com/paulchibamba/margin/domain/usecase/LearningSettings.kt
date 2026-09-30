@@ -1,11 +1,13 @@
 package com.paulchibamba.margin.domain.usecase
 
+import com.paulchibamba.margin.domain.model.DarkMode
 import com.paulchibamba.margin.domain.progression.ActiveBookLimit
 
 data class LearningSettings(
     val books: List<BookLearningSettings>,
     val desiredRetention: Double,
     val isReviewReminderOn: Boolean = false,
+    val darkMode: DarkMode = DarkMode.DEFAULT,
 ) {
 
     val activeCount: Int get() = books.count { it.settings.isActive }

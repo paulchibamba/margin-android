@@ -2,6 +2,7 @@ package com.paulchibamba.margin.domain.repository
 
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.BookSlug
+import com.paulchibamba.margin.domain.model.DarkMode
 import com.paulchibamba.margin.domain.progression.ReadingOnlyChapters
 import kotlinx.coroutines.flow.Flow
 
@@ -21,4 +22,8 @@ interface SettingsRepository {
     suspend fun isReviewReminderOn(): Boolean
     fun observeReviewReminder(): Flow<Boolean>
     suspend fun setReviewReminder(isOn: Boolean)
+
+    suspend fun darkMode(): DarkMode
+    fun observeDarkMode(): Flow<DarkMode>
+    suspend fun setDarkMode(mode: DarkMode)
 }
