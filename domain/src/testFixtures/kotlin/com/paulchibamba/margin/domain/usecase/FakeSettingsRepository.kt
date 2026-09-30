@@ -17,6 +17,7 @@ class FakeSettingsRepository(settings: List<BookSettings> = defaultSettings) : S
     val retention = MutableStateFlow(0.9)
     val reviewReminder = MutableStateFlow(false)
     val darkMode = MutableStateFlow(DarkMode.DEFAULT)
+    val darkPosts = MutableStateFlow(false)
 
     override suspend fun bookSettings() = bookSettings.value
     override fun observeBookSettings(): Flow<List<BookSettings>> = bookSettings
@@ -46,5 +47,11 @@ class FakeSettingsRepository(settings: List<BookSettings> = defaultSettings) : S
     override fun observeDarkMode(): Flow<DarkMode> = darkMode
     override suspend fun setDarkMode(mode: DarkMode) {
         darkMode.value = mode
+    }
+
+    override suspend fun isDarkPostsOn() = darkPosts.value
+    override fun observeDarkPosts(): Flow<Boolean> = darkPosts
+    override suspend fun setDarkPosts(isOn: Boolean) {
+        darkPosts.value = isOn
     }
 }

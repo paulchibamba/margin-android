@@ -26,4 +26,8 @@ interface SettingsRepository {
     suspend fun darkMode(): DarkMode
     fun observeDarkMode(): Flow<DarkMode>
     suspend fun setDarkMode(mode: DarkMode)
+
+    suspend fun isDarkPostsOn(): Boolean
+    fun observeDarkPosts(): Flow<Boolean>
+    suspend fun setDarkPosts(isOn: Boolean)
 }

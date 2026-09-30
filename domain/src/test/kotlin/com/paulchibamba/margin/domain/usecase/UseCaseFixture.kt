@@ -39,5 +39,6 @@ class UseCaseFixture {
     val getReviewReminder = GetReviewReminder(settings, progress, countDueReviews, clock)
     val setReviewReminder = SetReviewReminder(settings)
     val setDarkMode = SetDarkMode(settings)
-    val observeDarkMode = ObserveDarkMode(settings)
+    val observeAppearance = ObserveAppearance(settings)
+    val setDarkPosts = SetDarkPosts(settings)
 }

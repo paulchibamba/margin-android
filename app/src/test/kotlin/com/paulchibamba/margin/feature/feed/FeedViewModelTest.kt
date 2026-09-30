@@ -288,8 +288,8 @@ class FeedViewModelTest {
     }
 
     @Test
-    fun `with the dark theme on, every page gets a dark skin`() {
-        useCases.isDark = true
+    fun `with the feed dark-only, every page gets a dark skin`() {
+        useCases.isDarkOnly = true
         val viewModel = feedViewModel()
         (1..8).forEach(viewModel::onPageEntered)
 
@@ -299,12 +299,12 @@ class FeedViewModelTest {
     }
 
     @Test
-    fun `pages already loaded keep their skin when the dark theme turns on`() {
+    fun `pages already loaded keep their skin when the feed turns dark-only`() {
         val viewModel = feedViewModel()
         (1..4).forEach(viewModel::onPageEntered)
         val skinsBefore = viewModel.uiState.value.pages.map { it.skin }
 
-        useCases.isDark = true
+        useCases.isDarkOnly = true
         viewModel.onPageEntered(5)
 
         assertEquals(skinsBefore, viewModel.uiState.value.pages.take(skinsBefore.size).map { it.skin })

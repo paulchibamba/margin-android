@@ -97,7 +97,25 @@ class SettingsUseCasesTest {
         fixture.setDarkMode(DarkMode.ALWAYS)
 
         assertEquals(DarkMode.ALWAYS, fixture.observeLearningSettings().first().darkMode)
-        assertEquals(DarkMode.ALWAYS, fixture.observeDarkMode().first())
+        assertEquals(DarkMode.ALWAYS, fixture.observeAppearance().first().darkMode)
+    }
+
+    @Test
+    fun `dark posts start off and a saved choice reaches the settings and the appearance`() = runTest {
+        assertFalse(fixture.observeLearningSettings().first().isDarkPostsOn)
+
+        fixture.setDarkPosts(true)
+
+        assertTrue(fixture.observeLearningSettings().first().isDarkPostsOn)
+        assertTrue(fixture.observeAppearance().first().isDarkPostsOn)
+    }
+
+    @Test
+    fun `the feed is dark-only when dark posts are on or the dark theme is dark`() {
+        assertFalse(Appearance(DarkMode.OFF, isDarkPostsOn = false).isFeedDarkOnly(isSystemDark = true))
+        assertTrue(Appearance(DarkMode.OFF, isDarkPostsOn = true).isFeedDarkOnly(isSystemDark = false))
+        assertTrue(Appearance(DarkMode.ALWAYS, isDarkPostsOn = false).isFeedDarkOnly(isSystemDark = false))
+        assertTrue(Appearance(DarkMode.FOLLOW_SYSTEM, isDarkPostsOn = false).isFeedDarkOnly(isSystemDark = true))
     }
 
     private fun BookLearningSettings.withActive(isActive: Boolean) =

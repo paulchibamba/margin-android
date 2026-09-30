@@ -9,6 +9,7 @@ object MetaKey {
     const val DESIRED_RETENTION = "desired_retention"
     const val REVIEW_REMINDER = "review_reminder"
     const val DARK_MODE = "dark_mode"
+    const val DARK_POSTS = "dark_posts"
 
     fun bookLastNew(bookSlug: String): String = "book_last_new:$bookSlug"
 
