@@ -38,4 +38,6 @@ interface ProgressRepository {
 
     suspend fun shownBadges(): Set<Badge>
     suspend fun markBadgesShown(badges: Collection<Badge>)
+
+    suspend fun clearProgress()
 }

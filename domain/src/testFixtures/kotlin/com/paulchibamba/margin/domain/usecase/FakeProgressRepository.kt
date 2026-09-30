@@ -70,4 +70,14 @@ class FakeProgressRepository : ProgressRepository {
 
     override suspend fun shownBadges(): Set<Badge> = badges.toSet()
     override suspend fun markBadgesShown(badges: Collection<Badge>) { this.badges += badges }
+
+    override suspend fun clearProgress() {
+        feedState.value = null
+        actions.value = emptyList()
+        reviews.value = emptyList()
+        reading.value = ReadingState()
+        activity.value = emptyList()
+        exits.clear()
+        badges.clear()
+    }
 }
