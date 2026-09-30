@@ -29,6 +29,7 @@ class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) })
     val exits = mutableListOf<Pair<Post, PostExit>>()
     val actions = mutableListOf<Pair<Post, PostAction>>()
     var nextPostCalls = 0
+    var isDark = false
     var caughtUp = CaughtUp(nextNote = null, nextReviewIn = null)
     var intervals: Map<Rating, Duration> =
         mapOf(Rating.AGAIN to 1.minutes, Rating.HARD to 6.minutes, Rating.GOOD to 10.minutes, Rating.EASY to 8.days)
@@ -59,6 +60,8 @@ class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) })
     override suspend fun caughtUp() = caughtUp
 
     override suspend fun previewIntervals(post: Post) = intervals
+
+    override suspend fun isDarkTheme() = isDark
 
     private fun nudgeFor(action: PostAction): Nudge? = when (action) {
         PostAction.GOT -> Nudge.TEST_COMING_SOON

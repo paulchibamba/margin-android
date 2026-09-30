@@ -22,7 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.feature.read.ReadingProgressBar
@@ -32,12 +32,13 @@ private const val READING_ONLY_ALPHA = 0.55f
 
 @Composable
 fun ChapterRow(row: ChapterRowState, onOpenNote: () -> Unit, modifier: Modifier = Modifier) {
-    val content = if (row.isAhead) MarginColors.PaperTextAhead else MarginColors.InkText
+    val palette = LocalSurfacePalette.current
+    val content = if (row.isAhead) palette.aheadText else palette.text
     Row(
         modifier
             .fillMaxWidth()
-            .background(MarginColors.Paper)
-            .background(if (row.isCurrent) MarginColors.InkText.copy(alpha = 0.05f) else MarginColors.Paper)
+            .background(palette.background)
+            .background(if (row.isCurrent) palette.text.copy(alpha = 0.05f) else palette.background)
             .clickable(enabled = row.nextNote != null, role = Role.Button, onClick = onOpenNote)
             .padding(horizontal = 18.dp, vertical = 12.dp)
             .alpha(if (row.isReadingOnly && row.isDone) READING_ONLY_ALPHA else 1f),
@@ -57,7 +58,8 @@ fun ChapterRow(row: ChapterRowState, onOpenNote: () -> Unit, modifier: Modifier 
 
 @Composable
 private fun ChapterText(row: ChapterRowState, content: Color, modifier: Modifier) {
-    val detailColor = if (row.isAhead) MarginColors.PaperTextAhead else MarginColors.PaperTextFaint
+    val palette = LocalSurfacePalette.current
+    val detailColor = if (row.isAhead) palette.aheadText else palette.faintText
     Column(modifier, verticalArrangement = Arrangement.spacedBy(if (row.isCurrent) 5.dp else 2.dp)) {
         val titleStyle = if (row.isCurrent) MarginTypography.currentChapterTitle else MarginTypography.chapterTitle
         Text(row.title, style = titleStyle, color = content)
@@ -74,16 +76,18 @@ private fun ChapterText(row: ChapterRowState, content: Color, modifier: Modifier
 
 @Composable
 private fun ChapterTrailing(row: ChapterRowState) {
+    val palette = LocalSurfacePalette.current
     when {
-        row.isDone -> Icon(painterResource(MarginIcons.CheckCircle), "Read", Modifier.size(22.dp), MarginColors.InkText)
+        row.isDone -> Icon(painterResource(MarginIcons.CheckCircle), "Read", Modifier.size(22.dp), palette.text)
         row.isCurrent && row.nextNote != null -> PlayButton()
     }
 }
 
 @Composable
 private fun PlayButton() {
-    Box(Modifier.size(36.dp).background(MarginColors.InkText, CircleShape), contentAlignment = Alignment.Center) {
-        Icon(painterResource(MarginIcons.PlayArrow), "Continue", Modifier.size(22.dp), MarginColors.White)
+    val palette = LocalSurfacePalette.current
+    Box(Modifier.size(36.dp).background(palette.accent, CircleShape), contentAlignment = Alignment.Center) {
+        Icon(painterResource(MarginIcons.PlayArrow), "Continue", Modifier.size(22.dp), palette.onAccent)
     }
 }
 

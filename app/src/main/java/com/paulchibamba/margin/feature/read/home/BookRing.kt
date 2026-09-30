@@ -29,7 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.designsystem.withFontScaleCap
 import com.paulchibamba.margin.domain.model.BookSlug
@@ -47,6 +47,7 @@ private val COVER_INSET = 6.dp
 
 @Composable
 fun BookRing(ring: BookRingState, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val ringColor = LocalSurfacePalette.current.text
     Column(
         modifier
             .width(72.dp)
@@ -57,13 +58,15 @@ fun BookRing(ring: BookRingState, onClick: () -> Unit, modifier: Modifier = Modi
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Box(Modifier.size(RING_SIZE)) {
-            Canvas(Modifier.fillMaxSize()) { if (ring.isActive) drawProgress(ring.progress) else drawOutline() }
+            Canvas(Modifier.fillMaxSize()) {
+                if (ring.isActive) drawProgress(ring.progress, ringColor) else drawOutline(ringColor)
+            }
             BookCover(ring.coverPath, CircleShape, Modifier.fillMaxSize().padding(COVER_INSET))
         }
         Text(
             ring.label,
             style = MarginTypography.pill.withFontScaleCap().copy(hyphens = Hyphens.Auto),
-            color = MarginColors.InkText,
+            color = ringColor,
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -71,9 +74,9 @@ fun BookRing(ring: BookRingState, onClick: () -> Unit, modifier: Modifier = Modi
     }
 }
 
-private fun DrawScope.drawProgress(progress: Float) {
-    drawRingArc(MarginColors.InkText.copy(alpha = 0.12f), sweep = FULL_CIRCLE)
-    drawRingArc(MarginColors.InkText, sweep = FULL_CIRCLE * progress.coerceIn(0f, 1f))
+private fun DrawScope.drawProgress(progress: Float, ringColor: Color) {
+    drawRingArc(ringColor.copy(alpha = 0.12f), sweep = FULL_CIRCLE)
+    drawRingArc(ringColor, sweep = FULL_CIRCLE * progress.coerceIn(0f, 1f))
 }
 
 private fun DrawScope.drawRingArc(color: Color, sweep: Float) {
@@ -89,10 +92,10 @@ private fun DrawScope.drawRingArc(color: Color, sweep: Float) {
     )
 }
 
-private fun DrawScope.drawOutline() {
+private fun DrawScope.drawOutline(ringColor: Color) {
     val stroke = OUTLINE_WIDTH.toPx()
     val radius = size.minDimension / 2 - stroke / 2
-    drawCircle(MarginColors.InkText.copy(alpha = 0.2f), radius = radius, style = Stroke(stroke))
+    drawCircle(ringColor.copy(alpha = 0.2f), radius = radius, style = Stroke(stroke))
 }
 
 private fun ringDescription(ring: BookRingState): String {

@@ -5,7 +5,8 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
+import com.paulchibamba.margin.designsystem.SurfacePalette
 
 private const val DISABLED_ALPHA = 0.38f
 
@@ -15,17 +16,19 @@ fun SettingsSwitch(isChecked: Boolean, isEnabled: Boolean, modifier: Modifier = 
 }
 
 @Composable
-private fun switchColors() = SwitchDefaults.colors(
-    checkedThumbColor = MarginColors.Lime,
-    checkedTrackColor = MarginColors.InkText,
-    checkedBorderColor = MarginColors.InkText,
-    uncheckedThumbColor = MarginColors.PaperTextAhead,
+private fun switchColors(palette: SurfacePalette = LocalSurfacePalette.current) = SwitchDefaults.colors(
+    checkedThumbColor = palette.checkedSwitchThumb,
+    checkedTrackColor = palette.accent,
+    checkedBorderColor = palette.accent,
+    uncheckedThumbColor = palette.aheadText,
     uncheckedTrackColor = Color.Transparent,
-    uncheckedBorderColor = MarginColors.PaperTextAhead,
-    disabledCheckedThumbColor = MarginColors.Lime,
-    disabledCheckedTrackColor = MarginColors.InkText.copy(alpha = DISABLED_ALPHA),
+    uncheckedBorderColor = palette.aheadText,
+    disabledCheckedThumbColor = palette.checkedSwitchThumb,
+    disabledCheckedTrackColor = palette.accent.copy(alpha = DISABLED_ALPHA),
     disabledCheckedBorderColor = Color.Transparent,
-    disabledUncheckedThumbColor = MarginColors.PaperTextAhead.copy(alpha = DISABLED_ALPHA),
+    disabledUncheckedThumbColor = palette.aheadText.dimmed(),
     disabledUncheckedTrackColor = Color.Transparent,
-    disabledUncheckedBorderColor = MarginColors.PaperTextAhead.copy(alpha = DISABLED_ALPHA),
+    disabledUncheckedBorderColor = palette.aheadText.dimmed(),
 )
+
+private fun Color.dimmed() = copy(alpha = alpha * DISABLED_ALPHA)

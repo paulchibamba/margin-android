@@ -16,12 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTheme
 import com.paulchibamba.margin.designsystem.MarginTypography
-import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
+import com.paulchibamba.margin.designsystem.SurfacePalette
+import com.paulchibamba.margin.designsystem.SurfacePaletteProvider
+import com.paulchibamba.margin.designsystem.SurfacePreview
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.NoteId
 
@@ -32,12 +35,13 @@ fun ReadHomeScreen(
     onOpenNote: (NoteId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    MarginTheme(Skins.Paper) {
+    val palette = LocalSurfacePalette.current
+    MarginTheme(palette.skin) {
         StatusBarFollowsSkin()
         Column(
             modifier
                 .fillMaxSize()
-                .background(Skins.Paper.background)
+                .background(palette.background)
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(start = 18.dp, top = 10.dp, end = 18.dp, bottom = 24.dp),
@@ -56,7 +60,7 @@ private fun ReadHomeContent(state: ReadHomeUiState, onOpenBook: (BookSlug) -> Un
     Text(
         "Library",
         style = MarginTypography.button,
-        color = MarginColors.InkText,
+        color = LocalSurfacePalette.current.text,
         modifier = Modifier.padding(top = 2.dp).semantics { heading() },
     )
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -73,8 +77,10 @@ private fun BookRings(rings: List<BookRingState>, onOpenBook: (BookSlug) -> Unit
 
 @Preview(widthDp = 360, heightDp = 703)
 @Composable
-private fun ReadHomeThreeBooksPreview() {
-    ReadHomeScreen(ReadHomePreviewData.threeBooks, onOpenBook = {}, onOpenNote = {})
+private fun ReadHomeThreeBooksPreview(@PreviewParameter(SurfacePaletteProvider::class) palette: SurfacePalette) {
+    SurfacePreview(palette) {
+        ReadHomeScreen(ReadHomePreviewData.threeBooks, onOpenBook = {}, onOpenNote = {})
+    }
 }
 
 @Preview(widthDp = 360, heightDp = 703, fontScale = 2f)

@@ -20,9 +20,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
+import com.paulchibamba.margin.designsystem.SurfacePalette
 import com.paulchibamba.margin.domain.memory.DesiredRetention
 import kotlin.math.roundToInt
 
@@ -35,10 +36,11 @@ fun RetentionCard(
     onChangeFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val palette = LocalSurfacePalette.current
     SettingsCard(modifier) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Desired retention", style = MarginTypography.settingTitle, color = MarginColors.InkText)
-            Text(retentionLabel(retention), style = MarginTypography.monoValue, color = MarginColors.InkText)
+            Text("Desired retention", style = MarginTypography.settingTitle, color = palette.text)
+            Text(retentionLabel(retention), style = MarginTypography.monoValue, color = palette.text)
         }
         RetentionSlider(retention, onChange, onChangeFinished)
         RangeLabels()
@@ -61,35 +63,37 @@ private fun RetentionSlider(retention: Double, onChange: (Double) -> Unit, onCha
 }
 
 @Composable
-private fun sliderColors() = SliderDefaults.colors(
-    thumbColor = MarginColors.InkText,
-    activeTrackColor = MarginColors.InkText,
-    inactiveTrackColor = MarginColors.InkText.copy(alpha = 0.12f),
+private fun sliderColors(palette: SurfacePalette = LocalSurfacePalette.current) = SliderDefaults.colors(
+    thumbColor = palette.accent,
+    activeTrackColor = palette.accent,
+    inactiveTrackColor = palette.text.copy(alpha = 0.12f),
     activeTickColor = Color.Transparent,
     inactiveTickColor = Color.Transparent,
 )
 
 @Composable
 private fun RangeLabels() {
+    val faintText = LocalSurfacePalette.current.faintText
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         listOf(DesiredRetention.RANGE.start, DesiredRetention.RANGE.endInclusive).forEach { bound ->
-            Text(retentionLabel(bound), style = MarginTypography.monoSmall, color = MarginColors.PaperTextFaint)
+            Text(retentionLabel(bound), style = MarginTypography.monoSmall, color = faintText)
         }
     }
 }
 
 @Composable
 private fun WorkloadWarning() {
+    val palette = LocalSurfacePalette.current
     Row(
-        Modifier.fillMaxWidth().background(MarginColors.WarningSurface, RoundedCornerShape(12.dp)).padding(10.dp),
+        Modifier.fillMaxWidth().background(palette.warningSurface, RoundedCornerShape(12.dp)).padding(10.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        Icon(painterResource(MarginIcons.Warning), null, Modifier.size(18.dp), MarginColors.SaveOnLight)
+        Icon(painterResource(MarginIcons.Warning), null, Modifier.size(18.dp), palette.warningIcon)
         Text(
             workloadWarning(DesiredRetention.STEEP_WORKLOAD_ABOVE),
             style = MarginTypography.detail,
-            color = MarginColors.WarningText,
+            color = palette.warningText,
         )
     }
 }

@@ -18,13 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTheme
 import com.paulchibamba.margin.designsystem.MarginTypography
-import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
+import com.paulchibamba.margin.designsystem.SurfacePalette
+import com.paulchibamba.margin.designsystem.SurfacePaletteProvider
+import com.paulchibamba.margin.designsystem.SurfacePreview
 import com.paulchibamba.margin.domain.model.BookSettings
+import com.paulchibamba.margin.domain.model.DarkMode
 
 @Composable
 fun SettingsScreen(
@@ -33,16 +37,18 @@ fun SettingsScreen(
     onRetentionChange: (Double) -> Unit,
     onRetentionChangeFinished: () -> Unit,
     onReviewReminderChange: (Boolean) -> Unit,
+    onDarkModeChange: (DarkMode) -> Unit,
     onOpenReadingOnlyChapters: () -> Unit,
     onOpenStats: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    MarginTheme(Skins.Paper) {
+    val palette = LocalSurfacePalette.current
+    MarginTheme(palette.skin) {
         StatusBarFollowsSkin()
         Column(
             modifier
                 .fillMaxSize()
-                .background(Skins.Paper.background)
+                .background(palette.background)
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
@@ -56,6 +62,8 @@ fun SettingsScreen(
                 SettingsLinksCard(onOpenReadingOnlyChapters, onOpenStats)
                 SectionTitle("Reminders", Modifier.padding(start = 4.dp, top = 4.dp))
                 ReviewReminderCard(state.isReviewReminderOn, onReviewReminderChange)
+                SectionTitle("Appearance", Modifier.padding(start = 4.dp, top = 4.dp))
+                DarkModeCard(state.darkMode, onDarkModeChange)
             }
         }
     }
@@ -67,22 +75,25 @@ private fun SettingsTitle() {
         Text(
             "Settings",
             style = MarginTypography.homeTitle,
-            color = MarginColors.InkText,
+            color = LocalSurfacePalette.current.text,
             modifier = Modifier.semantics { heading() },
         )
     }
 }
 
-@Preview(widthDp = 360, heightDp = 703)
+@Preview(widthDp = 360, heightDp = 900)
 @Composable
-private fun SettingsScreenPreview() {
-    SettingsScreen(
-        SettingsPreviewData.settings,
-        onBookSettingsChange = {},
-        onRetentionChange = {},
-        onRetentionChangeFinished = {},
-        onReviewReminderChange = {},
-        onOpenReadingOnlyChapters = {},
-        onOpenStats = {},
-    )
+private fun SettingsScreenPreview(@PreviewParameter(SurfacePaletteProvider::class) palette: SurfacePalette) {
+    SurfacePreview(palette) {
+        SettingsScreen(
+            SettingsPreviewData.settings,
+            onBookSettingsChange = {},
+            onRetentionChange = {},
+            onRetentionChangeFinished = {},
+            onReviewReminderChange = {},
+            onDarkModeChange = {},
+            onOpenReadingOnlyChapters = {},
+            onOpenStats = {},
+        )
+    }
 }

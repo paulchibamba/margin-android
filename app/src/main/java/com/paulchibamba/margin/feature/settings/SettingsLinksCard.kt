@@ -15,7 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
 
@@ -30,12 +30,13 @@ fun SettingsLinksCard(onOpenReadingOnlyChapters: () -> Unit, onOpenStats: () -> 
 
 @Composable
 private fun SettingsLink(label: String, onClick: () -> Unit) {
+    val palette = LocalSurfacePalette.current
     Row(
         Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick).padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, style = MarginTypography.settingTitle, color = MarginColors.InkText, modifier = Modifier.weight(1f))
-        Icon(painterResource(MarginIcons.ChevronRight), null, Modifier.size(22.dp), MarginColors.PaperTextAhead)
+        Text(label, style = MarginTypography.settingTitle, color = palette.text, modifier = Modifier.weight(1f))
+        Icon(painterResource(MarginIcons.ChevronRight), null, Modifier.size(22.dp), palette.aheadText)
     }
 }
 

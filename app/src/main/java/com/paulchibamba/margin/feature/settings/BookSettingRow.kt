@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.domain.model.BookSettings
 
@@ -40,10 +40,11 @@ fun BookSettingRow(book: BookSettingState, onChange: (BookSettings) -> Unit, mod
 
 @Composable
 private fun BookSettingTitle(book: BookSettingState, modifier: Modifier) {
+    val palette = LocalSurfacePalette.current
     Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(book.title, style = MarginTypography.settingTitle, color = MarginColors.InkText)
+        Text(book.title, style = MarginTypography.settingTitle, color = palette.text)
         if (!book.settings.isActive) {
-            Text("Reviews only", style = MarginTypography.label, color = MarginColors.PaperTextFaint)
+            Text("Reviews only", style = MarginTypography.label, color = palette.faintText)
         }
     }
 }

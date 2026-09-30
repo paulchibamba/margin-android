@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.domain.model.BookSettings
 
@@ -27,7 +27,7 @@ fun ActiveBooksSection(state: SettingsUiState, onChange: (BookSettings) -> Unit,
             Text(
                 activeBooksLabel(state.activeCount, state.maxActive),
                 style = MarginTypography.label,
-                color = MarginColors.PaperTextFaint,
+                color = LocalSurfacePalette.current.faintText,
             )
         }
         SettingsCard {

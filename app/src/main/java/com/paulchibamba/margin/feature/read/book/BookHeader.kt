@@ -22,7 +22,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.feature.read.BookCover
@@ -37,18 +37,19 @@ fun BookHeader(state: BookUiState, onCoverClick: () -> Unit, modifier: Modifier 
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val palette = LocalSurfacePalette.current
         HeaderCover(state, onCoverClick)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 state.title,
                 style = MarginTypography.bookTitle,
-                color = MarginColors.InkText,
+                color = palette.text,
                 modifier = Modifier.semantics { heading() },
             )
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 val total = state.conceptCount
-                BookCount(MarginIcons.MenuBook, "${state.introduced}/$total introduced", MarginColors.InkText)
-                BookCount(MarginIcons.Psychology, "${state.remembered}/$total remembered", MarginColors.PaperTextFaint)
+                BookCount(MarginIcons.MenuBook, "${state.introduced}/$total introduced", palette.text)
+                BookCount(MarginIcons.Psychology, "${state.remembered}/$total remembered", palette.faintText)
             }
         }
     }

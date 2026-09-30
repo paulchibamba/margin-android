@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.BrandMark
 import com.paulchibamba.margin.designsystem.BrandTile
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTheme
@@ -40,7 +41,7 @@ fun ReadHomeHeader(streak: Int, modifier: Modifier = Modifier) {
             Text(
                 "Read",
                 style = MarginTypography.homeTitle,
-                color = MarginColors.InkText,
+                color = LocalSurfacePalette.current.text,
                 modifier = Modifier.semantics { heading() },
             )
         }
@@ -50,16 +51,17 @@ fun ReadHomeHeader(streak: Int, modifier: Modifier = Modifier) {
 
 @Composable
 private fun StreakChip(streak: Int) {
+    val palette = LocalSurfacePalette.current
     Row(
         Modifier
-            .background(Skins.Paper.surface, CircleShape)
+            .background(palette.skin.surface, CircleShape)
             .padding(PaddingValues(start = 8.dp, top = 6.dp, end = 11.dp, bottom = 6.dp))
             .clearAndSetSemantics { contentDescription = "$streak day streak" },
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(painterResource(MarginIcons.LocalFireDepartment), null, Modifier.size(19.dp), MarginColors.Streak)
-        Text("$streak", style = MarginTypography.streakChip, color = MarginColors.InkText)
+        Text("$streak", style = MarginTypography.streakChip, color = palette.text)
     }
 }
 

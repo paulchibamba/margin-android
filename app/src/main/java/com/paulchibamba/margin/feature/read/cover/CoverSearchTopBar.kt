@@ -20,7 +20,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.feature.read.ReadingProgressBar
@@ -29,6 +29,7 @@ private const val PERCENT = 100f
 
 @Composable
 fun CoverSearchTopBar(bookTitle: String, loadProgress: Int, onClose: () -> Unit, modifier: Modifier = Modifier) {
+    val palette = LocalSurfacePalette.current
     Column(modifier.fillMaxWidth()) {
         Row(
             Modifier.fillMaxWidth().height(64.dp).padding(start = 4.dp, end = 18.dp),
@@ -36,14 +37,14 @@ fun CoverSearchTopBar(bookTitle: String, loadProgress: Int, onClose: () -> Unit,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onClose) {
-                Icon(painterResource(MarginIcons.Close), "Close", Modifier.size(24.dp), MarginColors.InkText)
+                Icon(painterResource(MarginIcons.Close), "Close", Modifier.size(24.dp), palette.text)
             }
             TitleAndHint(bookTitle)
         }
         ReadingProgressBar(
             fraction = loadProgress / PERCENT,
             height = 3.dp,
-            track = MarginColors.InkText.copy(alpha = 0.08f),
+            track = palette.divider,
             modifier = Modifier.alpha(if (loadProgress < PERCENT) 1f else 0f),
         )
     }
@@ -51,16 +52,17 @@ fun CoverSearchTopBar(bookTitle: String, loadProgress: Int, onClose: () -> Unit,
 
 @Composable
 private fun TitleAndHint(bookTitle: String) {
+    val palette = LocalSurfacePalette.current
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
             "Cover for $bookTitle",
             style = MarginTypography.cardTitle,
-            color = MarginColors.InkText,
+            color = palette.text,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.semantics { heading() },
         )
-        Text("Long-press an image to use it", style = MarginTypography.label, color = MarginColors.PaperTextFaint)
+        Text("Long-press an image to use it", style = MarginTypography.label, color = palette.faintText)
     }
 }
 

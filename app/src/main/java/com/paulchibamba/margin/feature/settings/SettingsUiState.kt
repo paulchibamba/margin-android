@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.feature.settings
 
 import com.paulchibamba.margin.domain.memory.DesiredRetention
+import com.paulchibamba.margin.domain.model.DarkMode
 import com.paulchibamba.margin.domain.progression.ActiveBookLimit
 import com.paulchibamba.margin.domain.usecase.LearningSettings
 
@@ -10,6 +11,7 @@ data class SettingsUiState(
     val maxActive: Int = ActiveBookLimit.ALLOWED.last,
     val retention: Double = DesiredRetention.DEFAULT,
     val isReviewReminderOn: Boolean = false,
+    val darkMode: DarkMode = DarkMode.DEFAULT,
     val isLoading: Boolean = true,
 ) {
     companion object {
@@ -20,6 +22,7 @@ data class SettingsUiState(
             activeCount = settings.activeCount,
             retention = retentionDraft ?: settings.desiredRetention,
             isReviewReminderOn = settings.isReviewReminderOn,
+            darkMode = settings.darkMode,
             isLoading = false,
         )
     }

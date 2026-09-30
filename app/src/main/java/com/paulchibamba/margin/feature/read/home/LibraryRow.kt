@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.domain.model.Priority
 import com.paulchibamba.margin.feature.read.BookCover
@@ -30,6 +30,7 @@ private val TagShape = RoundedCornerShape(5.dp)
 
 @Composable
 fun LibraryRow(row: LibraryRowState, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val palette = LocalSurfacePalette.current
     Row(
         modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -41,13 +42,13 @@ fun LibraryRow(row: LibraryRowState, onClick: () -> Unit, modifier: Modifier = M
                 Text(
                     row.title,
                     style = MarginTypography.libraryTitle,
-                    color = MarginColors.InkText,
+                    color = palette.text,
                     modifier = Modifier.weight(1f),
                 )
                 PriorityTag(row.priority)
             }
             ReadingProgressBar(row.tally.progress())
-            Text(bookProgressLabel(row.tally), style = MarginTypography.label, color = MarginColors.PaperTextFaint)
+            Text(bookProgressLabel(row.tally), style = MarginTypography.label, color = palette.faintText)
         }
     }
 }
@@ -55,12 +56,13 @@ fun LibraryRow(row: LibraryRowState, onClick: () -> Unit, modifier: Modifier = M
 @Composable
 private fun PriorityTag(priority: Priority?) {
     val isMain = priority == Priority.MAIN
+    val palette = LocalSurfacePalette.current
     Text(
         priority?.label() ?: "Inactive",
         style = MarginTypography.tag,
-        color = if (isMain) MarginColors.White else MarginColors.InkText,
+        color = if (isMain) palette.onAccent else palette.text,
         modifier = Modifier
-            .background(if (isMain) MarginColors.InkText else MarginColors.InkText.copy(alpha = 0.08f), TagShape)
+            .background(if (isMain) palette.accent else palette.text.copy(alpha = 0.08f), TagShape)
             .padding(horizontal = 6.dp, vertical = 2.dp),
     )
 }

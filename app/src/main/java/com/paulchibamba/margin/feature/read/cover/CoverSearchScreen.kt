@@ -17,11 +17,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTheme
-import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
+import com.paulchibamba.margin.designsystem.SurfacePalette
+import com.paulchibamba.margin.designsystem.SurfacePaletteProvider
+import com.paulchibamba.margin.designsystem.SurfacePreview
 import com.paulchibamba.margin.designsystem.component.FeedSnackbar
 import kotlinx.coroutines.delay
 
@@ -38,9 +41,10 @@ fun CoverSearchScreen(
     modifier: Modifier = Modifier,
 ) {
     var loadProgress by remember { mutableIntStateOf(0) }
-    MarginTheme(Skins.Paper) {
+    val palette = LocalSurfacePalette.current
+    MarginTheme(palette.skin) {
         StatusBarFollowsSkin()
-        Box(modifier.fillMaxSize().background(Skins.Paper.background).statusBarsPadding().navigationBarsPadding()) {
+        Box(modifier.fillMaxSize().background(palette.background).statusBarsPadding().navigationBarsPadding()) {
             Column(Modifier.fillMaxSize()) {
                 CoverSearchTopBar(state.bookTitle, loadProgress, onClose)
                 browser({ progress -> loadProgress = progress }, Modifier.weight(1f).fillMaxWidth())
@@ -76,7 +80,7 @@ private fun CoverSearchPreviewOf(state: CoverSearchUiState) {
         onUseImage = {},
         onCancelImage = {},
         onRejectionShown = {},
-        browser = { _, modifier -> Box(modifier.background(MarginColors.PaperCard)) },
+        browser = { _, modifier -> Box(modifier.background(LocalSurfacePalette.current.card)) },
     )
 }
 
@@ -87,8 +91,8 @@ private val previewState = CoverSearchUiState(
 
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
-private fun CoverSearchScreenPreview() {
-    CoverSearchPreviewOf(previewState)
+private fun CoverSearchScreenPreview(@PreviewParameter(SurfacePaletteProvider::class) palette: SurfacePalette) {
+    SurfacePreview(palette) { CoverSearchPreviewOf(previewState) }
 }
 
 @Preview(widthDp = 360, heightDp = 780)

@@ -9,7 +9,7 @@ import kotlin.time.Duration
 
 data class NoteUiState(
     val note: NoteId? = null,
-    val html: String = "",
+    val bodyHtml: String = "",
     val place: PlaceInChapter = PlaceInChapter(order = 0, noteCount = 0),
     val readingTime: Duration = Duration.ZERO,
     val isRead: Boolean = false,
@@ -26,7 +26,7 @@ data class NoteUiState(
     companion object {
         fun of(reading: NoteReading, isReadRuleMet: Boolean, fromPost: PostId?) = NoteUiState(
             note = reading.note.id,
-            html = NoteHtml.documentOf(reading.note, noteChapterLabel(reading)),
+            bodyHtml = NoteHtml.bodyOf(reading.note, noteChapterLabel(reading)),
             place = reading.place,
             readingTime = reading.note.readingTime,
             isRead = reading.isRead || isReadRuleMet,

@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
@@ -38,7 +39,7 @@ fun ContinueCard(note: ContinueNote, onOpen: () -> Unit, modifier: Modifier = Mo
         modifier
             .fillMaxWidth()
             .clip(CardShape)
-            .background(MarginColors.InkText)
+            .background(LocalSurfacePalette.current.emphasisCard)
             .clickable(role = Role.Button, onClickLabel = "Continue reading", onClick = onOpen)
             .padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),

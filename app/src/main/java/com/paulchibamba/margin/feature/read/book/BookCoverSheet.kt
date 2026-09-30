@@ -26,7 +26,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
 
@@ -40,8 +40,8 @@ fun BookCoverSheet(hasCover: Boolean, choices: CoverChoices, onDismiss: () -> Un
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         shape = SheetShape,
-        containerColor = MarginColors.PaperCard,
-        contentColor = MarginColors.InkText,
+        containerColor = LocalSurfacePalette.current.card,
+        contentColor = LocalSurfacePalette.current.text,
         scrimColor = Color.Black.copy(alpha = SCRIM_ALPHA),
         dragHandle = { DragHandle() },
     ) {
@@ -71,8 +71,9 @@ private fun CoverAction(icon: Int, label: String, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(painterResource(icon), contentDescription = null, Modifier.size(24.dp), MarginColors.InkText)
-        Text(label, style = MarginTypography.settingTitle, color = MarginColors.InkText)
+        val palette = LocalSurfacePalette.current
+        Icon(painterResource(icon), contentDescription = null, Modifier.size(24.dp), palette.text)
+        Text(label, style = MarginTypography.settingTitle, color = palette.text)
     }
 }
 
@@ -80,7 +81,7 @@ private fun CoverAction(icon: Int, label: String, onClick: () -> Unit) {
 private fun DragHandle() {
     Box(
         Modifier.padding(top = 10.dp, bottom = 6.dp).size(width = 36.dp, height = 4.dp)
-            .background(MarginColors.InkText.copy(alpha = 0.2f), HandleShape),
+            .background(LocalSurfacePalette.current.text.copy(alpha = 0.2f), HandleShape),
     )
 }
 
