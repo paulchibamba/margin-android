@@ -17,6 +17,7 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.GraphicsMode
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.time.Instant
 import kotlin.test.assertEquals
@@ -54,6 +55,27 @@ class FileCoverImageStoreTest {
     }
 
     @Test
+    fun `a web image is downloaded, scaled and written as WebP`() = runTest {
+        val png = pngBytes(width = 900, height = 1200)
+        val downloader = CoverDownloader(open = { url -> FakeConnection(url, png) })
+        val store = storeFor(this, downloader)
+
+        val path = store.save(book, CoverSource.WebImage("https://covers.example/appsec.png"), at)
+
+        val saved = File(checkNotNull(path))
+        assertTrue(saved.isWebp())
+        assertEquals(450 to 600, saved.dimensions())
+    }
+
+    @Test
+    fun `a refused web image saves nothing`() = runTest {
+        val path = storeFor(this).save(book, CoverSource.WebImage("http://covers.example/appsec.png"), at)
+
+        assertNull(path)
+        assertTrue(root.listFiles().orEmpty().isEmpty())
+    }
+
+    @Test
     fun `an unreadable image saves nothing`() = runTest {
         val notAnImage = folder.newFile("notes.txt").apply { writeText("not an image") }
 
@@ -77,17 +99,22 @@ class FileCoverImageStoreTest {
         assertTrue(outside.exists())
     }
 
-    private fun storeFor(scope: TestScope) = FileCoverImageStore(
+    private fun storeFor(scope: TestScope, downloader: CoverDownloader = CoverDownloader()) = FileCoverImageStore(
         context.contentResolver,
         CoverDirectory(root),
+        downloader = downloader,
         dispatcher = StandardTestDispatcher(scope.testScheduler),
     )
 
     private fun pickedImage(width: Int, height: Int): CoverSource {
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.RED) }
-        val file = folder.newFile("picked-${width}x$height.png")
-        file.outputStream().use { stream -> bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) }
+        val file = folder.newFile("picked-${width}x$height.png").apply { writeBytes(pngBytes(width, height)) }
         return CoverSource.GalleryImage(Uri.fromFile(file).toString())
+    }
+
+    private fun pngBytes(width: Int, height: Int): ByteArray {
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.RED) }
+        return ByteArrayOutputStream().also { bytes -> bitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes) }
+            .toByteArray()
     }
 
     private fun File.isWebp(): Boolean {
