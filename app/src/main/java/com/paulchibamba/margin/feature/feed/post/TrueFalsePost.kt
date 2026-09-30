@@ -121,7 +121,7 @@ private fun TrueFalsePostInkPreview() = PostPagePreview(Skins.Ink, previewStatem
 @Composable
 private fun TrueFalsePostDarkCardPreview() {
     CompositionLocalProvider(LocalPostCardStyle provides PostCardStyle.DARK) {
-        PostPagePreview(Skins.Ink, previewStatement)
+        PostPagePreview(Skins.Midnight, previewStatement)
     }
 }
 

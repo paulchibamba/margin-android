@@ -12,12 +12,13 @@ import com.paulchibamba.margin.domain.feed.withIntroduced
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.ChapterRef
 import com.paulchibamba.margin.domain.model.DarkMode
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
+import com.paulchibamba.margin.domain.model.FeedTone
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 
 class SettingsUseCasesTest {
 
@@ -111,11 +112,15 @@ class SettingsUseCasesTest {
     }
 
     @Test
-    fun `the feed is dark-only when dark posts are on or the dark theme is dark`() {
-        assertFalse(Appearance(DarkMode.OFF, isDarkPostsOn = false).isFeedDarkOnly(isSystemDark = true))
-        assertTrue(Appearance(DarkMode.OFF, isDarkPostsOn = true).isFeedDarkOnly(isSystemDark = false))
-        assertTrue(Appearance(DarkMode.ALWAYS, isDarkPostsOn = false).isFeedDarkOnly(isSystemDark = false))
-        assertTrue(Appearance(DarkMode.FOLLOW_SYSTEM, isDarkPostsOn = false).isFeedDarkOnly(isSystemDark = true))
+    fun `dark posts give a night feed, a dark theme a dark feed, and otherwise any skin goes`() {
+        assertEquals(FeedTone.ANY, Appearance(DarkMode.OFF, isDarkPostsOn = false).feedTone(isSystemDark = true))
+        assertEquals(FeedTone.NIGHT, Appearance(DarkMode.OFF, isDarkPostsOn = true).feedTone(isSystemDark = false))
+        assertEquals(FeedTone.NIGHT, Appearance(DarkMode.ALWAYS, isDarkPostsOn = true).feedTone(isSystemDark = true))
+        assertEquals(FeedTone.DARK, Appearance(DarkMode.ALWAYS, isDarkPostsOn = false).feedTone(isSystemDark = false))
+        assertEquals(
+            FeedTone.DARK,
+            Appearance(DarkMode.FOLLOW_SYSTEM, isDarkPostsOn = false).feedTone(isSystemDark = true),
+        )
     }
 
     private fun BookLearningSettings.withActive(isActive: Boolean) =

@@ -61,5 +61,5 @@ class DomainFeedUseCases @Inject constructor(
 
     override suspend fun previewIntervals(post: Post) = previewIntervals.invoke(post)
 
-    override suspend fun isFeedDarkOnly() = observeAppearance().first().isFeedDarkOnly(systemDarkTheme.isOn())
+    override suspend fun feedTone() = observeAppearance().first().feedTone(systemDarkTheme.isOn())
 }

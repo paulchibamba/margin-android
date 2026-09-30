@@ -24,7 +24,7 @@ import com.paulchibamba.margin.designsystem.Skins
 @Composable
 fun SkinSwatchCatalog(modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Skins.all.forEach { SkinSwatch(it) }
+        (Skins.all + Skins.Midnight).forEach { SkinSwatch(it) }
     }
 }
 

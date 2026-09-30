@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.designsystem
 
+import com.paulchibamba.margin.domain.model.FeedTone
 import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -27,22 +28,32 @@ class SkinRotationTest {
     }
 
     @Test
-    fun `dark-only draws use Ink, Cobalt and Forest, never twice in a row`() {
-        val rotation = SkinRotation(Random(seed = 5))
-        val drawn = generateSequence(rotation.next(null, isDarkOnly = true)) { rotation.next(it, isDarkOnly = true) }
-            .take(1000)
-            .toList()
+    fun `dark draws use Ink, Cobalt and Forest, never twice in a row`() {
+        val drawn = drawsOf(FeedTone.DARK, seed = 5)
 
         assertEquals(setOf(Skins.Ink, Skins.Cobalt, Skins.Forest), drawn.toSet())
         drawn.zipWithNext().forEach { (previous, next) -> assertNotEquals(previous, next) }
     }
 
     @Test
-    fun `a dark-only draw after a light skin is still dark`() {
+    fun `night draws alternate between Ink and Midnight`() {
+        val drawn = drawsOf(FeedTone.NIGHT, seed = 11)
+
+        assertEquals(setOf(Skins.Ink, Skins.Midnight), drawn.toSet())
+        drawn.zipWithNext().forEach { (previous, next) -> assertNotEquals(previous, next) }
+    }
+
+    @Test
+    fun `a dark or night draw after a light skin is never light`() {
         val rotation = SkinRotation(Random(seed = 9))
-        val draws = (1..200).map { rotation.next(Skins.Paper, isDarkOnly = true) }
+        val draws = (1..200).flatMap { listOf(FeedTone.DARK, FeedTone.NIGHT).map { rotation.next(Skins.Paper, it) } }
 
         assertTrue(draws.none { it.isLight })
+    }
+
+    private fun drawsOf(tone: FeedTone, seed: Int): List<Skin> {
+        val rotation = SkinRotation(Random(seed))
+        return generateSequence(rotation.next(null, tone)) { rotation.next(it, tone) }.take(1000).toList()
     }
 
     @Test

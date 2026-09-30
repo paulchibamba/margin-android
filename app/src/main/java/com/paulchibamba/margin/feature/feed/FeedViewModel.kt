@@ -168,7 +168,7 @@ class FeedViewModel @Inject constructor(
 
     private suspend fun appendPage(item: FeedItem) {
         val context = useCases.describe(item.post)
-        val skin = skinRotation.next(state.value.pages.lastOrNull()?.skin, isDarkOnly = useCases.isFeedDarkOnly())
+        val skin = skinRotation.next(state.value.pages.lastOrNull()?.skin, useCases.feedTone())
         state.update { it.copy(pages = it.pages + FeedPage(item, context, skin), caughtUp = null) }
     }
 
