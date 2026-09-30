@@ -2,6 +2,8 @@ package com.paulchibamba.margin.feature.feed
 
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.Confidence
+import com.paulchibamba.margin.domain.model.BookCover
+import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.signals.PostExit
 import com.paulchibamba.margin.domain.usecase.StreakSummary
 import org.junit.After
@@ -12,6 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import java.time.Instant
 import java.time.LocalDate
 import kotlin.random.Random
 import kotlin.test.assertEquals
@@ -257,6 +260,22 @@ class FeedViewModelTest {
         viewModel.onClockChanged()
 
         assertEquals(listOf("post-7"), postIdsOf(viewModel))
+    }
+
+    @Test
+    fun `the caught-up card shows the cover of the next note's book`() {
+        useCases.upcoming.clear()
+        useCases.caughtUp = FeedPreviewData.caughtUp
+        val book = FeedPreviewData.caughtUp.nextNote!!.outline.bookSlug
+        val viewModel = feedViewModel()
+        assertNull(viewModel.uiState.value.caughtUpCoverPath)
+
+        useCases.covers.value = mapOf(
+            book to BookCover(book, "/covers/next-book.webp", Instant.EPOCH),
+            BookSlug("other") to BookCover(BookSlug("other"), "/covers/other.webp", Instant.EPOCH),
+        )
+
+        assertEquals("/covers/next-book.webp", viewModel.uiState.value.caughtUpCoverPath)
     }
 
     @Test
