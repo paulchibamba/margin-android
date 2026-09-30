@@ -8,9 +8,13 @@ import android.webkit.WebSettings
 import android.webkit.WebStorage
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -25,6 +29,8 @@ fun CoverSearchWebView(
 ) {
     val latestOnProgress by rememberUpdatedState(onProgress)
     val latestOnImageLongPress by rememberUpdatedState(onImageLongPress)
+    val history = remember { BrowserHistory() }
+    BackHandler(enabled = history.canGoBack, onBack = history::goBack)
     AndroidView(
         factory = { context ->
             forgetBrowsing()
@@ -32,18 +38,27 @@ fun CoverSearchWebView(
                 context,
                 onProgress = { progress -> latestOnProgress(progress) },
                 onImageLongPress = { image -> latestOnImageLongPress(image) },
+                onHistoryChanged = history::update,
             )
             webView.apply { loadUrl(url) }
         },
         modifier = modifier,
-        onRelease = ::closeAndForget,
+        onRelease = { webView ->
+            history.forget()
+            closeAndForget(webView)
+        },
     )
 }
 
-private fun searchWebView(context: Context, onProgress: (Int) -> Unit, onImageLongPress: (String) -> Unit): WebView =
+private fun searchWebView(
+    context: Context,
+    onProgress: (Int) -> Unit,
+    onImageLongPress: (String) -> Unit,
+    onHistoryChanged: (WebView) -> Unit,
+): WebView =
     WebView(context).apply {
         lockDown(settings)
-        webViewClient = HttpsOnlyClient()
+        webViewClient = HttpsOnlyClient(onHistoryChanged)
         webChromeClient = ProgressClient(onProgress)
         setOnLongClickListener { offerImageUnderTouch(onImageLongPress) }
     }
@@ -86,9 +101,33 @@ private fun forgetBrowsing() {
     WebStorage.getInstance().deleteAllData()
 }
 
-private class HttpsOnlyClient : WebViewClient() {
+private class BrowserHistory {
+    private var webView: WebView? = null
+    var canGoBack by mutableStateOf(false)
+        private set
+
+    fun update(view: WebView) {
+        webView = view
+        canGoBack = view.canGoBack()
+    }
+
+    fun goBack() {
+        webView?.goBack()
+    }
+
+    fun forget() {
+        webView = null
+        canGoBack = false
+    }
+}
+
+private class HttpsOnlyClient(private val onHistoryChanged: (WebView) -> Unit) : WebViewClient() {
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
         !request.url.scheme.equals(HTTPS, ignoreCase = true)
+
+    override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
+        onHistoryChanged(view)
+    }
 }
 
 private class ProgressClient(private val onProgress: (Int) -> Unit) : WebChromeClient() {
