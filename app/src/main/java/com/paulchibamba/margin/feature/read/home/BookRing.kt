@@ -33,7 +33,7 @@ import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.designsystem.withFontScaleCap
 import com.paulchibamba.margin.domain.model.BookSlug
-import com.paulchibamba.margin.feature.read.StripedCover
+import com.paulchibamba.margin.feature.read.BookCover
 import kotlin.math.roundToInt
 
 private const val FULL_CIRCLE = 360f
@@ -58,7 +58,7 @@ fun BookRing(ring: BookRingState, onClick: () -> Unit, modifier: Modifier = Modi
     ) {
         Box(Modifier.size(RING_SIZE)) {
             Canvas(Modifier.fillMaxSize()) { if (ring.isActive) drawProgress(ring.progress) else drawOutline() }
-            StripedCover(CircleShape, Modifier.fillMaxSize().padding(COVER_INSET))
+            BookCover(ring.coverPath, CircleShape, Modifier.fillMaxSize().padding(COVER_INSET))
         }
         Text(
             ring.label,

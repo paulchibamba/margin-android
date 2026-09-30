@@ -5,8 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.ChapterRef
+import com.paulchibamba.margin.domain.model.CoverSource
 import com.paulchibamba.margin.domain.usecase.MarkChapterKnown
 import com.paulchibamba.margin.domain.usecase.ObserveBook
+import com.paulchibamba.margin.domain.usecase.ObserveBookCovers
+import com.paulchibamba.margin.domain.usecase.RemoveBookCover
+import com.paulchibamba.margin.domain.usecase.SetBookCover
 import com.paulchibamba.margin.domain.usecase.UnmarkChapterKnown
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,15 +28,20 @@ private const val BOOK_SLUG_KEY = "slug"
 class BookViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     observeBook: ObserveBook,
+    observeBookCovers: ObserveBookCovers,
     private val markChapterKnown: MarkChapterKnown,
     private val unmarkChapterKnown: UnmarkChapterKnown,
+    private val setBookCover: SetBookCover,
+    private val removeBookCover: RemoveBookCover,
 ) : ViewModel() {
 
     private val undoChapter = MutableStateFlow<ChapterRef?>(null)
     private val book = BookSlug(checkNotNull(savedStateHandle.get<String>(BOOK_SLUG_KEY)))
 
-    val uiState: StateFlow<BookUiState> = combine(observeBook(book), undoChapter, BookUiState::of)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), BookUiState())
+    val uiState: StateFlow<BookUiState> =
+        combine(observeBook(book), undoChapter, observeBookCovers()) { chapters, undo, covers ->
+            BookUiState.of(chapters, undo, covers[book])
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), BookUiState())
 
     fun onMarkKnown(chapter: ChapterRef) {
         undoChapter.value = chapter
@@ -47,5 +56,13 @@ class BookViewModel @Inject constructor(
 
     fun onUndoDismiss() {
         undoChapter.value = null
+    }
+
+    fun onCoverPicked(uri: String) {
+        viewModelScope.launch { setBookCover(book, CoverSource.GalleryImage(uri)) }
+    }
+
+    fun onRemoveCover() {
+        viewModelScope.launch { removeBookCover(book) }
     }
 }

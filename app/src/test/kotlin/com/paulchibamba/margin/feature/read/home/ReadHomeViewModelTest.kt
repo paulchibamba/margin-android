@@ -4,12 +4,15 @@ import com.paulchibamba.margin.domain.feed.aiSecurity
 import com.paulchibamba.margin.domain.feed.appSec
 import com.paulchibamba.margin.domain.feed.grokking
 import com.paulchibamba.margin.domain.feed.noteId
+import com.paulchibamba.margin.domain.model.BookCover
 import com.paulchibamba.margin.domain.model.ChapterRef
 import com.paulchibamba.margin.domain.progression.ReadingState
+import com.paulchibamba.margin.domain.usecase.FakeBookCoverRepository
 import com.paulchibamba.margin.domain.usecase.FakeContentRepository
 import com.paulchibamba.margin.domain.usecase.FakeProgressRepository
 import com.paulchibamba.margin.domain.usecase.FakeSettingsRepository
 import com.paulchibamba.margin.domain.usecase.FixedClock
+import com.paulchibamba.margin.domain.usecase.ObserveBookCovers
 import com.paulchibamba.margin.domain.usecase.ObserveReadingHome
 import com.paulchibamba.margin.domain.usecase.ObserveStreak
 import com.paulchibamba.margin.domain.usecase.UnlockedPostCount
@@ -32,6 +35,7 @@ class ReadHomeViewModelTest {
     private val content = FakeContentRepository()
     private val progress = FakeProgressRepository()
     private val settings = FakeSettingsRepository()
+    private val covers = FakeBookCoverRepository()
 
     @Before
     fun setUp() {
@@ -95,11 +99,24 @@ class ReadHomeViewModelTest {
         assertEquals(0.25f, loadedState().rings.first().progress)
     }
 
+    @Test
+    fun `a book's cover shows on its ring and its library row`() = runTest {
+        val cover = BookCover(grokking.slug, "/covers/grokking-6000.webp", FixedClock().now())
+        covers.saveCover(cover)
+
+        val state = loadedState()
+
+        assertEquals(cover.imagePath, state.rings.single { it.book == grokking.slug }.coverPath)
+        assertEquals(cover.imagePath, state.library.single { it.book == grokking.slug }.coverPath)
+        assertNull(state.rings.single { it.book == appSec.slug }.coverPath)
+    }
+
     private suspend fun loadedState(): ReadHomeUiState {
         val clock = FixedClock()
         val viewModel = ReadHomeViewModel(
             ObserveReadingHome(content, progress, settings, UnlockedPostCount(content, settings)),
             ObserveStreak(progress, clock),
+            ObserveBookCovers(covers),
         )
         return viewModel.uiState.first { !it.isLoading }
     }

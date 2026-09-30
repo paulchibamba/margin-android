@@ -1,8 +1,10 @@
 package com.paulchibamba.margin.data.di
 
+import com.paulchibamba.margin.data.repository.RoomBookCoverRepository
 import com.paulchibamba.margin.data.repository.RoomContentRepository
 import com.paulchibamba.margin.data.repository.RoomProgressRepository
 import com.paulchibamba.margin.data.repository.RoomSettingsRepository
+import com.paulchibamba.margin.domain.repository.BookCoverRepository
 import com.paulchibamba.margin.domain.repository.ContentRepository
 import com.paulchibamba.margin.domain.repository.ProgressRepository
 import com.paulchibamba.margin.domain.repository.SettingsRepository
@@ -23,4 +25,7 @@ interface RepositoryModule {
 
     @Binds
     fun settingsRepository(repository: RoomSettingsRepository): SettingsRepository
+
+    @Binds
+    fun bookCoverRepository(repository: RoomBookCoverRepository): BookCoverRepository
 }

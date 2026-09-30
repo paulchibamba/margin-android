@@ -10,6 +10,7 @@ import com.paulchibamba.margin.domain.usecase.ApplyPostAction
 import com.paulchibamba.margin.domain.usecase.DescribePost
 import com.paulchibamba.margin.domain.usecase.GetCaughtUp
 import com.paulchibamba.margin.domain.usecase.GetNextPost
+import com.paulchibamba.margin.domain.usecase.ObserveBookCovers
 import com.paulchibamba.margin.domain.usecase.ObserveStreak
 import com.paulchibamba.margin.domain.usecase.PreviewIntervals
 import com.paulchibamba.margin.domain.usecase.RecordPostExit
@@ -25,11 +26,14 @@ class DomainFeedUseCases @Inject constructor(
     private val applyPostAction: ApplyPostAction,
     private val getCaughtUp: GetCaughtUp,
     private val observeStreak: ObserveStreak,
+    private val observeBookCovers: ObserveBookCovers,
     private val previewIntervals: PreviewIntervals,
     private val celebrations: CelebrationTrigger,
 ) : FeedUseCases {
 
     override fun observeStreak() = observeStreak.invoke()
+
+    override fun observeBookCovers() = observeBookCovers.invoke()
 
     override suspend fun nextPost(): FeedResult {
         startup.ensureImported()

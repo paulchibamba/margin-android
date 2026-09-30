@@ -103,5 +103,6 @@ class PackImporterTest : DatabaseTest() {
         database.settingsDao().bookSettings().first().size,
         database.settingsDao().readingOnlyChapters().first().size,
         database.activityDao().all().first().size,
+        database.bookCoverDao().covers().first().size,
     )
 }

@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.data.database
 
 import com.paulchibamba.margin.data.database.entity.ActionLogEntity
+import com.paulchibamba.margin.data.database.entity.BookCoverEntity
 import com.paulchibamba.margin.data.database.entity.BookEntity
 import com.paulchibamba.margin.data.database.entity.BookSettingsEntity
 import com.paulchibamba.margin.data.database.entity.ChapterEntity
@@ -103,6 +104,7 @@ suspend fun MarginDatabase.fillProgressTables() {
     settingsDao().replaceReadingOnlyChapters(BOOK, listOf(10, 11))
     metaDao().put(listOf(MetaEntity(MetaKey.FEED_STEP, "12")))
     activityDao().upsert(DailyActivityEntity("2026-10-01", postsSeen = 6, notesRead = 1))
+    bookCoverDao().upsert(BookCoverEntity(BOOK, fileName = "$BOOK-6000.webp", updatedAt = 6_000))
 }
 
 fun bookSettings(active: Boolean, priority: String) =

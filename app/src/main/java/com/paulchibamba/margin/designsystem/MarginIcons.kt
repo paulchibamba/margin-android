@@ -43,12 +43,14 @@ object MarginIcons {
     val ContentCopy = R.drawable.ic_content_copy
     val IosShare = R.drawable.ic_ios_share
     val Warning = R.drawable.ic_warning
+    val PhotoLibrary = R.drawable.ic_photo_library
+    val Delete = R.drawable.ic_delete
 
     val all: List<Int> = listOf(
         ThumbUp, SentimentStressed, MenuBook, Bookmark, Block, BlockOutlined, LocalFireDepartment, MoreHoriz,
         PlayCircle, PlayCircleOutlined, AutoStories, AutoStoriesOutlined, Check, CheckCircle, Cancel, Close, Replay,
         Visibility, Schedule, Lock, ArrowForward, ArrowBack, Autorenew, AutoAwesome, VerifiedUser, Key, Smartphone,
         Fingerprint, Settings, SettingsOutlined, PlayArrow, MoreVert, Psychology, DoneAll, ChevronLeft,
-        ChevronRight, PinchZoomOut, ContentCopy, IosShare, Warning,
+        ChevronRight, PinchZoomOut, ContentCopy, IosShare, Warning, PhotoLibrary, Delete,
     )
 }

@@ -5,12 +5,17 @@ import com.paulchibamba.margin.domain.feed.appSec
 import com.paulchibamba.margin.domain.feed.noteId
 import com.paulchibamba.margin.domain.model.ChapterRef
 import com.paulchibamba.margin.domain.progression.ReadingState
+import com.paulchibamba.margin.domain.usecase.FakeBookCoverRepository
 import com.paulchibamba.margin.domain.usecase.FakeContentRepository
+import com.paulchibamba.margin.domain.usecase.FakeCoverImageStore
 import com.paulchibamba.margin.domain.usecase.FakeProgressRepository
 import com.paulchibamba.margin.domain.usecase.FakeSettingsRepository
 import com.paulchibamba.margin.domain.usecase.FixedClock
 import com.paulchibamba.margin.domain.usecase.MarkChapterKnown
 import com.paulchibamba.margin.domain.usecase.ObserveBook
+import com.paulchibamba.margin.domain.usecase.ObserveBookCovers
+import com.paulchibamba.margin.domain.usecase.RemoveBookCover
+import com.paulchibamba.margin.domain.usecase.SetBookCover
 import com.paulchibamba.margin.domain.usecase.UnmarkChapterKnown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,6 +38,8 @@ class BookViewModelTest {
     private val content = FakeContentRepository()
     private val progress = FakeProgressRepository()
     private val settings = FakeSettingsRepository()
+    private val covers = FakeBookCoverRepository()
+    private val images = FakeCoverImageStore()
     private val chapterThree = ChapterRef(appSec.slug, 3)
 
     @Before
@@ -89,11 +96,28 @@ class BookViewModelTest {
         assertEquals(3, state.conceptCount)
     }
 
+    @Test
+    fun `a picked image becomes the book's cover until it is removed`() = runTest {
+        val viewModel = bookViewModel()
+        assertFalse(viewModel.loadedState().hasCover)
+
+        viewModel.onCoverPicked("content://media/picker/0/1")
+        val picked = viewModel.uiState.first { it.hasCover }
+        assertEquals(images.files.single(), picked.coverPath)
+
+        viewModel.onRemoveCover()
+        assertNull(viewModel.uiState.first { !it.hasCover }.coverPath)
+        assertTrue(images.files.isEmpty())
+    }
+
     private fun bookViewModel() = BookViewModel(
         SavedStateHandle(mapOf("slug" to appSec.slug.value)),
         ObserveBook(content, progress, settings),
+        ObserveBookCovers(covers),
         MarkChapterKnown(progress, FixedClock()),
         UnmarkChapterKnown(progress),
+        SetBookCover(covers, images, FixedClock()),
+        RemoveBookCover(covers, images),
     )
 
     private suspend fun BookViewModel.loadedState() = uiState.first { !it.isLoading }

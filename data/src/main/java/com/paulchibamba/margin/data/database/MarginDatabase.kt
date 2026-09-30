@@ -1,8 +1,10 @@
 package com.paulchibamba.margin.data.database
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.paulchibamba.margin.data.database.dao.ActivityDao
+import com.paulchibamba.margin.data.database.dao.BookCoverDao
 import com.paulchibamba.margin.data.database.dao.ConceptProgressDao
 import com.paulchibamba.margin.data.database.dao.ContentDao
 import com.paulchibamba.margin.data.database.dao.FeedLogDao
@@ -11,6 +13,7 @@ import com.paulchibamba.margin.data.database.dao.MetaDao
 import com.paulchibamba.margin.data.database.dao.ReadingDao
 import com.paulchibamba.margin.data.database.dao.SettingsDao
 import com.paulchibamba.margin.data.database.entity.ActionLogEntity
+import com.paulchibamba.margin.data.database.entity.BookCoverEntity
 import com.paulchibamba.margin.data.database.entity.BookEntity
 import com.paulchibamba.margin.data.database.entity.BookSettingsEntity
 import com.paulchibamba.margin.data.database.entity.ChapterEntity
@@ -30,8 +33,9 @@ import com.paulchibamba.margin.data.database.entity.ReviewLogEntity
 import com.paulchibamba.margin.data.database.entity.SavedPostEntity
 
 @Database(
-    version = 1,
+    version = 2,
     exportSchema = true,
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
     entities = [
         BookEntity::class,
         ChapterEntity::class,
@@ -51,6 +55,7 @@ import com.paulchibamba.margin.data.database.entity.SavedPostEntity
         MetaEntity::class,
         FeedHistoryEntity::class,
         DailyActivityEntity::class,
+        BookCoverEntity::class,
     ],
 )
 abstract class MarginDatabase : RoomDatabase() {
@@ -62,6 +67,7 @@ abstract class MarginDatabase : RoomDatabase() {
     abstract fun settingsDao(): SettingsDao
     abstract fun metaDao(): MetaDao
     abstract fun activityDao(): ActivityDao
+    abstract fun bookCoverDao(): BookCoverDao
 
     companion object {
         const val NAME = "margin.db"

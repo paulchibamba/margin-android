@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.feature.feed
 
+import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.usecase.CaughtUp
 
 data class FeedUiState(
@@ -9,9 +10,13 @@ data class FeedUiState(
     val sheetPageIndex: Int? = null,
     val nudge: FeedNudge? = null,
     val caughtUp: CaughtUp? = null,
+    val coverPaths: Map<BookSlug, String> = emptyMap(),
 ) {
     val isCaughtUp: Boolean
         get() = caughtUp != null
+
+    val caughtUpCoverPath: String?
+        get() = caughtUp?.nextNote?.let { note -> coverPaths[note.outline.bookSlug] }
 
     val isLoading: Boolean
         get() = pages.isEmpty() && !isCaughtUp

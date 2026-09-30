@@ -100,7 +100,7 @@ private fun FeedPagerPage(
     val caughtUp = state.caughtUp
     if (caughtUp != null && state.isCaughtUpPage(index)) {
         val tag = Modifier.testTag("feed-caught-up")
-        CaughtUpState(caughtUp, state.streak, onReadOn, onCaughtUpMore, onCaughtUpShown, tag)
+        CaughtUpState(caughtUp, state.streak, onReadOn, onCaughtUpMore, onCaughtUpShown, tag, state.caughtUpCoverPath)
         return
     }
     FeedPostPage(
