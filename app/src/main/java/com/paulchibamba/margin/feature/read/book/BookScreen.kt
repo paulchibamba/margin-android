@@ -47,6 +47,7 @@ fun BookScreen(
     onUndoDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     onChooseCover: () -> Unit = {},
+    onSearchCover: () -> Unit = {},
     onRemoveCover: () -> Unit = {},
 ) {
     var isCoverSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -59,24 +60,30 @@ fun BookScreen(
             }
             state.undoChapter?.let { chapter -> UndoSnackbar(chapter, onUndo, onUndoDismiss) }
         }
-        if (isCoverSheetOpen) CoverSheet(state.hasCover, onChooseCover, onRemoveCover) { isCoverSheetOpen = false }
+        if (isCoverSheetOpen) {
+            CoverSheet(state.hasCover, CoverChoices(onChooseCover, onSearchCover, onRemoveCover)) {
+                isCoverSheetOpen = false
+            }
+        }
     }
 }
 
 @Composable
-private fun CoverSheet(hasCover: Boolean, onChooseCover: () -> Unit, onRemoveCover: () -> Unit, onClose: () -> Unit) {
+private fun CoverSheet(hasCover: Boolean, choices: CoverChoices, onClose: () -> Unit) {
     BookCoverSheet(
         hasCover = hasCover,
-        onChooseFromGallery = {
-            onClose()
-            onChooseCover()
-        },
-        onRemove = {
-            onClose()
-            onRemoveCover()
-        },
+        choices = CoverChoices(
+            onChooseFromGallery = closingFirst(onClose, choices.onChooseFromGallery),
+            onSearchWeb = closingFirst(onClose, choices.onSearchWeb),
+            onRemove = closingFirst(onClose, choices.onRemove),
+        ),
         onDismiss = onClose,
     )
+}
+
+private fun closingFirst(onClose: () -> Unit, action: () -> Unit): () -> Unit = {
+    onClose()
+    action()
 }
 
 @Composable

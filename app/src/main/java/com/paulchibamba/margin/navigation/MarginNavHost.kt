@@ -7,9 +7,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import com.paulchibamba.margin.feature.celebration.CelebrationRoute
 import com.paulchibamba.margin.feature.feed.FeedRoute
 import com.paulchibamba.margin.feature.read.book.BookRoute
+import com.paulchibamba.margin.feature.read.cover.CoverSearchRoute
 import com.paulchibamba.margin.feature.read.home.ReadHomeRoute
 import com.paulchibamba.margin.feature.read.note.NoteRoute
 import com.paulchibamba.margin.feature.settings.SettingsRoute
@@ -23,6 +25,7 @@ fun MarginNavHost(navController: NavHostController, modifier: Modifier = Modifie
         readGraph(navController)
         settingsGraph(navController)
         composable<MarginDestination.Note> { NoteRoute(onBack = navController::navigateUp) }
+        composable<MarginDestination.CoverSearch> { CoverSearchRoute(onClose = navController::navigateUp) }
         composable<MarginDestination.Stats> { StatsRoute(onBack = navController::navigateUp) }
         composable<MarginDestination.Celebration> {
             CelebrationRoute(onFinished = navController::closeCelebration)
@@ -46,10 +49,12 @@ private fun NavGraphBuilder.readGraph(navController: NavHostController) {
                 onOpenNote = { note -> navController.navigate(MarginDestination.Note.of(note)) },
             )
         }
-        composable<MarginDestination.Book> {
+        composable<MarginDestination.Book> { entry ->
+            val book = entry.toRoute<MarginDestination.Book>()
             BookRoute(
                 onBack = navController::navigateUp,
                 onOpenNote = { note -> navController.navigate(MarginDestination.Note.of(note)) },
+                onSearchCover = { title -> navController.navigate(MarginDestination.CoverSearch(book.slug, title)) },
             )
         }
     }

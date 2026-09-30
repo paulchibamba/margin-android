@@ -10,7 +10,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paulchibamba.margin.domain.model.NoteId
 
 @Composable
-fun BookRoute(onBack: () -> Unit, onOpenNote: (NoteId) -> Unit, viewModel: BookViewModel = hiltViewModel()) {
+fun BookRoute(
+    onBack: () -> Unit,
+    onOpenNote: (NoteId) -> Unit,
+    onSearchCover: (bookTitle: String) -> Unit,
+    viewModel: BookViewModel = hiltViewModel(),
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val pickCover = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
         uri?.let { picked -> viewModel.onCoverPicked(picked.toString()) }
@@ -23,6 +28,7 @@ fun BookRoute(onBack: () -> Unit, onOpenNote: (NoteId) -> Unit, viewModel: BookV
         onUndo = viewModel::onUndo,
         onUndoDismiss = viewModel::onUndoDismiss,
         onChooseCover = { pickCover.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) },
+        onSearchCover = { onSearchCover(state.title) },
         onRemoveCover = viewModel::onRemoveCover,
     )
 }

@@ -36,7 +36,7 @@ private const val SCRIM_ALPHA = 0.4f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookCoverSheet(hasCover: Boolean, onChooseFromGallery: () -> Unit, onRemove: () -> Unit, onDismiss: () -> Unit) {
+fun BookCoverSheet(hasCover: Boolean, choices: CoverChoices, onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         shape = SheetShape,
@@ -45,20 +45,21 @@ fun BookCoverSheet(hasCover: Boolean, onChooseFromGallery: () -> Unit, onRemove:
         scrimColor = Color.Black.copy(alpha = SCRIM_ALPHA),
         dragHandle = { DragHandle() },
     ) {
-        CoverActions(hasCover, onChooseFromGallery, onRemove)
+        CoverActions(hasCover, choices)
     }
 }
 
 @Composable
-private fun CoverActions(hasCover: Boolean, onChooseFromGallery: () -> Unit, onRemove: () -> Unit) {
+private fun CoverActions(hasCover: Boolean, choices: CoverChoices) {
     Column(Modifier.fillMaxWidth().padding(bottom = 16.dp).navigationBarsPadding()) {
         Text(
             "Book cover",
             style = MarginTypography.sheetTitle,
             modifier = Modifier.padding(start = 20.dp, top = 4.dp, bottom = 8.dp).semantics { heading() },
         )
-        CoverAction(MarginIcons.PhotoLibrary, "Choose from gallery", onChooseFromGallery)
-        if (hasCover) CoverAction(MarginIcons.Delete, "Remove cover", onRemove)
+        CoverAction(MarginIcons.PhotoLibrary, "Choose from gallery", choices.onChooseFromGallery)
+        CoverAction(MarginIcons.ImageSearch, "Search the web", choices.onSearchWeb)
+        if (hasCover) CoverAction(MarginIcons.Delete, "Remove cover", choices.onRemove)
     }
 }
 
@@ -86,5 +87,5 @@ private fun DragHandle() {
 @Preview(widthDp = 360, backgroundColor = 0xFFFBFAF7, showBackground = true)
 @Composable
 private fun CoverActionsPreview() {
-    CoverActions(hasCover = true, onChooseFromGallery = {}, onRemove = {})
+    CoverActions(hasCover = true, CoverChoices(onChooseFromGallery = {}, onSearchWeb = {}, onRemove = {}))
 }
