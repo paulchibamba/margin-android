@@ -9,17 +9,16 @@ import com.paulchibamba.margin.domain.repository.CoverImageStore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.InputStream
 import java.nio.ByteBuffer
 import java.time.Instant
 
 class FileCoverImageStore(
     private val contentResolver: ContentResolver,
     private val directory: CoverDirectory,
+    private val downloader: CoverDownloader = CoverDownloader(),
     private val writer: CoverImageWriter = CoverImageWriter(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : CoverImageStore {
@@ -42,23 +41,12 @@ class FileCoverImageStore(
 
     private fun bytesOf(source: CoverSource): ByteArray = when (source) {
         is CoverSource.GalleryImage -> contentResolver.openInputStream(Uri.parse(source.uri))
-            ?.use(::readAtMostMaxBytes)
+            ?.use { picked -> picked.readAtMost(MAX_PICKED_BYTES) }
             ?: throw FileNotFoundException(source.uri)
-    }
-
-    private fun readAtMostMaxBytes(stream: InputStream): ByteArray {
-        val bytes = ByteArrayOutputStream()
-        val buffer = ByteArray(BUFFER_BYTES)
-        while (true) {
-            val count = stream.read(buffer)
-            if (count < 0) return bytes.toByteArray()
-            bytes.write(buffer, 0, count)
-            if (bytes.size() > MAX_BYTES) throw IOException("The picked image is over $MAX_BYTES bytes")
-        }
+        is CoverSource.WebImage -> downloader.download(source.url)
     }
 
     private companion object {
-        const val MAX_BYTES = 40 * 1024 * 1024
-        const val BUFFER_BYTES = 64 * 1024
+        const val MAX_PICKED_BYTES = 40 * 1024 * 1024
     }
 }

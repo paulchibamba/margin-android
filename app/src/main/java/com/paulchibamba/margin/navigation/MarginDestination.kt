@@ -23,6 +23,9 @@ sealed interface MarginDestination {
     }
 
     @Serializable
+    data class CoverSearch(val slug: String, val title: String) : MarginDestination
+
+    @Serializable
     data class Note(val noteId: String, val fromPost: String? = null) : MarginDestination {
         val note: NoteId get() = NoteId(noteId)
         val fromPostId: PostId? get() = fromPost?.let(::PostId)
