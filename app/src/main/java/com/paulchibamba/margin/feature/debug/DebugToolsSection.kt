@@ -28,11 +28,12 @@ private val ButtonShape = RoundedCornerShape(8.dp)
 
 @Composable
 fun DebugToolsSection(
-    state: DebugClockUiState,
+    state: DebugToolsUiState,
     onAdvance: (Duration) -> Unit,
-    onReset: () -> Unit,
+    onResetClock: () -> Unit,
     onShowDueCount: () -> Unit,
     onSendReviewReminder: () -> Unit,
+    onResetProgress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -45,9 +46,10 @@ fun DebugToolsSection(
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             DebugButton("+1 hour") { onAdvance(1.hours) }
             DebugButton("+1 day") { onAdvance(1.days) }
-            DebugButton("Reset clock", onReset)
-            DebugButton("Show due count", onShowDueCount)
-            DebugButton("Send reminder", onSendReviewReminder)
+            DebugButton("Reset clock", onClick = onResetClock)
+            DebugButton("Show due count", onClick = onShowDueCount)
+            DebugButton("Send reminder", onClick = onSendReviewReminder)
+            DebugButton(state.resetProgressLabel, state.isProgressResetArmed, onResetProgress)
         }
         state.dueCountLabel?.let { label ->
             Text(label, style = MarginTypography.label, color = MarginColors.Lime)
@@ -56,7 +58,7 @@ fun DebugToolsSection(
 }
 
 @Composable
-private fun DebugButton(label: String, onClick: () -> Unit) {
+private fun DebugButton(label: String, isWarning: Boolean = false, onClick: () -> Unit) {
     Box(
         Modifier.minimumInteractiveComponentSize().clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -64,7 +66,7 @@ private fun DebugButton(label: String, onClick: () -> Unit) {
         Text(
             label,
             style = MarginTypography.chip,
-            color = MarginColors.White,
+            color = if (isWarning) MarginColors.Wrong else MarginColors.White,
             modifier = Modifier.background(MarginColors.White.copy(alpha = 0.1f), ButtonShape)
                 .padding(horizontal = 10.dp, vertical = 7.dp),
         )
@@ -76,11 +78,12 @@ private fun DebugButton(label: String, onClick: () -> Unit) {
 private fun DebugToolsSectionPreview() {
     Box(Modifier.background(MarginColors.InkSheet).padding(20.dp)) {
         DebugToolsSection(
-            state = DebugClockUiState(offset = 2.days, dueCount = 3),
+            state = DebugToolsUiState(offset = 2.days, dueCount = 3),
             onAdvance = {},
-            onReset = {},
+            onResetClock = {},
             onShowDueCount = {},
             onSendReviewReminder = {},
+            onResetProgress = {},
         )
     }
 }

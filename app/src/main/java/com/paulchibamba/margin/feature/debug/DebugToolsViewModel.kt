@@ -4,25 +4,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paulchibamba.margin.domain.time.OffsetClock
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
+import com.paulchibamba.margin.domain.usecase.ResetProgress
 import com.paulchibamba.margin.feature.reminder.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlin.time.Duration
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import kotlin.time.Duration
 
 @HiltViewModel
-class DebugClockViewModel @Inject constructor(
+class DebugToolsViewModel @Inject constructor(
     private val clock: OffsetClock,
     private val countDueReviews: CountDueReviews,
     private val reminderScheduler: ReminderScheduler,
+    private val resetProgress: ResetProgress,
 ) : ViewModel() {
 
-    private val state = MutableStateFlow(DebugClockUiState(offset = clock.offset))
-    val uiState: StateFlow<DebugClockUiState> = state.asStateFlow()
+    private val state = MutableStateFlow(DebugToolsUiState(offset = clock.offset))
+    val uiState: StateFlow<DebugToolsUiState> = state.asStateFlow()
 
     fun onShown() = showOffset()
 
@@ -31,7 +33,7 @@ class DebugClockViewModel @Inject constructor(
         showOffset()
     }
 
-    fun onReset() {
+    fun onResetClock() {
         clock.reset()
         showOffset()
     }
@@ -44,6 +46,17 @@ class DebugClockViewModel @Inject constructor(
     }
 
     fun onSendReviewReminder() = reminderScheduler.runOnce()
+
+    fun onResetProgress() {
+        if (!state.value.isProgressResetArmed) {
+            state.update { it.copy(isProgressResetArmed = true) }
+            return
+        }
+        viewModelScope.launch {
+            resetProgress()
+            state.update { it.copy(isProgressResetArmed = false, isProgressCleared = true) }
+        }
+    }
 
     private fun showOffset() {
         state.update { it.copy(offset = clock.offset, dueCount = null) }
