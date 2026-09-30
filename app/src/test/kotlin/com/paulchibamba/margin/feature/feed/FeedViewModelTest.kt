@@ -290,14 +290,12 @@ class FeedViewModelTest {
     }
 
     @Test
-    fun `with a night feed, every page is Ink or Midnight`() {
+    fun `with a night feed, every page is Ink`() {
         useCases.feedTone = FeedTone.NIGHT
         val viewModel = feedViewModel()
         (1..8).forEach(viewModel::onPageEntered)
 
-        val skins = viewModel.uiState.value.pages.map { it.skin }
-        assertTrue(skins.all { it in Skins.night })
-        skins.zipWithNext().forEach { (previous, next) -> assertNotEquals(previous, next) }
+        assertTrue(viewModel.uiState.value.pages.all { it.skin == Skins.Ink })
     }
 
     @Test
@@ -310,7 +308,7 @@ class FeedViewModelTest {
         viewModel.onPageEntered(5)
 
         assertEquals(skinsBefore, viewModel.uiState.value.pages.take(skinsBefore.size).map { it.skin })
-        assertTrue(viewModel.uiState.value.pages.last().skin in Skins.night)
+        assertEquals(Skins.Ink, viewModel.uiState.value.pages.last().skin)
     }
 
     private fun feedViewModel() = FeedViewModel(useCases, Random(seed = 17), clock)

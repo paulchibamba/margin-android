@@ -36,11 +36,10 @@ class SkinRotationTest {
     }
 
     @Test
-    fun `night draws alternate between Ink and Midnight`() {
+    fun `night draws are always Ink, even straight after Ink`() {
         val drawn = drawsOf(FeedTone.NIGHT, seed = 11)
 
-        assertEquals(setOf(Skins.Ink, Skins.Midnight), drawn.toSet())
-        drawn.zipWithNext().forEach { (previous, next) -> assertNotEquals(previous, next) }
+        assertEquals(setOf(Skins.Ink), drawn.toSet())
     }
 
     @Test

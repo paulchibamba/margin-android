@@ -19,11 +19,9 @@ object Skins {
     )
     val Forest = darkSkin("Forest", MarginColors.Forest, mutedAlpha = 0.75f, wrong = MarginColors.WrongOnForest)
 
-    val Midnight = darkSkin("Midnight", MarginColors.Midnight, mutedAlpha = 0.7f)
-
     val all: List<Skin> = listOf(Ink, Cobalt, Paper, Ember, Forest)
     val dark: List<Skin> = all.filterNot(Skin::isLight)
-    val night: List<Skin> = listOf(Ink, Midnight)
+    val night: List<Skin> = listOf(Ink)
 
     fun forTone(tone: FeedTone): List<Skin> = when (tone) {
         FeedTone.ANY -> all

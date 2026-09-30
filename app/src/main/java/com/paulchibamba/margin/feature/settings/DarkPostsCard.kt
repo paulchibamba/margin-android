@@ -32,7 +32,7 @@ fun DarkPostsCard(isOn: Boolean, onChange: (Boolean) -> Unit, modifier: Modifier
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text("Dark posts", style = MarginTypography.settingTitle, color = palette.text)
                 Text(
-                    "Every post is near-black, Ink or Midnight, with dark cards inside. Easy on the eyes at night.",
+                    "Every post is charcoal black with dark cards inside. Easy on the eyes at night.",
                     style = MarginTypography.label,
                     color = palette.faintText,
                 )

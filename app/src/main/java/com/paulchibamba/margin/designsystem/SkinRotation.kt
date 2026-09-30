@@ -6,5 +6,5 @@ import kotlin.random.Random
 class SkinRotation(private val random: Random) {
 
     fun next(previous: Skin?, tone: FeedTone = FeedTone.ANY): Skin =
-        Skins.forTone(tone).filter { it != previous }.random(random)
+        Skins.forTone(tone).let { skins -> skins.filter { it != previous }.ifEmpty { skins } }.random(random)
 }

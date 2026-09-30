@@ -9,22 +9,22 @@ class SkinContrastTest {
 
     @Test
     fun `content text meets 4 point 5 to 1 on every skin`() {
-        everySkin.forEach { assertContrast("${it.name} content", it.content, it.background, BODY_TEXT) }
+        Skins.all.forEach { assertContrast("${it.name} content", it.content, it.background, BODY_TEXT) }
     }
 
     @Test
     fun `muted text meets 4 point 5 to 1 on every skin`() {
-        everySkin.forEach { assertContrast("${it.name} muted", it.mutedContent, it.background, BODY_TEXT) }
+        Skins.all.forEach { assertContrast("${it.name} muted", it.mutedContent, it.background, BODY_TEXT) }
     }
 
     @Test
     fun `headlines in content colour meet 3 to 1 on every skin`() {
-        everySkin.forEach { assertContrast("${it.name} headline", it.content, it.background, LARGE_TEXT) }
+        Skins.all.forEach { assertContrast("${it.name} headline", it.content, it.background, LARGE_TEXT) }
     }
 
     @Test
     fun `right, wrong and save colours read as text on every skin and its surface`() {
-        everySkin.forEach { skin ->
+        Skins.all.forEach { skin ->
             signalsOf(skin).forEach { (role, color) ->
                 assertContrast("${skin.name} $role", color, skin.background, BODY_TEXT)
                 val surface = skin.surface.compositeOver(skin.background)
@@ -35,7 +35,7 @@ class SkinContrastTest {
 
     @Test
     fun `answer text reads on its own tinted background on every skin`() {
-        everySkin.forEach { skin ->
+        Skins.all.forEach { skin ->
             listOf("right" to skin.correct, "wrong" to skin.wrong).forEach { (role, color) ->
                 val tint = color.copy(alpha = ANSWER_TINT).compositeOver(skin.background)
                 assertContrast("${skin.name} $role on tint", color, tint, BODY_TEXT)
@@ -80,8 +80,6 @@ class SkinContrastTest {
         val ratio = ContrastRatio.of(MarginColors.White, Color.Black)
         assertTrue(ratio in 20.99..21.01, "was $ratio")
     }
-
-    private val everySkin = Skins.all + Skins.Midnight
 
     private fun signalsOf(skin: Skin) = listOf("right" to skin.correct, "wrong" to skin.wrong, "save" to skin.save)
 

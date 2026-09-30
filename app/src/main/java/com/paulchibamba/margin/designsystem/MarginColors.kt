@@ -34,7 +34,6 @@ object MarginColors {
     val PaperTextAhead = Color(0xFF6F6C65)
 
     val Cobalt = Color(0xFF2233CC)
-    val Midnight = Color(0xFF0B1238)
     val Ember = Color(0xFFFF7043)
     val Forest = Color(0xFF0E3B2C)
 
