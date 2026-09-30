@@ -59,6 +59,8 @@ fun FeedScreen(
             pagerState,
             Modifier.fillMaxSize().testTag("feed-pager"),
             beyondViewportPageCount = 1,
+            flingBehavior = FeedSwipe.flingBehavior(pagerState),
+            pageNestedScrollConnection = FeedSwipe.pageNestedScrollConnection(pagerState),
             key = { index -> pageKeyOf(state, index) },
         ) { index ->
             FeedPagerPage(
