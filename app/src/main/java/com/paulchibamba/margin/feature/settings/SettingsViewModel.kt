@@ -7,6 +7,7 @@ import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.DarkMode
 import com.paulchibamba.margin.domain.usecase.ObserveLearningSettings
 import com.paulchibamba.margin.domain.usecase.SetDarkMode
+import com.paulchibamba.margin.domain.usecase.SetDarkPosts
 import com.paulchibamba.margin.domain.usecase.SetDesiredRetention
 import com.paulchibamba.margin.domain.usecase.SetReviewReminder
 import com.paulchibamba.margin.domain.usecase.UpdateBookSettings
@@ -29,6 +30,7 @@ class SettingsViewModel @Inject constructor(
     private val setDesiredRetention: SetDesiredRetention,
     private val setReviewReminder: SetReviewReminder,
     private val setDarkMode: SetDarkMode,
+    private val setDarkPosts: SetDarkPosts,
     private val reminderScheduler: ReminderScheduler,
 ) : ViewModel() {
 
@@ -59,5 +61,9 @@ class SettingsViewModel @Inject constructor(
 
     fun onDarkModeChange(mode: DarkMode) {
         viewModelScope.launch { setDarkMode(mode) }
+    }
+
+    fun onDarkPostsChange(isOn: Boolean) {
+        viewModelScope.launch { setDarkPosts(isOn) }
     }
 }

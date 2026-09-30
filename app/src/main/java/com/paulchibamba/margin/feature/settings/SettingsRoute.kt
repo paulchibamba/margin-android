@@ -27,6 +27,7 @@ fun SettingsRoute(
         onRetentionChangeFinished = viewModel::onRetentionChangeFinished,
         onReviewReminderChange = reviewReminderChangeWithPermission(viewModel),
         onDarkModeChange = viewModel::onDarkModeChange,
+        onDarkPostsChange = viewModel::onDarkPostsChange,
         onOpenReadingOnlyChapters = onOpenReadingOnlyChapters,
         onOpenStats = onOpenStats,
     )

@@ -13,6 +13,7 @@ import com.paulchibamba.margin.domain.usecase.FakeContentRepository
 import com.paulchibamba.margin.domain.usecase.FakeSettingsRepository
 import com.paulchibamba.margin.domain.usecase.ObserveLearningSettings
 import com.paulchibamba.margin.domain.usecase.SetDarkMode
+import com.paulchibamba.margin.domain.usecase.SetDarkPosts
 import com.paulchibamba.margin.domain.usecase.SetDesiredRetention
 import com.paulchibamba.margin.domain.usecase.SetReviewReminder
 import com.paulchibamba.margin.domain.usecase.UpdateBookSettings
@@ -132,6 +133,17 @@ class SettingsViewModelTest {
         assertEquals(DarkMode.ALWAYS, viewModel.loadedState().darkMode)
     }
 
+    @Test
+    fun `turning dark posts on saves it and shows it as on`() = runTest {
+        val viewModel = settingsViewModel()
+        assertFalse(viewModel.loadedState().isDarkPostsOn)
+
+        viewModel.onDarkPostsChange(true)
+
+        assertTrue(settings.darkPosts.value)
+        assertTrue(viewModel.loadedState().isDarkPostsOn)
+    }
+
     private fun TestScope.settingsViewModel(): SettingsViewModel {
         val viewModel = SettingsViewModel(
             ObserveLearningSettings(content, settings),
@@ -139,6 +151,7 @@ class SettingsViewModelTest {
             SetDesiredRetention(settings),
             SetReviewReminder(settings),
             SetDarkMode(settings),
+            SetDarkPosts(settings),
             scheduler,
         )
         backgroundScope.launch { viewModel.uiState.collect() }

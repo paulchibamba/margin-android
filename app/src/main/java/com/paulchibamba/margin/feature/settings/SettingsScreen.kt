@@ -38,6 +38,7 @@ fun SettingsScreen(
     onRetentionChangeFinished: () -> Unit,
     onReviewReminderChange: (Boolean) -> Unit,
     onDarkModeChange: (DarkMode) -> Unit,
+    onDarkPostsChange: (Boolean) -> Unit,
     onOpenReadingOnlyChapters: () -> Unit,
     onOpenStats: () -> Unit,
     modifier: Modifier = Modifier,
@@ -64,6 +65,7 @@ fun SettingsScreen(
                 ReviewReminderCard(state.isReviewReminderOn, onReviewReminderChange)
                 SectionTitle("Appearance", Modifier.padding(start = 4.dp, top = 4.dp))
                 DarkModeCard(state.darkMode, onDarkModeChange)
+                DarkPostsCard(state.isDarkPostsOn, onDarkPostsChange)
             }
         }
     }
@@ -81,7 +83,7 @@ private fun SettingsTitle() {
     }
 }
 
-@Preview(widthDp = 360, heightDp = 900)
+@Preview(widthDp = 360, heightDp = 980)
 @Composable
 private fun SettingsScreenPreview(@PreviewParameter(SurfacePaletteProvider::class) palette: SurfacePalette) {
     SurfacePreview(palette) {
@@ -92,6 +94,7 @@ private fun SettingsScreenPreview(@PreviewParameter(SurfacePaletteProvider::clas
             onRetentionChangeFinished = {},
             onReviewReminderChange = {},
             onDarkModeChange = {},
+            onDarkPostsChange = {},
             onOpenReadingOnlyChapters = {},
             onOpenStats = {},
         )

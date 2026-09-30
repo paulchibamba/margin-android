@@ -30,11 +30,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.paulchibamba.margin.designsystem.LocalPostCardStyle
 import com.paulchibamba.margin.designsystem.LocalSkin
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginTypography
-import kotlinx.coroutines.launch
+import com.paulchibamba.margin.designsystem.PostCardStyle
 import kotlin.math.abs
+import kotlinx.coroutines.launch
 
 const val SWIPE_CARD_TAG = "swipe-card"
 
@@ -78,7 +80,12 @@ fun SwipeCard(statement: String, saysTrue: Boolean?, onVerdict: (Boolean) -> Uni
 
 @Composable
 private fun CardBehind(modifier: Modifier) {
-    val color = if (LocalSkin.current.isLight) MarginColors.PaperDivider else MarginColors.InkCard
+    val skin = LocalSkin.current
+    val color = when {
+        skin.isLight -> MarginColors.PaperDivider
+        LocalPostCardStyle.current == PostCardStyle.DARK -> skin.surface
+        else -> MarginColors.InkCard
+    }
     Box(
         modifier
             .graphicsLayer {
@@ -92,7 +99,7 @@ private fun CardBehind(modifier: Modifier) {
 
 @Composable
 private fun CardFace(statement: String, stamp: Boolean?, stampAlpha: Float) {
-    val colors = CardColors.on(LocalSkin.current.isLight)
+    val colors = CardColors.on(LocalSkin.current.isLight, LocalPostCardStyle.current)
     Column(
         Modifier
             .fillMaxWidth()
@@ -152,10 +159,11 @@ private fun stampAlphaOf(saysTrue: Boolean?, offset: Float, commitDistance: Floa
 
 private class CardColors(val background: Color, val content: Color, val trueStamp: Color, val falseStamp: Color) {
     companion object {
-        fun on(isLightSkin: Boolean): CardColors = if (isLightSkin) {
-            CardColors(MarginColors.InkCard, MarginColors.White, MarginColors.Lime, MarginColors.Wrong)
-        } else {
+        private val Dark = CardColors(MarginColors.InkCard, MarginColors.White, MarginColors.Lime, MarginColors.Wrong)
+        private val Light =
             CardColors(MarginColors.Paper, MarginColors.InkText, MarginColors.CorrectOnLight, MarginColors.WrongStamp)
-        }
+
+        fun on(isLightSkin: Boolean, style: PostCardStyle): CardColors =
+            if (isLightSkin || style == PostCardStyle.DARK) Dark else Light
     }
 }
