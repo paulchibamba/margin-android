@@ -287,6 +287,30 @@ class FeedViewModelTest {
         assertEquals(12, viewModel.uiState.value.streak)
     }
 
+    @Test
+    fun `with the dark theme on, every page gets a dark skin`() {
+        useCases.isDark = true
+        val viewModel = feedViewModel()
+        (1..8).forEach(viewModel::onPageEntered)
+
+        val skins = viewModel.uiState.value.pages.map { it.skin }
+        assertTrue(skins.none { it.isLight })
+        skins.zipWithNext().forEach { (previous, next) -> assertNotEquals(previous, next) }
+    }
+
+    @Test
+    fun `pages already loaded keep their skin when the dark theme turns on`() {
+        val viewModel = feedViewModel()
+        (1..4).forEach(viewModel::onPageEntered)
+        val skinsBefore = viewModel.uiState.value.pages.map { it.skin }
+
+        useCases.isDark = true
+        viewModel.onPageEntered(5)
+
+        assertEquals(skinsBefore, viewModel.uiState.value.pages.take(skinsBefore.size).map { it.skin })
+        assertFalse(viewModel.uiState.value.pages.last().skin.isLight)
+    }
+
     private fun feedViewModel() = FeedViewModel(useCases, Random(seed = 17), clock)
 
     private fun postIdsOf(viewModel: FeedViewModel) = viewModel.uiState.value.pages.map { it.item.post.id.value }

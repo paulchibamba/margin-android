@@ -8,6 +8,7 @@ import com.paulchibamba.margin.data.startup.StartupInitializer
 import com.paulchibamba.margin.domain.memory.DesiredRetention
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.BookSlug
+import com.paulchibamba.margin.domain.model.DarkMode
 import com.paulchibamba.margin.domain.progression.ReadingOnlyChapters
 import com.paulchibamba.margin.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -60,5 +61,14 @@ class RoomSettingsRepository @Inject constructor(
 
     override suspend fun setReviewReminder(isOn: Boolean) {
         database.metaDao().put(listOf(MetaEntity(MetaKey.REVIEW_REMINDER, isOn.toString())))
+    }
+
+    override suspend fun darkMode(): DarkMode = observeDarkMode().first()
+
+    override fun observeDarkMode(): Flow<DarkMode> = database.metaDao().observe(MetaKey.DARK_MODE)
+        .map(DarkMode::fromName)
+
+    override suspend fun setDarkMode(mode: DarkMode) {
+        database.metaDao().put(listOf(MetaEntity(MetaKey.DARK_MODE, mode.name)))
     }
 }

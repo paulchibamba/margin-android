@@ -23,13 +23,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTheme
 import com.paulchibamba.margin.designsystem.MarginTypography
-import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
+import com.paulchibamba.margin.designsystem.SurfacePalette
+import com.paulchibamba.margin.designsystem.SurfacePaletteProvider
+import com.paulchibamba.margin.designsystem.SurfacePreview
 import com.paulchibamba.margin.domain.model.ChapterRef
 import com.paulchibamba.margin.domain.usecase.BookLearningSettings
 import com.paulchibamba.margin.feature.settings.SectionTitle
@@ -42,9 +45,10 @@ fun ReadingOnlyChaptersScreen(
     onReadingOnlyChange: (ChapterRef, Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    MarginTheme(Skins.Paper) {
+    val palette = LocalSurfacePalette.current
+    MarginTheme(palette.skin) {
         StatusBarFollowsSkin()
-        Column(modifier.fillMaxSize().background(Skins.Paper.background).statusBarsPadding()) {
+        Column(modifier.fillMaxSize().background(palette.background).statusBarsPadding()) {
             BackBar(onBack)
             if (!state.isLoading) BookChapterList(state.books, onReadingOnlyChange)
         }
@@ -53,17 +57,18 @@ fun ReadingOnlyChaptersScreen(
 
 @Composable
 private fun BackBar(onBack: () -> Unit) {
+    val palette = LocalSurfacePalette.current
     Row(
         Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack) {
-            Icon(painterResource(MarginIcons.ArrowBack), "Back", Modifier.size(24.dp), MarginColors.InkText)
+            Icon(painterResource(MarginIcons.ArrowBack), "Back", Modifier.size(24.dp), palette.text)
         }
         Text(
             "Reading-only chapters",
             style = MarginTypography.barTitle,
-            color = MarginColors.InkText,
+            color = palette.text,
             modifier = Modifier.semantics { heading() },
         )
     }
@@ -85,7 +90,7 @@ private fun Explanation() {
     Text(
         "These chapters get no posts. Reading their notes still moves you forward.",
         style = MarginTypography.detail,
-        color = MarginColors.PaperTextMuted,
+        color = LocalSurfacePalette.current.mutedText,
         modifier = Modifier.padding(horizontal = 4.dp),
     )
 }
@@ -105,6 +110,14 @@ private fun BookChapters(book: BookLearningSettings, onReadingOnlyChange: (Chapt
 
 @Preview(widthDp = 360, heightDp = 703)
 @Composable
-private fun ReadingOnlyChaptersScreenPreview() {
-    ReadingOnlyChaptersScreen(ReadingOnlyChaptersPreviewData.state, onBack = {}, onReadingOnlyChange = { _, _ -> })
+private fun ReadingOnlyChaptersScreenPreview(
+    @PreviewParameter(SurfacePaletteProvider::class) palette: SurfacePalette,
+) {
+    SurfacePreview(palette) {
+        ReadingOnlyChaptersScreen(
+            ReadingOnlyChaptersPreviewData.state,
+            onBack = {},
+            onReadingOnlyChange = { _, _ -> },
+        )
+    }
 }

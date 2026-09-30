@@ -11,6 +11,7 @@ import com.paulchibamba.margin.domain.feed.mcqOf
 import com.paulchibamba.margin.domain.feed.withIntroduced
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.ChapterRef
+import com.paulchibamba.margin.domain.model.DarkMode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -87,6 +88,16 @@ class SettingsUseCasesTest {
 
         val item = (fixture.getNextPost() as? FeedResult.Next)?.item
         assertFalse(item?.source == CandidateSource.NEW && item.post.bookSlug == appSec.slug)
+    }
+
+    @Test
+    fun `dark mode starts off and a saved choice reaches the learning settings`() = runTest {
+        assertEquals(DarkMode.OFF, fixture.observeLearningSettings().first().darkMode)
+
+        fixture.setDarkMode(DarkMode.ALWAYS)
+
+        assertEquals(DarkMode.ALWAYS, fixture.observeLearningSettings().first().darkMode)
+        assertEquals(DarkMode.ALWAYS, fixture.observeDarkMode().first())
     }
 
     private fun BookLearningSettings.withActive(isActive: Boolean) =

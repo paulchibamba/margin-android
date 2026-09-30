@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import kotlin.math.roundToInt
 
 const val NOTE_BASE_URL = "file:///android_asset/pack/"
@@ -16,10 +16,14 @@ private const val PERCENT = 100
 
 @Composable
 fun NoteWebView(html: String, modifier: Modifier = Modifier) {
+    val background = LocalSurfacePalette.current.card.toArgb()
     AndroidView(
         factory = ::lockedDownWebView,
         modifier = modifier,
-        update = { webView -> loadIfChanged(webView, html) },
+        update = { webView ->
+            webView.setBackgroundColor(background)
+            loadIfChanged(webView, html)
+        },
         onRelease = WebView::destroy,
     )
 }
@@ -34,7 +38,6 @@ fun lockedDownWebView(context: Context): WebView = WebView(context).apply {
     settings.displayZoomControls = false
     settings.textZoom = textZoomFor(context.resources.configuration.fontScale)
     webViewClient = StayOnNoteClient()
-    setBackgroundColor(MarginColors.PaperCard.toArgb())
 }
 
 fun textZoomFor(fontScale: Float): Int = (fontScale * PERCENT).roundToInt()

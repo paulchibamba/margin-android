@@ -24,4 +24,5 @@ interface FeedUseCases {
     suspend fun applyAction(post: Post, action: PostAction): ActionOutcome
     suspend fun caughtUp(): CaughtUp
     suspend fun previewIntervals(post: Post): Map<Rating, Duration>
+    suspend fun isDarkTheme(): Boolean
 }

@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
 
@@ -38,8 +38,9 @@ fun NoteBottomBar(
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.fillMaxWidth().background(MarginColors.PaperCard)) {
-        Box(Modifier.fillMaxWidth().height(1.dp).background(MarginColors.InkText.copy(alpha = 0.08f)))
+    val palette = LocalSurfacePalette.current
+    Column(modifier.fillMaxWidth().background(palette.card)) {
+        Box(Modifier.fillMaxWidth().height(1.dp).background(palette.divider))
         Row(
             Modifier.fillMaxWidth().navigationBarsPadding().padding(PaddingValues(16.dp, 12.dp, 16.dp, 16.dp)),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -63,8 +64,9 @@ private fun PreviousButton(isEnabled: Boolean, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(painterResource(MarginIcons.ChevronLeft), null, Modifier.size(20.dp), MarginColors.PaperTextFaint)
-        Text("Prev", style = MarginTypography.readerButton, color = MarginColors.PaperTextFaint)
+        val faintText = LocalSurfacePalette.current.faintText
+        Icon(painterResource(MarginIcons.ChevronLeft), null, Modifier.size(20.dp), faintText)
+        Text("Prev", style = MarginTypography.readerButton, color = faintText)
     }
 }
 
@@ -75,24 +77,26 @@ private fun ReadMark(isRead: Boolean) {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(painterResource(MarginIcons.CheckCircle), null, Modifier.size(16.dp), MarginColors.CorrectOnLight)
-        Text(if (isRead) "Read" else "", style = MarginTypography.label, color = MarginColors.CorrectOnLight)
+        val correct = LocalSurfacePalette.current.correct
+        Icon(painterResource(MarginIcons.CheckCircle), null, Modifier.size(16.dp), correct)
+        Text(if (isRead) "Read" else "", style = MarginTypography.label, color = correct)
     }
 }
 
 @Composable
 private fun NextButton(label: String, onClick: () -> Unit) {
+    val palette = LocalSurfacePalette.current
     Row(
         Modifier
             .clip(CircleShape)
-            .background(MarginColors.InkText)
+            .background(palette.accent)
             .clickable(role = Role.Button, onClick = onClick)
             .padding(start = 20.dp, top = 12.dp, end = 16.dp, bottom = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, style = MarginTypography.readerButtonStrong, color = MarginColors.White)
-        Icon(painterResource(MarginIcons.ChevronRight), null, Modifier.size(20.dp), MarginColors.White)
+        Text(label, style = MarginTypography.readerButtonStrong, color = palette.onAccent)
+        Icon(painterResource(MarginIcons.ChevronRight), null, Modifier.size(20.dp), palette.onAccent)
     }
 }
 

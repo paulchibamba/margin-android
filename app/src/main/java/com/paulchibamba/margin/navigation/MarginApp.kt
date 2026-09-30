@@ -13,6 +13,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.NavigationBarAppearance
 import com.paulchibamba.margin.designsystem.component.MarginNavigationBar
@@ -24,7 +25,8 @@ fun MarginApp(navController: NavHostController = rememberNavController()) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
     val selectedTab = destination?.selectedTab()
-    NavigationBarAppearance(isLight = destination?.hasDarkBackground() != true)
+    val isDark = LocalSurfacePalette.current.isDark
+    NavigationBarAppearance(isLight = !isDark && destination?.hasDarkBackground() != true)
     Column(Modifier.fillMaxSize().background(MarginColors.Ink)) {
         MarginNavHost(navController, Modifier.weight(1f))
         CelebrationHost(onCelebrate = navController::showCelebration)
@@ -32,7 +34,7 @@ fun MarginApp(navController: NavHostController = rememberNavController()) {
             MarginNavigationBar(
                 selectedTab = selectedTab,
                 onTabSelect = navController::navigateToTab,
-                isLight = selectedTab != NavigationTab.Feed,
+                isLight = !isDark && selectedTab != NavigationTab.Feed,
             )
         }
     }

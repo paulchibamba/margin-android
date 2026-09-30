@@ -13,11 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTypography
 
 @Composable
 fun ReviewReminderCard(isOn: Boolean, onChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    val palette = LocalSurfacePalette.current
     SettingsCard(modifier) {
         Row(
             Modifier.fillMaxWidth().toggleable(isOn, role = Role.Switch, onValueChange = onChange),
@@ -25,11 +26,11 @@ fun ReviewReminderCard(isOn: Boolean, onChange: (Boolean) -> Unit, modifier: Mod
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Review reminder", style = MarginTypography.settingTitle, color = MarginColors.InkText)
+                Text("Review reminder", style = MarginTypography.settingTitle, color = palette.text)
                 Text(
                     "An evening nudge when reviews are due and today's streak isn't kept yet",
                     style = MarginTypography.label,
-                    color = MarginColors.PaperTextFaint,
+                    color = palette.faintText,
                 )
             }
             SettingsSwitch(isChecked = isOn, isEnabled = true)

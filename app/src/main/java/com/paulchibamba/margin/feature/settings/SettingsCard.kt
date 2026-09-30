@@ -11,7 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 
 private val CardShape = RoundedCornerShape(20.dp)
 
@@ -22,7 +22,7 @@ fun SettingsCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
-        modifier.fillMaxWidth().background(MarginColors.PaperCard, CardShape).padding(contentPadding),
+        modifier.fillMaxWidth().background(LocalSurfacePalette.current.card, CardShape).padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         content = content,
     )

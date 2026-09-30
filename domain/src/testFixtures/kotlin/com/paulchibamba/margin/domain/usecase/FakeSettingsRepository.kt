@@ -4,6 +4,7 @@ import com.paulchibamba.margin.domain.feed.appSec
 import com.paulchibamba.margin.domain.feed.defaultSettings
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.BookSlug
+import com.paulchibamba.margin.domain.model.DarkMode
 import com.paulchibamba.margin.domain.progression.ReadingOnlyChapters
 import com.paulchibamba.margin.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +16,7 @@ class FakeSettingsRepository(settings: List<BookSettings> = defaultSettings) : S
     val readingOnly = MutableStateFlow(mapOf(appSec.slug to setOf(2)))
     val retention = MutableStateFlow(0.9)
     val reviewReminder = MutableStateFlow(false)
+    val darkMode = MutableStateFlow(DarkMode.DEFAULT)
 
     override suspend fun bookSettings() = bookSettings.value
     override fun observeBookSettings(): Flow<List<BookSettings>> = bookSettings
@@ -38,5 +40,11 @@ class FakeSettingsRepository(settings: List<BookSettings> = defaultSettings) : S
     override fun observeReviewReminder(): Flow<Boolean> = reviewReminder
     override suspend fun setReviewReminder(isOn: Boolean) {
         reviewReminder.value = isOn
+    }
+
+    override suspend fun darkMode() = darkMode.value
+    override fun observeDarkMode(): Flow<DarkMode> = darkMode
+    override suspend fun setDarkMode(mode: DarkMode) {
+        darkMode.value = mode
     }
 }

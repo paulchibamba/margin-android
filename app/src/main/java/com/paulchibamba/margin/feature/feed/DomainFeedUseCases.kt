@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.feature.feed
 
 import com.paulchibamba.margin.data.startup.StartupInitializer
+import com.paulchibamba.margin.designsystem.SystemDarkTheme
 import com.paulchibamba.margin.domain.actions.ActionOutcome
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.FeedResult
@@ -11,12 +12,14 @@ import com.paulchibamba.margin.domain.usecase.DescribePost
 import com.paulchibamba.margin.domain.usecase.GetCaughtUp
 import com.paulchibamba.margin.domain.usecase.GetNextPost
 import com.paulchibamba.margin.domain.usecase.ObserveBookCovers
+import com.paulchibamba.margin.domain.usecase.ObserveDarkMode
 import com.paulchibamba.margin.domain.usecase.ObserveStreak
 import com.paulchibamba.margin.domain.usecase.PreviewIntervals
 import com.paulchibamba.margin.domain.usecase.RecordPostExit
 import com.paulchibamba.margin.domain.usecase.RecordedExit
 import com.paulchibamba.margin.feature.celebration.CelebrationTrigger
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
 
 class DomainFeedUseCases @Inject constructor(
     private val startup: StartupInitializer,
@@ -29,6 +32,8 @@ class DomainFeedUseCases @Inject constructor(
     private val observeBookCovers: ObserveBookCovers,
     private val previewIntervals: PreviewIntervals,
     private val celebrations: CelebrationTrigger,
+    private val observeDarkMode: ObserveDarkMode,
+    private val systemDarkTheme: SystemDarkTheme,
 ) : FeedUseCases {
 
     override fun observeStreak() = observeStreak.invoke()
@@ -55,4 +60,6 @@ class DomainFeedUseCases @Inject constructor(
     override suspend fun caughtUp() = getCaughtUp()
 
     override suspend fun previewIntervals(post: Post) = previewIntervals.invoke(post)
+
+    override suspend fun isDarkTheme() = observeDarkMode().first().isDark(systemDarkTheme.isOn())
 }

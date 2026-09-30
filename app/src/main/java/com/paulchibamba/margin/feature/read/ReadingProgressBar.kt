@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.domain.usecase.NoteTally
 
@@ -21,8 +22,8 @@ fun ReadingProgressBar(
     fraction: Float,
     modifier: Modifier = Modifier,
     height: Dp = 3.dp,
-    color: Color = MarginColors.InkText,
-    track: Color = MarginColors.InkText.copy(alpha = 0.12f),
+    color: Color = LocalSurfacePalette.current.text,
+    track: Color = LocalSurfacePalette.current.text.copy(alpha = 0.12f),
 ) {
     Box(modifier.fillMaxWidth().height(height).clip(CircleShape).background(track)) {
         Box(Modifier.fillMaxHeight().fillMaxWidth(fraction.coerceIn(0f, 1f)).clip(CircleShape).background(color))

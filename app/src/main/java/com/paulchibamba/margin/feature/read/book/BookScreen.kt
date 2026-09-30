@@ -24,12 +24,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTheme
-import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
+import com.paulchibamba.margin.designsystem.SurfacePalette
+import com.paulchibamba.margin.designsystem.SurfacePaletteProvider
+import com.paulchibamba.margin.designsystem.SurfacePreview
 import com.paulchibamba.margin.designsystem.component.FeedSnackbar
 import com.paulchibamba.margin.domain.model.ChapterRef
 import com.paulchibamba.margin.domain.model.NoteId
@@ -51,9 +54,10 @@ fun BookScreen(
     onRemoveCover: () -> Unit = {},
 ) {
     var isCoverSheetOpen by rememberSaveable { mutableStateOf(false) }
-    MarginTheme(Skins.Paper) {
+    val palette = LocalSurfacePalette.current
+    MarginTheme(palette.skin) {
         StatusBarFollowsSkin()
-        Box(modifier.fillMaxSize().background(Skins.Paper.background).statusBarsPadding()) {
+        Box(modifier.fillMaxSize().background(palette.background).statusBarsPadding()) {
             Column {
                 BackBar(onBack)
                 if (!state.isLoading) ChapterList(state, onOpenNote, onMarkKnown) { isCoverSheetOpen = true }
@@ -90,7 +94,7 @@ private fun closingFirst(onClose: () -> Unit, action: () -> Unit): () -> Unit = 
 private fun BackBar(onBack: () -> Unit) {
     Box(Modifier.fillMaxWidth().height(52.dp).padding(horizontal = 4.dp), contentAlignment = Alignment.CenterStart) {
         IconButton(onClick = onBack) {
-            Icon(painterResource(MarginIcons.ArrowBack), "Back", Modifier.size(24.dp), MarginColors.InkText)
+            Icon(painterResource(MarginIcons.ArrowBack), "Back", Modifier.size(24.dp), LocalSurfacePalette.current.text)
         }
     }
 }
@@ -104,7 +108,7 @@ private fun ChapterList(
 ) {
     LazyColumn(contentPadding = PaddingValues(bottom = 96.dp)) {
         item { BookHeader(state, onCoverClick) }
-        item { Box(Modifier.fillMaxWidth().height(1.dp).background(MarginColors.InkText.copy(alpha = 0.08f))) }
+        item { Box(Modifier.fillMaxWidth().height(1.dp).background(LocalSurfacePalette.current.divider)) }
         items(state.chapters, key = { it.chapter.chapter }) { row ->
             SwipeableChapterRow(
                 row = row,
@@ -134,8 +138,17 @@ private fun UndoSnackbar(chapter: ChapterRef, onUndo: () -> Unit, onDismiss: () 
 
 @Preview(widthDp = 360, heightDp = 703)
 @Composable
-private fun BookScreenPreview() {
-    BookScreen(BookPreviewData.book, onBack = {}, onOpenNote = {}, onMarkKnown = {}, onUndo = {}, onUndoDismiss = {})
+private fun BookScreenPreview(@PreviewParameter(SurfacePaletteProvider::class) palette: SurfacePalette) {
+    SurfacePreview(palette) {
+        BookScreen(
+            BookPreviewData.book,
+            onBack = {},
+            onOpenNote = {},
+            onMarkKnown = {},
+            onUndo = {},
+            onUndoDismiss = {},
+        )
+    }
 }
 
 @Preview(widthDp = 360, heightDp = 703)

@@ -19,8 +19,9 @@ class ObserveLearningSettings @Inject constructor(
         settings.observeReadingOnlyChapters(),
         settings.observeDesiredRetention(),
         settings.observeReviewReminder(),
-    ) { bookSettings, readingOnly, retention, isReminderOn ->
-        LearningSettings(booksWith(bookSettings, readingOnly), retention, isReminderOn)
+        settings.observeDarkMode(),
+    ) { bookSettings, readingOnly, retention, isReminderOn, darkMode ->
+        LearningSettings(booksWith(bookSettings, readingOnly), retention, isReminderOn, darkMode)
     }
 
     private suspend fun booksWith(

@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.model.PostId
@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.minutes
 object NotePreviewData {
     val fromPost = NoteUiState(
         note = NoteId("alice-bob-appsec/ch04/n005"),
-        html = "",
+        bodyHtml = "",
         place = PlaceInChapter(order = 5, noteCount = 8),
         readingTime = 1.minutes,
         isRead = true,
@@ -35,16 +35,17 @@ object NotePreviewData {
 
     @Composable
     fun Body(modifier: Modifier) {
+        val palette = LocalSurfacePalette.current
         Column(
             modifier.padding(horizontal = 24.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Text("Ch 4 · Cross-site scripting", style = MarginTypography.chip, color = MarginColors.PaperTextFaint)
-            Text("Reflected vs stored XSS", style = MarginTypography.prompt, color = MarginColors.InkText)
+            Text("Ch 4 · Cross-site scripting", style = MarginTypography.chip, color = palette.faintText)
+            Text("Reflected vs stored XSS", style = MarginTypography.prompt, color = palette.text)
             Text(
                 "A reflected payload rides in on the request and bounces straight back in the response.",
                 style = MarginTypography.bookText,
-                color = MarginColors.InkText,
+                color = palette.text,
             )
         }
     }

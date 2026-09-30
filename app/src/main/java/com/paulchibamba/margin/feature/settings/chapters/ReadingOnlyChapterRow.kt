@@ -14,13 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalSurfacePalette
 import com.paulchibamba.margin.designsystem.MarginTypography
+import com.paulchibamba.margin.designsystem.SurfacePalette
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.Chapter
 
 @Composable
 fun ReadingOnlyChapterRow(chapter: Chapter, onChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    val palette = LocalSurfacePalette.current
     Row(
         modifier.fillMaxWidth().toggleable(chapter.isReadingOnly, role = Role.Checkbox, onValueChange = onChange),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -29,13 +31,13 @@ fun ReadingOnlyChapterRow(chapter: Chapter, onChange: (Boolean) -> Unit, modifie
         Text(
             "${chapter.number}",
             style = MarginTypography.monoNumber,
-            color = MarginColors.PaperTextFaint,
+            color = palette.faintText,
             modifier = Modifier.widthIn(min = 20.dp),
         )
         Text(
             chapter.title,
             style = MarginTypography.chapterTitle,
-            color = MarginColors.InkText,
+            color = palette.text,
             modifier = Modifier.weight(1f),
         )
         Checkbox(checked = chapter.isReadingOnly, onCheckedChange = null, colors = checkboxColors())
@@ -43,10 +45,10 @@ fun ReadingOnlyChapterRow(chapter: Chapter, onChange: (Boolean) -> Unit, modifie
 }
 
 @Composable
-private fun checkboxColors() = CheckboxDefaults.colors(
-    checkedColor = MarginColors.InkText,
-    uncheckedColor = MarginColors.PaperTextAhead,
-    checkmarkColor = MarginColors.White,
+private fun checkboxColors(palette: SurfacePalette = LocalSurfacePalette.current) = CheckboxDefaults.colors(
+    checkedColor = palette.accent,
+    uncheckedColor = palette.aheadText,
+    checkmarkColor = palette.onAccent,
 )
 
 @Preview(widthDp = 328, backgroundColor = 0xFFFBFAF7, showBackground = true)

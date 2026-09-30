@@ -7,13 +7,18 @@ import com.paulchibamba.margin.domain.feed.grokking
 import com.paulchibamba.margin.domain.model.Book
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.BookSlug
+import com.paulchibamba.margin.domain.model.DarkMode
 import com.paulchibamba.margin.domain.model.Priority
 import com.paulchibamba.margin.domain.usecase.FakeContentRepository
 import com.paulchibamba.margin.domain.usecase.FakeSettingsRepository
 import com.paulchibamba.margin.domain.usecase.ObserveLearningSettings
+import com.paulchibamba.margin.domain.usecase.SetDarkMode
 import com.paulchibamba.margin.domain.usecase.SetDesiredRetention
 import com.paulchibamba.margin.domain.usecase.SetReviewReminder
 import com.paulchibamba.margin.domain.usecase.UpdateBookSettings
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -27,9 +32,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
@@ -119,12 +121,24 @@ class SettingsViewModelTest {
         assertFalse(scheduler.isScheduled)
     }
 
+    @Test
+    fun `choosing a dark mode saves it and shows it as selected`() = runTest {
+        val viewModel = settingsViewModel()
+        assertEquals(DarkMode.OFF, viewModel.loadedState().darkMode)
+
+        viewModel.onDarkModeChange(DarkMode.ALWAYS)
+
+        assertEquals(DarkMode.ALWAYS, settings.darkMode.value)
+        assertEquals(DarkMode.ALWAYS, viewModel.loadedState().darkMode)
+    }
+
     private fun TestScope.settingsViewModel(): SettingsViewModel {
         val viewModel = SettingsViewModel(
             ObserveLearningSettings(content, settings),
             UpdateBookSettings(settings),
             SetDesiredRetention(settings),
             SetReviewReminder(settings),
+            SetDarkMode(settings),
             scheduler,
         )
         backgroundScope.launch { viewModel.uiState.collect() }
