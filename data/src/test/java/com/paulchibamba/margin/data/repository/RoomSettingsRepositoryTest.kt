@@ -10,12 +10,14 @@ import com.paulchibamba.margin.data.pack.PackReader
 import com.paulchibamba.margin.data.pack.RecordingLogger
 import com.paulchibamba.margin.data.startup.StartupInitializer
 import com.paulchibamba.margin.domain.model.DarkMode
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
 class RoomSettingsRepositoryTest : DatabaseTest() {
@@ -34,6 +36,15 @@ class RoomSettingsRepositoryTest : DatabaseTest() {
 
         repository.setDarkMode(DarkMode.ALWAYS)
         assertEquals(DarkMode.ALWAYS, repository.darkMode())
+    }
+
+    @Test
+    fun `dark posts are off until turned on, and read back once saved`() = runTest {
+        assertFalse(repository.isDarkPostsOn())
+
+        repository.setDarkPosts(true)
+
+        assertTrue(repository.observeDarkPosts().first())
     }
 
     @Test

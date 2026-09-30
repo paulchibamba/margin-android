@@ -1,11 +1,10 @@
 package com.paulchibamba.margin.designsystem
 
+import com.paulchibamba.margin.domain.model.FeedTone
 import kotlin.random.Random
 
-class SkinRotation(
-    private val random: Random,
-    private val skins: List<Skin> = Skins.all,
-) {
-    fun next(previous: Skin?, isDarkOnly: Boolean = false): Skin =
-        skins.filter { it != previous && (!isDarkOnly || !it.isLight) }.random(random)
+class SkinRotation(private val random: Random) {
+
+    fun next(previous: Skin?, tone: FeedTone = FeedTone.ANY): Skin =
+        Skins.forTone(tone).let { skins -> skins.filter { it != previous }.ifEmpty { skins } }.random(random)
 }

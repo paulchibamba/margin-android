@@ -1,19 +1,13 @@
 package com.paulchibamba.margin.feature.feed
 
+import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.Confidence
 import com.paulchibamba.margin.domain.model.BookCover
 import com.paulchibamba.margin.domain.model.BookSlug
+import com.paulchibamba.margin.domain.model.FeedTone
 import com.paulchibamba.margin.domain.signals.PostExit
 import com.paulchibamba.margin.domain.usecase.StreakSummary
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.random.Random
@@ -24,6 +18,14 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FeedViewModelTest {
@@ -288,27 +290,25 @@ class FeedViewModelTest {
     }
 
     @Test
-    fun `with the dark theme on, every page gets a dark skin`() {
-        useCases.isDark = true
+    fun `with a night feed, every page is Ink`() {
+        useCases.feedTone = FeedTone.NIGHT
         val viewModel = feedViewModel()
         (1..8).forEach(viewModel::onPageEntered)
 
-        val skins = viewModel.uiState.value.pages.map { it.skin }
-        assertTrue(skins.none { it.isLight })
-        skins.zipWithNext().forEach { (previous, next) -> assertNotEquals(previous, next) }
+        assertTrue(viewModel.uiState.value.pages.all { it.skin == Skins.Ink })
     }
 
     @Test
-    fun `pages already loaded keep their skin when the dark theme turns on`() {
+    fun `pages already loaded keep their skin when the feed turns night`() {
         val viewModel = feedViewModel()
         (1..4).forEach(viewModel::onPageEntered)
         val skinsBefore = viewModel.uiState.value.pages.map { it.skin }
 
-        useCases.isDark = true
+        useCases.feedTone = FeedTone.NIGHT
         viewModel.onPageEntered(5)
 
         assertEquals(skinsBefore, viewModel.uiState.value.pages.take(skinsBefore.size).map { it.skin })
-        assertFalse(viewModel.uiState.value.pages.last().skin.isLight)
+        assertEquals(Skins.Ink, viewModel.uiState.value.pages.last().skin)
     }
 
     private fun feedViewModel() = FeedViewModel(useCases, Random(seed = 17), clock)

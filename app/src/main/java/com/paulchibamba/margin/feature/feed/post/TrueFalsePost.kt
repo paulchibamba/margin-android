@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,10 +23,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.paulchibamba.margin.designsystem.LocalPostCardStyle
 import com.paulchibamba.margin.designsystem.LocalSkin
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
+import com.paulchibamba.margin.designsystem.PostCardStyle
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.domain.model.PostContent
 
@@ -113,6 +116,14 @@ private val previewStatement = PostContent.TrueFalse(
 @Preview(widthDp = 360, heightDp = 703)
 @Composable
 private fun TrueFalsePostInkPreview() = PostPagePreview(Skins.Ink, previewStatement)
+
+@Preview(widthDp = 360, heightDp = 703)
+@Composable
+private fun TrueFalsePostDarkCardPreview() {
+    CompositionLocalProvider(LocalPostCardStyle provides PostCardStyle.DARK) {
+        PostPagePreview(Skins.Ink, previewStatement)
+    }
+}
 
 @Preview(widthDp = 360, heightDp = 703)
 @Composable

@@ -8,6 +8,7 @@ data class LearningSettings(
     val desiredRetention: Double,
     val isReviewReminderOn: Boolean = false,
     val darkMode: DarkMode = DarkMode.DEFAULT,
+    val isDarkPostsOn: Boolean = false,
 ) {
 
     val activeCount: Int get() = books.count { it.settings.isActive }

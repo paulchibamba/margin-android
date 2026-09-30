@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,9 +29,10 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.designsystem.LocalPostCardStyle
 import com.paulchibamba.margin.designsystem.MarginIcons
 import com.paulchibamba.margin.designsystem.MarginTypography
+import com.paulchibamba.margin.designsystem.PostCardStyle
 import com.paulchibamba.margin.designsystem.Skins
 
 private val CardShape = RoundedCornerShape(20.dp)
@@ -44,55 +46,56 @@ fun NudgeCard(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int = MarginIcons.Autorenew,
 ) {
+    val colors = NudgeCardColors.of(LocalPostCardStyle.current)
     Column(
         modifier
             .shadow(16.dp, CardShape, ambientColor = Color.Black, spotColor = Color.Black)
-            .background(MarginColors.PaperCard, CardShape)
+            .background(colors.background, CardShape)
             .padding(16.dp)
             .semantics { liveRegion = LiveRegionMode.Polite },
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        NudgeMessage(icon, title, detail)
+        NudgeMessage(icon, title, detail, colors)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            PrimaryNudgeButton(primaryAction)
-            if (secondaryAction != null) SecondaryNudgeButton(secondaryAction)
+            PrimaryNudgeButton(primaryAction, colors)
+            if (secondaryAction != null) SecondaryNudgeButton(secondaryAction, colors)
         }
     }
 }
 
 @Composable
-private fun NudgeMessage(@DrawableRes icon: Int, title: String, detail: String) {
+private fun NudgeMessage(@DrawableRes icon: Int, title: String, detail: String, colors: NudgeCardColors) {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Icon(painterResource(icon), contentDescription = null, Modifier.size(22.dp), MarginColors.Cobalt)
+        Icon(painterResource(icon), contentDescription = null, Modifier.size(22.dp), colors.icon)
         Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(title, style = MarginTypography.cardTitle, color = MarginColors.InkText)
-            Text(detail, style = MarginTypography.detail, color = MarginColors.PaperTextMuted)
+            Text(title, style = MarginTypography.cardTitle, color = colors.title)
+            Text(detail, style = MarginTypography.detail, color = colors.detail)
         }
     }
 }
 
 @Composable
-private fun PrimaryNudgeButton(action: NudgeAction) {
+private fun PrimaryNudgeButton(action: NudgeAction, colors: NudgeCardColors) {
     Row(
         Modifier
             .clip(CircleShape)
-            .background(MarginColors.InkText)
+            .background(colors.button)
             .clickable(role = Role.Button, onClick = action.onClick)
             .padding(horizontal = 14.dp, vertical = 9.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        action.icon?.let { Icon(painterResource(it), null, Modifier.size(17.dp), MarginColors.White) }
-        Text(action.label, style = MarginTypography.smallButton, color = MarginColors.White)
+        action.icon?.let { Icon(painterResource(it), null, Modifier.size(17.dp), colors.onButton) }
+        Text(action.label, style = MarginTypography.smallButton, color = colors.onButton)
     }
 }
 
 @Composable
-private fun SecondaryNudgeButton(action: NudgeAction) {
+private fun SecondaryNudgeButton(action: NudgeAction, colors: NudgeCardColors) {
     Text(
         action.label,
         style = MarginTypography.smallButton,
-        color = MarginColors.InkText,
+        color = colors.secondaryButton,
         modifier = Modifier
             .clip(CircleShape)
             .clickable(role = Role.Button, onClick = action.onClick)
@@ -120,6 +123,14 @@ private fun NudgeCardCobaltPreview() = NudgeCardPreviewOn(Skins.Cobalt.backgroun
 @Preview
 @Composable
 private fun NudgeCardInkPreview() = NudgeCardPreviewOn(Skins.Ink.background)
+
+@Preview
+@Composable
+private fun NudgeCardDarkPreview() {
+    CompositionLocalProvider(LocalPostCardStyle provides PostCardStyle.DARK) {
+        NudgeCardPreviewOn(Skins.Ink.background)
+    }
+}
 
 @Preview
 @Composable

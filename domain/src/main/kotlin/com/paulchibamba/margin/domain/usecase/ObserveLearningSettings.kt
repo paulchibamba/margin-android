@@ -19,10 +19,19 @@ class ObserveLearningSettings @Inject constructor(
         settings.observeReadingOnlyChapters(),
         settings.observeDesiredRetention(),
         settings.observeReviewReminder(),
-        settings.observeDarkMode(),
-    ) { bookSettings, readingOnly, retention, isReminderOn, darkMode ->
-        LearningSettings(booksWith(bookSettings, readingOnly), retention, isReminderOn, darkMode)
+        appearanceOf(settings),
+    ) { bookSettings, readingOnly, retention, isReminderOn, appearance ->
+        LearningSettings(
+            books = booksWith(bookSettings, readingOnly),
+            desiredRetention = retention,
+            isReviewReminderOn = isReminderOn,
+            darkMode = appearance.darkMode,
+            isDarkPostsOn = appearance.isDarkPostsOn,
+        )
     }
+
+    private fun appearanceOf(settings: SettingsRepository): Flow<Appearance> =
+        combine(settings.observeDarkMode(), settings.observeDarkPosts(), ::Appearance)
 
     private suspend fun booksWith(
         bookSettings: List<BookSettings>,

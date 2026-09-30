@@ -12,6 +12,7 @@ data class SettingsUiState(
     val retention: Double = DesiredRetention.DEFAULT,
     val isReviewReminderOn: Boolean = false,
     val darkMode: DarkMode = DarkMode.DEFAULT,
+    val isDarkPostsOn: Boolean = false,
     val isLoading: Boolean = true,
 ) {
     companion object {
@@ -23,6 +24,7 @@ data class SettingsUiState(
             retention = retentionDraft ?: settings.desiredRetention,
             isReviewReminderOn = settings.isReviewReminderOn,
             darkMode = settings.darkMode,
+            isDarkPostsOn = settings.isDarkPostsOn,
             isLoading = false,
         )
     }

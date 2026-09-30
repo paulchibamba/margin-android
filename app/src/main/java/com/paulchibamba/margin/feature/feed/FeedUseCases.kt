@@ -6,14 +6,15 @@ import com.paulchibamba.margin.domain.feed.FeedResult
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.BookCover
 import com.paulchibamba.margin.domain.model.BookSlug
+import com.paulchibamba.margin.domain.model.FeedTone
 import com.paulchibamba.margin.domain.model.Post
 import com.paulchibamba.margin.domain.signals.PostExit
 import com.paulchibamba.margin.domain.usecase.CaughtUp
 import com.paulchibamba.margin.domain.usecase.PostContext
 import com.paulchibamba.margin.domain.usecase.RecordedExit
 import com.paulchibamba.margin.domain.usecase.StreakSummary
-import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
+import kotlinx.coroutines.flow.Flow
 
 interface FeedUseCases {
     fun observeStreak(): Flow<StreakSummary>
@@ -24,5 +25,5 @@ interface FeedUseCases {
     suspend fun applyAction(post: Post, action: PostAction): ActionOutcome
     suspend fun caughtUp(): CaughtUp
     suspend fun previewIntervals(post: Post): Map<Rating, Duration>
-    suspend fun isDarkTheme(): Boolean
+    suspend fun feedTone(): FeedTone
 }

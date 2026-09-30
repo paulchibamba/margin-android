@@ -71,4 +71,13 @@ class RoomSettingsRepository @Inject constructor(
     override suspend fun setDarkMode(mode: DarkMode) {
         database.metaDao().put(listOf(MetaEntity(MetaKey.DARK_MODE, mode.name)))
     }
+
+    override suspend fun isDarkPostsOn(): Boolean = observeDarkPosts().first()
+
+    override fun observeDarkPosts(): Flow<Boolean> = database.metaDao().observe(MetaKey.DARK_POSTS)
+        .map { stored -> stored.toBoolean() }
+
+    override suspend fun setDarkPosts(isOn: Boolean) {
+        database.metaDao().put(listOf(MetaEntity(MetaKey.DARK_POSTS, isOn.toString())))
+    }
 }

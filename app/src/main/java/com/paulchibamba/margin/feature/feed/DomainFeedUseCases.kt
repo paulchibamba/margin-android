@@ -11,8 +11,8 @@ import com.paulchibamba.margin.domain.usecase.ApplyPostAction
 import com.paulchibamba.margin.domain.usecase.DescribePost
 import com.paulchibamba.margin.domain.usecase.GetCaughtUp
 import com.paulchibamba.margin.domain.usecase.GetNextPost
+import com.paulchibamba.margin.domain.usecase.ObserveAppearance
 import com.paulchibamba.margin.domain.usecase.ObserveBookCovers
-import com.paulchibamba.margin.domain.usecase.ObserveDarkMode
 import com.paulchibamba.margin.domain.usecase.ObserveStreak
 import com.paulchibamba.margin.domain.usecase.PreviewIntervals
 import com.paulchibamba.margin.domain.usecase.RecordPostExit
@@ -32,7 +32,7 @@ class DomainFeedUseCases @Inject constructor(
     private val observeBookCovers: ObserveBookCovers,
     private val previewIntervals: PreviewIntervals,
     private val celebrations: CelebrationTrigger,
-    private val observeDarkMode: ObserveDarkMode,
+    private val observeAppearance: ObserveAppearance,
     private val systemDarkTheme: SystemDarkTheme,
 ) : FeedUseCases {
 
@@ -61,5 +61,5 @@ class DomainFeedUseCases @Inject constructor(
 
     override suspend fun previewIntervals(post: Post) = previewIntervals.invoke(post)
 
-    override suspend fun isDarkTheme() = observeDarkMode().first().isDark(systemDarkTheme.isOn())
+    override suspend fun feedTone() = observeAppearance().first().feedTone(systemDarkTheme.isOn())
 }
