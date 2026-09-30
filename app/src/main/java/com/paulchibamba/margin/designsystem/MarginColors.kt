@@ -47,4 +47,6 @@ object MarginColors {
     val WrongOnForest = Color(0xFFFF9A90)
     val WarningSurface = Color(0xFFFFF1D6)
     val WarningText = Color(0xFF5B4A1F)
+    val WarningSurfaceOnInk = Color(0xFF2E2716)
+    val WarningTextOnInk = Color(0xFFF2DFB0)
 }
