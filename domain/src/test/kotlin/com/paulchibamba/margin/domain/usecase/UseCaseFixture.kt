@@ -41,4 +41,5 @@ class UseCaseFixture {
     val setDarkMode = SetDarkMode(settings)
     val observeAppearance = ObserveAppearance(settings)
     val setDarkPosts = SetDarkPosts(settings)
+    val resetProgress = ResetProgress(progress)
 }

@@ -1,6 +1,8 @@
 package com.paulchibamba.margin.data.repository
 
 import com.paulchibamba.margin.data.database.DatabaseTest
+import com.paulchibamba.margin.data.database.MetaKey
+import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.domain.actions.ActionLogEntry
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.CandidateSource
@@ -24,11 +26,6 @@ import com.paulchibamba.margin.domain.rewards.DailyActivity
 import com.paulchibamba.margin.domain.signals.AnswerOutcome
 import com.paulchibamba.margin.domain.signals.FormatAffinity
 import com.paulchibamba.margin.domain.signals.PostExit
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.test.assertEquals
@@ -36,6 +33,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class RoomProgressRepositoryTest : DatabaseTest() {
@@ -160,6 +162,45 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         assertEquals(badges, repository.shownBadges())
     }
 
+    @Test
+    fun `clearing progress empties every progress table and keeps the settings`() = runTest {
+        fillProgress()
+        val settings = listOf(
+            MetaEntity(MetaKey.PACK_VERSION, "7"),
+            MetaEntity(MetaKey.DESIRED_RETENTION, "0.85"),
+            MetaEntity(MetaKey.REVIEW_REMINDER, "true"),
+            MetaEntity(MetaKey.DARK_MODE, "ALWAYS"),
+            MetaEntity(MetaKey.DARK_POSTS, "true"),
+        )
+        database.metaDao().put(settings)
+        database.settingsDao().replaceReadingOnlyChapters(book.value, listOf(10, 11))
+
+        repository.clearProgress()
+
+        PROGRESS_TABLES.forEach { table -> assertEquals(0, rowsIn(table), "$table still has rows") }
+        assertNull(repository.loadFeedState())
+        assertEquals(settings.toSet(), database.metaDao().withPrefix("").toSet())
+        assertEquals(2, rowsIn("reading_only_chapter"))
+    }
+
+    private suspend fun fillProgress() {
+        repository.saveFeedState(feedState(), now)
+        repository.recordExit(quiz, PostExit(5.seconds, true, AnswerOutcome.Wrong), engagement = 0.8)
+        repository.appendAction(ActionLogEntry(now, 2, tip, cia, PostAction.LOST))
+        repository.appendReview(ReviewLogEntry(now, cia, quiz, Rating.AGAIN, CardState.REVIEW, 3.1, 0.9, dwell = null))
+        repository.markNoteRead(NoteId("alice-bob-appsec/ch01/n001"), now)
+        repository.markChapterKnown(ChapterRef(book, 3), now)
+        repository.addActivity(LocalDate.of(2026, 10, 1), postsSeen = 4, notesRead = 1)
+        repository.markBadgesShown(setOf(Badge(book, BadgeKind.INTRODUCED)))
+        PROGRESS_TABLES.forEach { table -> assertTrue(rowsIn(table) > 0, "$table was not filled") }
+    }
+
+    private fun rowsIn(table: String): Int =
+        database.openHelper.readableDatabase.query("SELECT COUNT(*) FROM $table").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
+        }
+
     private fun historyEntry(step: Int, post: PostId, format: Format, source: CandidateSource) =
         FeedHistoryEntry(step, post, cia, format, format.role, source)
 
@@ -193,4 +234,11 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         affinity = FormatAffinity(mapOf(Format.TIP to 0.62, Format.CODE_EXAMPLE to 0.31)),
         savedPosts = setOf(tip),
     )
+
+    private companion object {
+        val PROGRESS_TABLES = listOf(
+            "concept_progress", "review_log", "post_seen", "action_log", "format_affinity",
+            "note_read", "chapter_known", "saved_post", "feed_history", "daily_activity",
+        )
+    }
 }

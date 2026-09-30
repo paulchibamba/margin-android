@@ -9,7 +9,16 @@ import com.paulchibamba.margin.domain.time.OffsetClock
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
 import com.paulchibamba.margin.domain.usecase.FakeProgressRepository
 import com.paulchibamba.margin.domain.usecase.FixedClock
+import com.paulchibamba.margin.domain.usecase.ResetProgress
 import com.paulchibamba.margin.feature.settings.FakeReminderScheduler
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.toJavaDuration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -18,21 +27,17 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.toJavaDuration
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class DebugClockViewModelTest {
+class DebugToolsViewModelTest {
 
     private val systemClock = FixedClock()
     private val clock = OffsetClock(systemClock, MemoryOffsetStore())
     private val progress = FakeProgressRepository()
     private val scheduler = FakeReminderScheduler()
-    private val viewModel by lazy { DebugClockViewModel(clock, CountDueReviews(progress, clock), scheduler) }
+    private val viewModel by lazy {
+        DebugToolsViewModel(clock, CountDueReviews(progress, clock), scheduler, ResetProgress(progress))
+    }
 
     @Before
     fun setUp() {
@@ -57,7 +62,7 @@ class DebugClockViewModelTest {
     fun `resetting returns to real time`() {
         viewModel.onAdvance(1.days)
 
-        viewModel.onReset()
+        viewModel.onResetClock()
 
         assertEquals("Clock: real time", viewModel.uiState.value.clockLabel)
         assertEquals(systemClock.instant, clock.now())
@@ -91,6 +96,30 @@ class DebugClockViewModelTest {
         viewModel.onSendReviewReminder()
 
         assertEquals(1, scheduler.runCount)
+    }
+
+    @Test
+    fun `the first tap on reset progress only arms it and clears nothing`() {
+        progress.feedState.value = FeedState(delightAtStep = 99)
+
+        viewModel.onResetProgress()
+
+        assertTrue(viewModel.uiState.value.isProgressResetArmed)
+        assertEquals("Tap again to erase all progress", viewModel.uiState.value.resetProgressLabel)
+        assertFalse(viewModel.uiState.value.isProgressCleared)
+        assertEquals(FeedState(delightAtStep = 99), progress.feedState.value)
+    }
+
+    @Test
+    fun `the second tap clears progress and asks for a restart`() {
+        progress.feedState.value = FeedState(delightAtStep = 99)
+
+        viewModel.onResetProgress()
+        viewModel.onResetProgress()
+
+        assertNull(progress.feedState.value)
+        assertTrue(viewModel.uiState.value.isProgressCleared)
+        assertFalse(viewModel.uiState.value.isProgressResetArmed)
     }
 
     private fun cardDueIn(duration: Duration): ConceptProgress {

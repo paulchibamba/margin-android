@@ -10,6 +10,7 @@ import com.paulchibamba.margin.data.database.dao.ContentDao
 import com.paulchibamba.margin.data.database.dao.FeedLogDao
 import com.paulchibamba.margin.data.database.dao.FeedStateDao
 import com.paulchibamba.margin.data.database.dao.MetaDao
+import com.paulchibamba.margin.data.database.dao.ProgressResetDao
 import com.paulchibamba.margin.data.database.dao.ReadingDao
 import com.paulchibamba.margin.data.database.dao.SettingsDao
 import com.paulchibamba.margin.data.database.entity.ActionLogEntity
@@ -68,6 +69,7 @@ abstract class MarginDatabase : RoomDatabase() {
     abstract fun metaDao(): MetaDao
     abstract fun activityDao(): ActivityDao
     abstract fun bookCoverDao(): BookCoverDao
+    abstract fun progressResetDao(): ProgressResetDao
 
     companion object {
         const val NAME = "margin.db"

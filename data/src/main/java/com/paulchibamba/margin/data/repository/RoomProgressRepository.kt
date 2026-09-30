@@ -117,6 +117,10 @@ class RoomProgressRepository @Inject constructor(private val database: MarginDat
         database.metaDao().put(badges.map { badge -> MetaEntity(badgeKey(badge), SHOWN) })
     }
 
+    override suspend fun clearProgress() {
+        database.progressResetDao().clearProgress()
+    }
+
     private fun isCorrect(exit: PostExit): Boolean? = when (val answer = exit.answer) {
         null -> null
         AnswerOutcome.Correct -> true
