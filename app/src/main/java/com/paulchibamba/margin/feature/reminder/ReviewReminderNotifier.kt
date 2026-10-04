@@ -54,7 +54,7 @@ class ReviewReminderNotifier @Inject constructor(@ApplicationContext private val
 
     private fun openFeed(): PendingIntent {
         val intent = Intent(context, MainActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            .addFlags(BRING_BACK_RUNNING_FEED)
             .withEntry(SessionEntry.DUE_NOTIFICATION)
         return PendingIntent.getActivity(
             context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
@@ -62,6 +62,8 @@ class ReviewReminderNotifier @Inject constructor(@ApplicationContext private val
     }
 
     private companion object {
+        const val BRING_BACK_RUNNING_FEED =
+            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         const val CHANNEL_ID = "review_reminders"
         const val NOTIFICATION_ID = 1
     }
