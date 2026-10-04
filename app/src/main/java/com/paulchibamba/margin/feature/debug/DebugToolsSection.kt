@@ -33,6 +33,7 @@ fun DebugToolsSection(
     onResetClock: () -> Unit,
     onShowDueCount: () -> Unit,
     onSendReviewReminder: () -> Unit,
+    onShowEvents: () -> Unit,
     onResetProgress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -49,10 +50,22 @@ fun DebugToolsSection(
             DebugButton("Reset clock", onClick = onResetClock)
             DebugButton("Show due count", onClick = onShowDueCount)
             DebugButton("Send reminder", onClick = onSendReviewReminder)
+            DebugButton("Show events", onClick = onShowEvents)
             DebugButton(state.resetProgressLabel, state.isProgressResetArmed, onResetProgress)
         }
         state.dueCountLabel?.let { label ->
             Text(label, style = MarginTypography.label, color = MarginColors.Lime)
+        }
+        state.recentEvents?.let { lines -> RecentEventList(lines) }
+    }
+}
+
+@Composable
+private fun RecentEventList(lines: List<String>) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (lines.isEmpty()) Text("No events yet", style = MarginTypography.label, color = MarginColors.Lime)
+        lines.forEach { line ->
+            Text(line, style = MarginTypography.chip, color = MarginColors.White.copy(alpha = 0.8f))
         }
     }
 }
@@ -78,11 +91,16 @@ private fun DebugButton(label: String, isWarning: Boolean = false, onClick: () -
 private fun DebugToolsSectionPreview() {
     Box(Modifier.background(MarginColors.InkSheet).padding(20.dp)) {
         DebugToolsSection(
-            state = DebugToolsUiState(offset = 2.days, dueCount = 3),
+            state = DebugToolsUiState(
+                offset = 2.days,
+                dueCount = 3,
+                recentEvents = listOf("21:04:05 session_start {\"entry\":\"launcher\"}"),
+            ),
             onAdvance = {},
             onResetClock = {},
             onShowDueCount = {},
             onSendReviewReminder = {},
+            onShowEvents = {},
             onResetProgress = {},
         )
     }

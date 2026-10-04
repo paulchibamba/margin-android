@@ -8,7 +8,12 @@ import com.paulchibamba.margin.domain.repository.ClockOffsetStore
 import com.paulchibamba.margin.domain.time.OffsetClock
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
 import com.paulchibamba.margin.domain.usecase.FakeProgressRepository
+import com.paulchibamba.margin.domain.tracking.FakeEventLog
+import com.paulchibamba.margin.domain.tracking.RecentEvent
+import com.paulchibamba.margin.domain.tracking.RecordingEventSink
 import com.paulchibamba.margin.domain.usecase.FixedClock
+import com.paulchibamba.margin.domain.usecase.GetRecentEvents
+import java.time.Instant
 import com.paulchibamba.margin.domain.usecase.ResetProgress
 import com.paulchibamba.margin.feature.settings.FakeReminderScheduler
 import kotlin.test.assertEquals
@@ -35,8 +40,16 @@ class DebugToolsViewModelTest {
     private val clock = OffsetClock(systemClock, MemoryOffsetStore())
     private val progress = FakeProgressRepository()
     private val scheduler = FakeReminderScheduler()
+    private val eventSink = RecordingEventSink()
+    private val eventLog = FakeEventLog()
     private val viewModel by lazy {
-        DebugToolsViewModel(clock, CountDueReviews(progress, clock), scheduler, ResetProgress(progress))
+        DebugToolsViewModel(
+            clock,
+            CountDueReviews(progress, clock),
+            scheduler,
+            ResetProgress(progress),
+            GetRecentEvents(eventSink, eventLog),
+        )
     }
 
     @Before
@@ -47,6 +60,18 @@ class DebugToolsViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `showing events flushes the buffer and lists the latest ones`() {
+        eventLog.recentEvents = listOf(
+            RecentEvent(Instant.parse("2026-10-01T08:04:05Z"), "session_start", null, "{\"entry\":\"launcher\"}"),
+        )
+
+        viewModel.onShowEvents()
+
+        assertEquals(1, eventSink.flushCount)
+        assertEquals(listOf("08:04:05 session_start {\"entry\":\"launcher\"}"), viewModel.uiState.value.recentEvents)
     }
 
     @Test

@@ -30,6 +30,7 @@ fun DebugToolsRoute(
         },
         onShowDueCount = viewModel::onShowDueCount,
         onSendReviewReminder = viewModel::onSendReviewReminder,
+        onShowEvents = viewModel::onShowEvents,
         onResetProgress = viewModel::onResetProgress,
         modifier = modifier,
     )
