@@ -7,6 +7,7 @@ data class DebugToolsUiState(
     val dueCount: Int? = null,
     val isProgressResetArmed: Boolean = false,
     val isProgressCleared: Boolean = false,
+    val recentEvents: List<String>? = null,
 ) {
 
     val clockLabel: String

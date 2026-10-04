@@ -15,7 +15,9 @@ import androidx.core.content.ContextCompat
 import com.paulchibamba.margin.MainActivity
 import com.paulchibamba.margin.R
 import com.paulchibamba.margin.designsystem.MarginColors
+import com.paulchibamba.margin.domain.tracking.SessionEntry
 import com.paulchibamba.margin.domain.usecase.ReviewReminder
+import com.paulchibamba.margin.feature.tracking.EntryIntent.withEntry
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -51,11 +53,17 @@ class ReviewReminderNotifier @Inject constructor(@ApplicationContext private val
         .build()
 
     private fun openFeed(): PendingIntent {
-        val intent = Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val intent = Intent(context, MainActivity::class.java)
+            .addFlags(BRING_BACK_RUNNING_FEED)
+            .withEntry(SessionEntry.DUE_NOTIFICATION)
+        return PendingIntent.getActivity(
+            context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
     }
 
     private companion object {
+        const val BRING_BACK_RUNNING_FEED =
+            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         const val CHANNEL_ID = "review_reminders"
         const val NOTIFICATION_ID = 1
     }

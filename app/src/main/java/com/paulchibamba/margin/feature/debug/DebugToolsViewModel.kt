@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paulchibamba.margin.domain.time.OffsetClock
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
+import com.paulchibamba.margin.domain.usecase.GetRecentEvents
 import com.paulchibamba.margin.domain.usecase.ResetProgress
 import com.paulchibamba.margin.feature.reminder.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ class DebugToolsViewModel @Inject constructor(
     private val countDueReviews: CountDueReviews,
     private val reminderScheduler: ReminderScheduler,
     private val resetProgress: ResetProgress,
+    private val getRecentEvents: GetRecentEvents,
 ) : ViewModel() {
 
     private val state = MutableStateFlow(DebugToolsUiState(offset = clock.offset))
@@ -46,6 +48,13 @@ class DebugToolsViewModel @Inject constructor(
     }
 
     fun onSendReviewReminder() = reminderScheduler.runOnce()
+
+    fun onShowEvents() {
+        viewModelScope.launch {
+            val lines = getRecentEvents().map { event -> RecentEventLabels.lineFor(event, clock.zone()) }
+            state.update { it.copy(recentEvents = lines) }
+        }
+    }
 
     fun onResetProgress() {
         if (!state.value.isProgressResetArmed) {

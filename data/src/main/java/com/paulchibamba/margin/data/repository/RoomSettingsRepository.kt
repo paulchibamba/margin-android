@@ -11,6 +11,8 @@ import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.DarkMode
 import com.paulchibamba.margin.domain.progression.ReadingOnlyChapters
 import com.paulchibamba.margin.domain.repository.SettingsRepository
+import com.paulchibamba.margin.domain.tracking.Event
+import com.paulchibamba.margin.domain.tracking.EventRecorder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -22,6 +24,7 @@ import javax.inject.Singleton
 class RoomSettingsRepository @Inject constructor(
     private val database: MarginDatabase,
     private val startup: StartupInitializer,
+    private val events: EventRecorder,
 ) : SettingsRepository {
     private val settingsDao get() = database.settingsDao()
 
@@ -32,7 +35,11 @@ class RoomSettingsRepository @Inject constructor(
         .map { settings -> settings.map(SettingsMapper::toDomain) }
 
     override suspend fun saveBookSettings(settings: BookSettings) {
-        settingsDao.upsertBookSettings(SettingsMapper.toEntity(settings))
+        val entity = SettingsMapper.toEntity(settings)
+        val old = settingsDao.bookSettingsOf(entity.bookSlug)
+        settingsDao.upsertBookSettings(entity)
+        recordChange("book_active:${entity.bookSlug}", old?.active?.toString(), entity.active.toString())
+        recordChange("book_priority:${entity.bookSlug}", old?.priority, entity.priority)
     }
 
     override suspend fun readingOnlyChapters(): ReadingOnlyChapters = observeReadingOnlyChapters().first()
@@ -42,7 +49,9 @@ class RoomSettingsRepository @Inject constructor(
         .map(SettingsMapper::readingOnly)
 
     override suspend fun setReadingOnlyChapters(book: BookSlug, chapters: Set<Int>) {
+        val old = settingsDao.readingOnlyChaptersOf(book.value)
         settingsDao.replaceReadingOnlyChapters(book.value, chapters.sorted())
+        recordChange("reading_only:${book.value}", old.joinToString(","), chapters.sorted().joinToString(","))
     }
 
     override suspend fun desiredRetention(): Double = observeDesiredRetention().first()
@@ -51,7 +60,7 @@ class RoomSettingsRepository @Inject constructor(
         .map { stored -> stored?.toDoubleOrNull() ?: DesiredRetention.DEFAULT }
 
     override suspend fun setDesiredRetention(retention: Double) {
-        database.metaDao().put(listOf(MetaEntity(MetaKey.DESIRED_RETENTION, retention.toString())))
+        putSetting(MetaKey.DESIRED_RETENTION, retention.toString())
     }
 
     override suspend fun isReviewReminderOn(): Boolean = observeReviewReminder().first()
@@ -60,7 +69,7 @@ class RoomSettingsRepository @Inject constructor(
         .map { stored -> stored.toBoolean() }
 
     override suspend fun setReviewReminder(isOn: Boolean) {
-        database.metaDao().put(listOf(MetaEntity(MetaKey.REVIEW_REMINDER, isOn.toString())))
+        putSetting(MetaKey.REVIEW_REMINDER, isOn.toString())
     }
 
     override suspend fun darkMode(): DarkMode = observeDarkMode().first()
@@ -69,7 +78,7 @@ class RoomSettingsRepository @Inject constructor(
         .map(DarkMode::fromName)
 
     override suspend fun setDarkMode(mode: DarkMode) {
-        database.metaDao().put(listOf(MetaEntity(MetaKey.DARK_MODE, mode.name)))
+        putSetting(MetaKey.DARK_MODE, mode.name)
     }
 
     override suspend fun isDarkPostsOn(): Boolean = observeDarkPosts().first()
@@ -78,6 +87,16 @@ class RoomSettingsRepository @Inject constructor(
         .map { stored -> stored.toBoolean() }
 
     override suspend fun setDarkPosts(isOn: Boolean) {
-        database.metaDao().put(listOf(MetaEntity(MetaKey.DARK_POSTS, isOn.toString())))
+        putSetting(MetaKey.DARK_POSTS, isOn.toString())
+    }
+
+    private suspend fun putSetting(key: String, value: String) {
+        val old = database.metaDao().get(key)
+        database.metaDao().put(listOf(MetaEntity(key, value)))
+        recordChange(key, old, value)
+    }
+
+    private fun recordChange(key: String, old: String?, new: String) {
+        if (old != new) events.record(Event.SettingChanged(key, old, new))
     }
 }

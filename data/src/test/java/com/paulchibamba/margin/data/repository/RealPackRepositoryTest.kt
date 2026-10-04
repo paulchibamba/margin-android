@@ -59,7 +59,7 @@ class RealPackRepositoryTest : DatabaseTest() {
         val startup = startup()
         val content = RoomContentRepository(database, startup)
         val progress = RoomProgressRepository(database)
-        val settings = RoomSettingsRepository(database, startup)
+        val settings = RoomSettingsRepository(database, startup) {}
         val clock = object : Clock {
             var instant = Instant.parse("2026-10-01T08:00:00Z")
             override fun now() = instant.also { instant = instant.plusSeconds(7) }
