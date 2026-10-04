@@ -22,8 +22,14 @@ interface SettingsDao {
     @Query("SELECT * FROM book_settings")
     fun bookSettings(): Flow<List<BookSettingsEntity>>
 
+    @Query("SELECT * FROM book_settings WHERE bookSlug = :bookSlug")
+    suspend fun bookSettingsOf(bookSlug: String): BookSettingsEntity?
+
     @Query("SELECT * FROM reading_only_chapter")
     fun readingOnlyChapters(): Flow<List<ReadingOnlyChapterEntity>>
+
+    @Query("SELECT chapter FROM reading_only_chapter WHERE bookSlug = :bookSlug ORDER BY chapter")
+    suspend fun readingOnlyChaptersOf(bookSlug: String): List<Int>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertReadingOnlyChapters(chapters: List<ReadingOnlyChapterEntity>)

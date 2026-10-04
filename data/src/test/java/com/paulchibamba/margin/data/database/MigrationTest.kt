@@ -29,6 +29,20 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun `moving from version 2 to 3 keeps progress and adds an empty event log`() {
+        helper.createDatabase(NAME, 2).use { database ->
+            database.execSQL("INSERT INTO note_read (noteId, readAt) VALUES ('$NOTE', 4000)")
+            database.execSQL("INSERT INTO book_cover (bookSlug, fileName, updatedAt) VALUES ('appsec', 'a.webp', 5)")
+        }
+
+        helper.runMigrationsAndValidate(NAME, 3, true).use { database ->
+            assertEquals(4000L, database.longOf("SELECT readAt FROM note_read WHERE noteId = '$NOTE'"))
+            assertEquals(1L, database.longOf("SELECT COUNT(*) FROM book_cover"))
+            assertEquals(0L, database.longOf("SELECT COUNT(*) FROM event_log"))
+        }
+    }
+
     private fun SupportSQLiteDatabase.longOf(sql: String): Long =
         query(sql).use { cursor ->
             cursor.moveToFirst()
