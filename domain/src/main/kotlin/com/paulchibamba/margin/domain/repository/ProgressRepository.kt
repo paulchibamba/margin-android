@@ -20,6 +20,7 @@ interface ProgressRepository {
     suspend fun saveFeedState(state: FeedState, now: Instant)
     fun observeFeedState(): Flow<FeedState?>
     suspend fun recordExit(post: PostId, exit: PostExit, engagement: Double)
+    suspend fun firstSeenTimes(): Map<PostId, Instant>
 
     suspend fun appendAction(entry: ActionLogEntry)
     suspend fun appendReview(entry: ReviewLogEntry)

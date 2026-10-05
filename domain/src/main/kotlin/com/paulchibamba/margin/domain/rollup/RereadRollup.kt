@@ -13,8 +13,11 @@ object RereadRollup {
         hotspots = hotspotsOf(day),
     )
 
+    fun subjectsOf(day: DayEvents): List<RereadSubject> =
+        revisitedConcepts(day) + reopenedNotes(day) + scrolledBackNotes(day) + rezoomedSubjects(day)
+
     private fun hotspotsOf(day: DayEvents): List<RereadHotspot> =
-        (revisitedConcepts(day) + reopenedNotes(day) + scrolledBackNotes(day) + rezoomedSubjects(day))
+        subjectsOf(day)
             .groupingBy { it }
             .eachCount()
             .byCountDescending()

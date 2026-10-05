@@ -84,6 +84,16 @@ class RoomProgressRepositoryTest : DatabaseTest() {
     }
 
     @Test
+    fun `first-seen times stay at the first showing of each post`() = runTest {
+        repository.saveFeedState(feedState(), now)
+        repository.saveFeedState(feedState().copy(seenPosts = mapOf(tip to 3, quiz to 2)), now.plusSeconds(60))
+
+        val firstSeen = repository.firstSeenTimes()
+
+        assertEquals(mapOf(tip to now, quiz to now), firstSeen)
+    }
+
+    @Test
     fun `an exit records dwell, engagement and correctness on the seen post`() = runTest {
         repository.saveFeedState(feedState(), now)
 
