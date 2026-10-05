@@ -134,15 +134,17 @@ class IngestScreenTimeTest {
     }
 
     @Test
-    fun `ingested days fill the rollup's doom minutes and top doom apps`() = runTest {
+    fun `ingested days fill the rollup's doom and margin minutes and top doom apps`() = runTest {
         use(instagram, "2026-10-04T20:00:00Z", "2026-10-04T20:40:00Z")
         use(notes, "2026-10-04T21:00:00Z", "2026-10-04T21:10:00Z")
+        use(source.ownPackage, "2026-10-04T22:00:00Z", "2026-10-04T22:12:00Z")
 
         ingest.missedDays()
 
         val screenTime = rollups.saved.getValue(yesterday).metrics.screenTime!!
-        assertEquals(50.minutes, screenTime.screen)
+        assertEquals(62.minutes, screenTime.screen)
         assertEquals(40.minutes, screenTime.doom)
+        assertEquals(12.minutes, screenTime.margin)
         assertEquals(listOf("Instagram"), screenTime.topDoomApps)
     }
 

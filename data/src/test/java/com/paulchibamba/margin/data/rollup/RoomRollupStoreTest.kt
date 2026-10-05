@@ -63,14 +63,13 @@ class RoomRollupStoreTest : DatabaseTest() {
         }
 
         assertEquals(0.25, stored.getValue("glanceRate").toString().toDouble())
-        listOf("screenMin", "doomMin", "marginShare", "topDoomApps", "dropCompleted", "notificationOpenRate")
+        listOf("screenMin", "doomMin", "marginMin", "marginShare", "topDoomApps", "dropCompleted", "notificationOpenRate")
             .forEach { key -> assertEquals(JsonNull, stored.getValue(key), key) }
     }
 
     @Test
-    fun `screen time is stored as screen and doom minutes, margin share and top doom apps`() = runTest {
-        val margin = metrics.time.active
-        val screenTime = ScreenTimeMetrics(screen = 90.minutes, doom = 30.minutes, margin, listOf("Instagram"))
+    fun `screen time is stored as screen, doom and margin minutes, margin share and top doom apps`() = runTest {
+        val screenTime = ScreenTimeMetrics(screen = 90.minutes, doom = 30.minutes, 15.minutes, listOf("Instagram"))
         store.save(rollupOn("2026-10-04").copy(metrics = metrics.copy(screenTime = screenTime)))
 
         val stored = storedMetrics()
@@ -79,7 +78,8 @@ class RoomRollupStoreTest : DatabaseTest() {
         assertEquals(90.0, stored.getValue("screenMin").jsonPrimitive.content.toDouble())
         assertEquals(30.0, stored.getValue("doomMin").jsonPrimitive.content.toDouble())
         assertEquals(listOf("Instagram"), stored.getValue("topDoomApps").jsonArray.map { it.jsonPrimitive.content })
-        assertEquals(screenTime.copy(margin = read.margin), read)
+        assertEquals(15.0, stored.getValue("marginMin").jsonPrimitive.content.toDouble())
+        assertEquals(screenTime, read)
     }
 
     private fun storedMetrics() = database.query("SELECT metrics FROM daily_rollup", null).use { cursor ->

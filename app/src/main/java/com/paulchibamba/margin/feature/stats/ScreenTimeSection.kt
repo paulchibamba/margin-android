@@ -21,7 +21,7 @@ fun ScreenTimeSection(screenTime: ScreenTimeReport, modifier: Modifier = Modifie
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         ScreenTimeHeading()
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            StatTile(minutesLabel(screenTime.margin), "Margin, active")
+            StatTile(minutesLabel(screenTime.margin), "Margin")
             StatTile(minutesLabel(screenTime.doom), "Doom apps")
         }
         screenTime.marginShare?.let { share ->

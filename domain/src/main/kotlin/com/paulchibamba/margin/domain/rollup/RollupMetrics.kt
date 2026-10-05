@@ -11,7 +11,7 @@ data class RollupMetrics(
     val reading: ReadingMetrics,
     val screenTime: ScreenTimeMetrics? = null,
 ) {
-    fun withScreenTime(apps: List<AppScreenTime>) = copy(screenTime = ScreenTimeRollup.of(apps, time.active))
+    fun withScreenTime(apps: List<AppScreenTime>) = copy(screenTime = ScreenTimeRollup.of(apps))
 
     companion object {
         fun of(day: DayEvents) = RollupMetrics(

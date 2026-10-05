@@ -50,7 +50,7 @@ fun ScreenTimeByDayCard(days: List<ScreenTimeDay>, modifier: Modifier = Modifier
 @Composable
 private fun Legend() {
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        LegendItem("Margin, active", MarginBar)
+        LegendItem("Margin", MarginBar)
         LegendItem("Doom apps", DoomBar)
     }
 }

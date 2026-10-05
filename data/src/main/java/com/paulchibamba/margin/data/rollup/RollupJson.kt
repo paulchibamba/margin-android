@@ -32,6 +32,7 @@ data class RollupJson(
     val notificationOpenRate: Double? = null,
     val screenMin: Double? = null,
     val doomMin: Double? = null,
+    val marginMin: Double? = null,
     val marginShare: Double? = null,
     val topDoomApps: List<String>? = null,
 ) {

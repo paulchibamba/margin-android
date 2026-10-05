@@ -62,6 +62,7 @@ object RollupMapper {
             },
             screenMin = screenTime?.screen?.let(::minutesOf),
             doomMin = screenTime?.doom?.let(::minutesOf),
+            marginMin = screenTime?.margin?.let(::minutesOf),
             marginShare = screenTime?.marginShare,
             topDoomApps = screenTime?.topDoomApps,
         )
@@ -98,7 +99,7 @@ object RollupMapper {
         return ScreenTimeMetrics(
             screen = screenMin.minutes,
             doom = (json.doomMin ?: 0.0).minutes,
-            margin = json.activeMin.minutes,
+            margin = (json.marginMin ?: 0.0).minutes,
             topDoomApps = json.topDoomApps.orEmpty(),
         )
     }
