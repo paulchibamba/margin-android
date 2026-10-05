@@ -22,4 +22,7 @@ interface EventDao {
 
     @Query("SELECT * FROM event_log ORDER BY id DESC LIMIT :limit")
     suspend fun latest(limit: Int): List<EventEntity>
+
+    @Query("SELECT COUNT(*) FROM event_log WHERE type = :type AND subjectId = :subjectId")
+    suspend fun countOf(type: String, subjectId: String): Int
 }

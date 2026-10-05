@@ -12,4 +12,11 @@ data class Note(
     val html: String,
     val wordCount: Int,
     val readingTime: Duration,
-)
+) {
+    val hasImages: Boolean
+        get() = IMAGE_TAG in html
+
+    private companion object {
+        const val IMAGE_TAG = "<img"
+    }
+}

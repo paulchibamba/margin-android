@@ -14,7 +14,7 @@ import kotlin.time.toKotlinDuration
 class PostAttention @Inject constructor(
     private val clock: Clock,
     private val events: EventRecorder,
-) : SessionListener {
+) : SessionListener, PresenceListener {
     private val lock = Any()
     private val tracker = AttentionTracker(clock)
     private var visit: PostVisit? = null
@@ -70,11 +70,11 @@ class PostAttention @Inject constructor(
         tracker.setSettled(isFeedShown && !isScrolling)
     }
 
-    fun onInput() = synchronized(lock) { tracker.onInput() }
+    override fun onInput() = synchronized(lock) { tracker.onInput() }
 
-    fun onForegroundChanged(foreground: Boolean) = synchronized(lock) { tracker.setForeground(foreground) }
+    override fun onForegroundChanged(foreground: Boolean) = synchronized(lock) { tracker.setForeground(foreground) }
 
-    fun onInteractiveChanged(interactive: Boolean) = synchronized(lock) { tracker.setInteractive(interactive) }
+    override fun onInteractiveChanged(interactive: Boolean) = synchronized(lock) { tracker.setInteractive(interactive) }
 
     override fun eventsAtStart(): List<Event> = synchronized(lock) {
         val current = visit ?: return emptyList()
