@@ -35,7 +35,7 @@ internal object AttentionFactsCalculator {
         is RereadSubject.OfNote -> context.conceptsByNote[subject.noteId].orEmpty()
     }
 
-    private fun glancedOnlyOf(events: DayEvents): Set<ConceptId> = exposuresByConcept(events)
+    fun glancedOnlyOf(events: DayEvents): Set<ConceptId> = exposuresByConcept(events)
         .filterValues { exposures -> exposures.size >= GLANCE_IMPRESSIONS && exposures.all(::isGlance) }
         .keys
 

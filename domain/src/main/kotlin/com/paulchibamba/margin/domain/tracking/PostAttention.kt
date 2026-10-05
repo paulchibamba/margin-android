@@ -3,6 +3,7 @@ package com.paulchibamba.margin.domain.tracking
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.PostId
+import com.paulchibamba.margin.domain.progress.RewardKind
 import com.paulchibamba.margin.domain.repository.Clock
 import java.time.Instant
 import javax.inject.Inject
@@ -54,6 +55,10 @@ class PostAttention @Inject constructor(
     fun onAction(postId: PostId, action: PostAction) {
         if (action == PostAction.READ) onInteraction(postId, InteractionKind.READ_SOURCE)
         events.record(Event.PostActionTaken(postId, action))
+    }
+
+    fun onReward(postId: PostId, kind: RewardKind, action: String) {
+        events.record(Event.RewardEvent(postId, kind.key, action))
     }
 
     fun onAnswer(postId: PostId, isCorrect: Boolean?, timeToAnswer: Duration, grade: Rating) = synchronized(lock) {

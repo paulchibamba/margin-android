@@ -71,6 +71,6 @@ class FakeFeedUseCases(posts: List<Post> = List(10) { index -> tipPost(index) })
     }
 
     private companion object {
-        val emptyState = FeedState(delightAtStep = 99)
+        val emptyState = FeedState(rewardAtStep = 99)
     }
 }

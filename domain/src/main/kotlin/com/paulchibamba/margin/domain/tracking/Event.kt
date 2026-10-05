@@ -98,6 +98,10 @@ sealed interface Event {
         val isInNote: Boolean get() = noteId != null
     }
 
+    data class RewardEvent(val postId: PostId, val kind: String, val action: String) : Event {
+        override val type get() = EventType.REWARD_EVENT
+    }
+
     data class SettingChanged(val key: String, val old: String?, val new: String) : Event {
         override val type get() = EventType.SETTING_CHANGED
     }

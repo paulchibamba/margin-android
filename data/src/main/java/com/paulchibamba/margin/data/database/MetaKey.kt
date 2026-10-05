@@ -3,7 +3,8 @@ package com.paulchibamba.margin.data.database
 object MetaKey {
     const val PACK_VERSION = "pack_version"
     const val FEED_STEP = "feed_step"
-    const val DELIGHT_AT = "delight_at"
+    const val REWARD_AT = "reward_at"
+    const val LEGACY_DELIGHT_AT = "delight_at"
     const val LAST_PREVIEW_AT = "last_preview_at"
     const val LAST_NOTE = "last_note"
     const val DESIRED_RETENTION = "desired_retention"
@@ -15,7 +16,7 @@ object MetaKey {
     private const val BOOK_LAST_NEW = "book_last_new:"
     private const val BADGE_SHOWN = "badge_shown:"
 
-    val PROGRESS_KEYS = listOf(FEED_STEP, DELIGHT_AT, LAST_PREVIEW_AT, LAST_NOTE)
+    val PROGRESS_KEYS = listOf(FEED_STEP, REWARD_AT, LEGACY_DELIGHT_AT, LAST_PREVIEW_AT, LAST_NOTE)
     val PROGRESS_PREFIXES = listOf(BOOK_LAST_NEW, BADGE_SHOWN)
 
     fun bookLastNew(bookSlug: String): String = "$BOOK_LAST_NEW$bookSlug"

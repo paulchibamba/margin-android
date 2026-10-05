@@ -5,7 +5,7 @@ import com.paulchibamba.margin.domain.model.Post
 import com.paulchibamba.margin.domain.model.PostRole
 import java.time.Instant
 
-class FeedStepRecorder(private val delightSchedule: DelightSchedule) {
+class FeedStepRecorder(private val rewardSchedule: RewardSchedule) {
 
     fun record(state: FeedState, candidate: Candidate, now: Instant): FeedState {
         val step = state.step + 1
@@ -19,7 +19,7 @@ class FeedStepRecorder(private val delightSchedule: DelightSchedule) {
             history = state.history + historyEntry(candidate, step),
             bookLastNewStep = if (isIntroduction) state.bookLastNewStep + (post.bookSlug to step)
             else state.bookLastNewStep,
-            delightAtStep = delightAtAfter(state, candidate, step),
+            rewardAtStep = rewardAtAfter(state, candidate, step),
             lastPreviewAtStep = if (candidate.source == CandidateSource.PREVIEW) step else state.lastPreviewAtStep,
         )
     }
@@ -50,6 +50,6 @@ class FeedStepRecorder(private val delightSchedule: DelightSchedule) {
         return FeedHistoryEntry(step, post.id, post.conceptId, post.format, post.role, candidate.source)
     }
 
-    private fun delightAtAfter(state: FeedState, candidate: Candidate, step: Int): Int =
-        if (candidate.source == CandidateSource.DELIGHT) delightSchedule.nextAfter(step) else state.delightAtStep
+    private fun rewardAtAfter(state: FeedState, candidate: Candidate, step: Int): Int =
+        if (candidate.source == CandidateSource.REWARD) rewardSchedule.nextAfter(step) else state.rewardAtStep
 }

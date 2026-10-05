@@ -81,7 +81,7 @@ class MigrationTest {
     fun `moving from version 5 to 6 keeps progress and screen time and adds an empty generated-post table`() {
         helper.createDatabase(NAME, 5).use { database ->
             database.execSQL("INSERT INTO note_read (noteId, readAt) VALUES ('$NOTE', 4000)")
-            database.execSQL("INSERT INTO meta (`key`, value) VALUES ('${MetaKey.DELIGHT_AT}', '17')")
+            database.execSQL("INSERT INTO meta (`key`, value) VALUES ('${MetaKey.LEGACY_DELIGHT_AT}', '17')")
             database.execSQL(
                 "INSERT INTO screen_time_daily (date, packageName, label, category, isDoom, foregroundMs) " +
                     "VALUES ('2026-10-04', 'com.example', 'Example', 'social', 1, 60000)",
@@ -90,7 +90,7 @@ class MigrationTest {
 
         helper.runMigrationsAndValidate(NAME, 6, true).use { database ->
             assertEquals(4000L, database.longOf("SELECT readAt FROM note_read WHERE noteId = '$NOTE'"))
-            assertEquals(17L, database.longOf("SELECT value FROM meta WHERE `key` = '${MetaKey.DELIGHT_AT}'"))
+            assertEquals(17L, database.longOf("SELECT value FROM meta WHERE `key` = '${MetaKey.LEGACY_DELIGHT_AT}'"))
             assertEquals(1L, database.longOf("SELECT COUNT(*) FROM screen_time_daily"))
             assertEquals(0L, database.longOf("SELECT COUNT(*) FROM generated_post"))
         }

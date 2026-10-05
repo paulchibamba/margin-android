@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.data.tracking
 
 import com.paulchibamba.margin.data.repository.mapper.FormatNames
+import com.paulchibamba.margin.data.repository.mapper.SourceNames
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.ConceptId
 import com.paulchibamba.margin.domain.model.NoteId
@@ -38,6 +39,7 @@ object EventParser {
         EventType.NOTE_EXPOSURE -> noteExposure()
         EventType.IMAGE_ZOOM -> imageZoom()
         EventType.SETTING_CHANGED -> Event.SettingChanged(text("key"), optionalText("old"), text("new"))
+        EventType.REWARD_EVENT -> Event.RewardEvent(post(), text("kind"), text("action"))
     }
 
     private fun Props.postImpression() = Event.PostImpression(
@@ -45,7 +47,7 @@ object EventParser {
         conceptId = ConceptId(text("conceptId")),
         format = FormatNames.formatOf(text("format")),
         skinName = text("skin"),
-        source = enum("source"),
+        source = SourceNames.sourceOf(text("source")),
         step = int("step"),
         isRevisit = boolean("isRevisit"),
     )

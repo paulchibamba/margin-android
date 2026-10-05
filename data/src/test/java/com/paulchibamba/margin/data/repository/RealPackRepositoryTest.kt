@@ -5,6 +5,8 @@ import com.paulchibamba.margin.data.pack.FileAssetSource
 import com.paulchibamba.margin.data.pack.PackImporter
 import com.paulchibamba.margin.data.pack.PackMapper
 import com.paulchibamba.margin.data.pack.PackReader
+import com.paulchibamba.margin.data.progress.RoomGeneratedPostRepository
+import com.paulchibamba.margin.data.tracking.RoomEventLog
 import com.paulchibamba.margin.data.pack.RecordingLogger
 import com.paulchibamba.margin.data.startup.StartupInitializer
 import com.paulchibamba.margin.domain.feed.FeedResult
@@ -68,8 +70,10 @@ class RealPackRepositoryTest : DatabaseTest() {
         val engines = LearningEngines(Random(seed = 1), NoFuzz)
         val lock = FeedStateLock()
         val stateSource = FeedStateSource(progress, settings, engines)
-        val getNextPost = GetNextPost(LibraryLoader(content, progress, settings), stateSource, progress, settings,
-            engines, clock, lock)
+        val generatedPosts = RoomGeneratedPostRepository(database)
+        val libraryLoader = LibraryLoader(content, progress, settings, generatedPosts, RoomEventLog(database), clock)
+        val getNextPost =
+            GetNextPost(libraryLoader, stateSource, progress, settings, engines, clock, lock, generatedPosts)
         val recordPostExit = RecordPostExit(stateSource, progress, settings, engines, clock, lock)
 
         content.chapters().filter { it.number <= 6 }.forEach { chapter ->

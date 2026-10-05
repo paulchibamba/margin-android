@@ -51,5 +51,9 @@ class DescribePost @Inject constructor(
         ?.title.orEmpty()
 
     private fun sourceNoteOf(post: Post, concept: Concept): NoteId? =
-        (post.content as? PostContent.Source)?.noteId ?: concept.sourceNoteId
+        when (val content = post.content) {
+            is PostContent.Source -> content.noteId
+            is PostContent.Progress -> content.noteId ?: concept.sourceNoteId
+            else -> concept.sourceNoteId
+        }
 }

@@ -30,7 +30,7 @@ class PostExitHandler(
     }
 
     private fun withAffinityAfter(state: FeedState, post: Post, score: Double): FeedState =
-        state.copy(affinity = state.affinity.afterEngagement(post.format, score))
+        state.copy(affinity = state.affinity.afterEngagement(post.affinityKey, score))
 
     private fun gradeFor(post: Post, exit: PostExit): Rating? =
         if (post.role == PostRole.TEST) gradeMapper.gradeFor(exit, ExpectedReadTime.of(post.content)) else null

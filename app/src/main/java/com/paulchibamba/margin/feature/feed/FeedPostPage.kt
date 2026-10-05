@@ -77,7 +77,7 @@ private fun PageCaption(page: FeedPage, nudge: FeedNudge?, onReadSource: () -> U
 private fun PostCaptionOf(page: FeedPage) {
     val context = page.context
     PostCaption(
-        formatLabel = page.item.post.format.label(),
+        formatLabel = page.item.post.formatLabel(),
         concept = context.conceptTitle,
         bookTitle = context.bookTitle,
         chapterLabel = chapterLabel(context.chapterNumber, context.chapterTitle),
@@ -121,9 +121,12 @@ private fun segmentsOf(page: FeedPage, carousel: CarouselState): SegmentProgress
     carousel.segments.takeIf { page.item.post.content is PostContent.Carousel && !page.isLockedPreview }
 
 private fun railStateOf(page: FeedPage): ActionRailState {
-    val unavailable = if (page.context.sourceNote == null) setOf(PostAction.READ) else emptySet()
-    return ActionRailState.of(page.viewState, unavailable)
+    val unreadable = if (page.context.sourceNote == null) setOf(PostAction.READ) else emptySet()
+    val ungradable = if (page.item.post.rewardKind?.isReward == true) GRADING_ACTIONS else emptySet()
+    return ActionRailState.of(page.viewState, unreadable + ungradable)
 }
+
+private val GRADING_ACTIONS = setOf(PostAction.GOT, PostAction.LOST)
 
 @Preview(widthDp = 360, heightDp = 780)
 @Composable

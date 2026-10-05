@@ -34,6 +34,7 @@ fun DebugToolsSection(
     onShowDueCount: () -> Unit,
     onSendReviewReminder: () -> Unit,
     onShowEvents: () -> Unit,
+    onBakeProgressPosts: () -> Unit,
     onResetProgress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -51,9 +52,10 @@ fun DebugToolsSection(
             DebugButton("Show due count", onClick = onShowDueCount)
             DebugButton("Send reminder", onClick = onSendReviewReminder)
             DebugButton("Show events", onClick = onShowEvents)
+            DebugButton("Bake progress posts", onClick = onBakeProgressPosts)
             DebugButton(state.resetProgressLabel, state.isProgressResetArmed, onResetProgress)
         }
-        state.dueCountLabel?.let { label ->
+        listOfNotNull(state.dueCountLabel, state.bakedPostsLabel).forEach { label ->
             Text(label, style = MarginTypography.label, color = MarginColors.Lime)
         }
         state.recentEvents?.let { lines -> RecentEventList(lines) }
@@ -101,6 +103,7 @@ private fun DebugToolsSectionPreview() {
             onShowDueCount = {},
             onSendReviewReminder = {},
             onShowEvents = {},
+            onBakeProgressPosts = {},
             onResetProgress = {},
         )
     }

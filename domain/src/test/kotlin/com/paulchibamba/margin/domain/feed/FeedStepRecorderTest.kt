@@ -7,7 +7,7 @@ import kotlin.test.assertNull
 
 class FeedStepRecorderTest {
 
-    private val recorder = FeedStepRecorder(DelightSchedule(5..9, FixedRandom(offset = 2)))
+    private val recorder = FeedStepRecorder(RewardSchedule(5..9, FixedRandom(offset = 2)))
 
     @Test
     fun `showing a new concept introduces it with a new card due now`() {
@@ -31,9 +31,9 @@ class FeedStepRecorderTest {
 
     @Test
     fun `a meme schedules the next one five to nine posts later`() {
-        val state = recorder.record(freshState.copy(step = 9), Candidate(memeOf(cia), CandidateSource.DELIGHT), now)
+        val state = recorder.record(freshState.copy(step = 9), Candidate(memeOf(cia), CandidateSource.REWARD), now)
 
-        assertEquals(10 + 5 + 2, state.delightAtStep)
+        assertEquals(10 + 5 + 2, state.rewardAtStep)
     }
 
     @Test

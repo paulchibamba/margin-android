@@ -1,7 +1,7 @@
 package com.paulchibamba.margin.domain.feed
 
 import com.paulchibamba.margin.domain.feed.source.AngleProvider
-import com.paulchibamba.margin.domain.feed.source.DelightProvider
+import com.paulchibamba.margin.domain.feed.source.RewardProvider
 import com.paulchibamba.margin.domain.feed.source.NewConceptProvider
 import com.paulchibamba.margin.domain.feed.source.PreviewProvider
 import com.paulchibamba.margin.domain.feed.source.ResurfaceProvider
@@ -18,7 +18,7 @@ class CandidateCollector(private val providers: List<CandidateProvider>) {
             listOf(
                 NewConceptProvider(),
                 PreviewProvider(),
-                DelightProvider(),
+                RewardProvider(),
                 ReviewProvider(),
                 AngleProvider(),
                 ResurfaceProvider(config.resurfaceAfter),

@@ -29,7 +29,7 @@ class PostActionHandler(scheduler: FsrsScheduler) {
     private fun markSaved(state: FeedState, post: Post): FeedState = state.copy(savedPosts = state.savedPosts + post.id)
 
     private fun markLess(state: FeedState, post: Post): FeedState =
-        state.copy(affinity = state.affinity.afterLess(post.format))
+        state.copy(affinity = state.affinity.afterLess(post.affinityKey))
 
     private fun markGot(state: FeedState, post: Post): FeedState =
         state.withProgress(post.conceptId, state.progressOf(post.conceptId).copy(confidence = Confidence.GOT))

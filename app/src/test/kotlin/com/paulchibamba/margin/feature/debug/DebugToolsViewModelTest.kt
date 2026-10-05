@@ -6,7 +6,18 @@ import com.paulchibamba.margin.domain.memory.MemoryCard
 import com.paulchibamba.margin.domain.model.ConceptId
 import com.paulchibamba.margin.domain.repository.ClockOffsetStore
 import com.paulchibamba.margin.domain.time.OffsetClock
+import com.paulchibamba.margin.domain.feed.ReviewLogEntry
+import com.paulchibamba.margin.domain.feed.cia
+import com.paulchibamba.margin.domain.memory.CardState
+import com.paulchibamba.margin.domain.memory.Rating
+import com.paulchibamba.margin.domain.model.PostId
+import com.paulchibamba.margin.domain.progress.RewardKind
+import com.paulchibamba.margin.domain.usecase.BakeTemplatePosts
+import com.paulchibamba.margin.domain.usecase.BuildProgressFacts
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
+import com.paulchibamba.margin.domain.usecase.FakeContentRepository
+import com.paulchibamba.margin.domain.usecase.FakeGeneratedPostRepository
+import com.paulchibamba.margin.domain.usecase.FakeSettingsRepository
 import com.paulchibamba.margin.domain.usecase.FakeProgressRepository
 import com.paulchibamba.margin.domain.tracking.FakeEventLog
 import com.paulchibamba.margin.domain.tracking.RecentEvent
@@ -14,6 +25,9 @@ import com.paulchibamba.margin.domain.tracking.RecordingEventSink
 import com.paulchibamba.margin.domain.usecase.FixedClock
 import com.paulchibamba.margin.domain.usecase.GetRecentEvents
 import java.time.Instant
+import java.time.temporal.ChronoUnit
+import kotlin.random.Random
+import kotlinx.coroutines.test.runTest
 import com.paulchibamba.margin.domain.usecase.ResetProgress
 import com.paulchibamba.margin.feature.settings.FakeReminderScheduler
 import kotlin.test.assertEquals
@@ -42,6 +56,8 @@ class DebugToolsViewModelTest {
     private val scheduler = FakeReminderScheduler()
     private val eventSink = RecordingEventSink()
     private val eventLog = FakeEventLog()
+    private val generatedPosts = FakeGeneratedPostRepository()
+    private val content = FakeContentRepository()
     private val viewModel by lazy {
         DebugToolsViewModel(
             clock,
@@ -49,7 +65,13 @@ class DebugToolsViewModelTest {
             scheduler,
             ResetProgress(progress),
             GetRecentEvents(eventSink, eventLog),
+            bakeTemplatePosts(),
         )
+    }
+
+    private fun bakeTemplatePosts(): BakeTemplatePosts {
+        val buildFacts = BuildProgressFacts(content, progress, FakeSettingsRepository(), eventLog, clock)
+        return BakeTemplatePosts(buildFacts, generatedPosts, content, clock, Random(1))
     }
 
     @Before
@@ -75,6 +97,21 @@ class DebugToolsViewModelTest {
     }
 
     @Test
+    fun `baking stores template progress posts and says how many`() = runTest {
+        val start = systemClock.instant
+        listOf(Rating.AGAIN to 6L, Rating.GOOD to 3L, Rating.GOOD to 1L).forEach { (rating, daysAgo) ->
+            val at = start.minus(daysAgo, ChronoUnit.DAYS)
+            progress.appendReview(ReviewLogEntry(at, cia.id, PostId("quiz"), rating, CardState.REVIEW, 1.0, 1.0, null))
+        }
+
+        viewModel.onBakeProgressPosts()
+
+        val baked = generatedPosts.posts
+        assertTrue(baked.any { it.kind == RewardKind.Comeback })
+        assertEquals("Baked ${baked.size} progress posts", viewModel.uiState.value.bakedPostsLabel)
+    }
+
+    @Test
     fun `advancing moves the clock and shows the offset`() {
         viewModel.onAdvance(1.hours)
         viewModel.onAdvance(1.days)
@@ -96,7 +133,7 @@ class DebugToolsViewModelTest {
     @Test
     fun `the due count is taken at the moved clock`() {
         val concepts = mapOf(ConceptId("cia") to cardDueIn(2.days))
-        progress.feedState.value = FeedState(delightAtStep = 99, conceptProgress = concepts)
+        progress.feedState.value = FeedState(rewardAtStep = 99, conceptProgress = concepts)
 
         viewModel.onShowDueCount()
         assertEquals("Nothing is due", viewModel.uiState.value.dueCountLabel)
@@ -125,19 +162,19 @@ class DebugToolsViewModelTest {
 
     @Test
     fun `the first tap on reset progress only arms it and clears nothing`() {
-        progress.feedState.value = FeedState(delightAtStep = 99)
+        progress.feedState.value = FeedState(rewardAtStep = 99)
 
         viewModel.onResetProgress()
 
         assertTrue(viewModel.uiState.value.isProgressResetArmed)
         assertEquals("Tap again to erase all progress", viewModel.uiState.value.resetProgressLabel)
         assertFalse(viewModel.uiState.value.isProgressCleared)
-        assertEquals(FeedState(delightAtStep = 99), progress.feedState.value)
+        assertEquals(FeedState(rewardAtStep = 99), progress.feedState.value)
     }
 
     @Test
     fun `the second tap clears progress and asks for a restart`() {
-        progress.feedState.value = FeedState(delightAtStep = 99)
+        progress.feedState.value = FeedState(rewardAtStep = 99)
 
         viewModel.onResetProgress()
         viewModel.onResetProgress()

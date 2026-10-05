@@ -12,6 +12,10 @@ import com.paulchibamba.margin.domain.model.Post
 import com.paulchibamba.margin.domain.model.PostContent
 import com.paulchibamba.margin.domain.model.PostId
 import com.paulchibamba.margin.domain.model.Priority
+import com.paulchibamba.margin.domain.progress.GeneratedPost
+import com.paulchibamba.margin.domain.progress.RewardDraft
+import com.paulchibamba.margin.domain.progress.RewardKind
+import com.paulchibamba.margin.domain.progress.RewardSeed
 import com.paulchibamba.margin.domain.progression.ReadingOnlyChapters
 import com.paulchibamba.margin.domain.progression.ReadingProgress
 import java.time.Instant
@@ -82,6 +86,8 @@ fun libraryWith(
     readNotes: Set<NoteId> = emptySet(),
     sourceNotes: List<Note> = emptyList(),
     settings: List<BookSettings> = defaultSettings,
+    generatedPosts: List<GeneratedPost> = emptyList(),
+    struggling: Set<ConceptId> = emptySet(),
 ) = LearningLibrary(
     books = listOf(appSec, grokking, aiSecurity),
     concepts = allConcepts.shuffled(Random(seed = 7)),
@@ -90,11 +96,18 @@ fun libraryWith(
     bookSettings = settings,
     readingOnlyChapters = ReadingOnlyChapters(mapOf(appSec.slug to setOf(2))),
     readingProgress = ReadingProgress(readNotes = readNotes, knownChapterEnds = emptySet()),
+    generatedPosts = generatedPosts,
+    strugglingConcepts = struggling,
 )
+
+fun generatedPostOf(kind: RewardKind, concept: Concept, index: Int = 0, note: NoteId? = null): GeneratedPost {
+    val seed = RewardSeed(kind, listOf(concept.id), note, mapOf("index" to index.toString()))
+    return GeneratedPost.from(seed, RewardDraft("${kind.key} $index", "Body"), GeneratedPost.TEMPLATE_WRITER, now)
+}
 
 fun readingEverything(): Set<NoteId> = listOf(appSec, grokking, aiSecurity).map { book -> noteId(book, 9, 99) }.toSet()
 
-val freshState = FeedState(delightAtStep = 99)
+val freshState = FeedState(rewardAtStep = 99)
 
 fun FeedState.withIntroduced(vararg concepts: Concept, progress: ConceptProgress = introducedProgress()): FeedState =
     copy(conceptProgress = conceptProgress + concepts.associate { it.id to progress })

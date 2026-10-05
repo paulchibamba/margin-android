@@ -2,13 +2,13 @@ package com.paulchibamba.margin.data.repository
 
 import com.paulchibamba.margin.data.database.MarginDatabase
 import com.paulchibamba.margin.data.database.MetaKey
-import com.paulchibamba.margin.data.database.entity.FormatAffinityEntity
 import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.data.database.entity.PostSeenEntity
 import com.paulchibamba.margin.data.database.entity.SavedPostEntity
 import com.paulchibamba.margin.data.repository.mapper.ConceptProgressMapper
 import com.paulchibamba.margin.data.repository.mapper.FeedHistoryMapper
-import com.paulchibamba.margin.data.repository.mapper.FormatNames
+import com.paulchibamba.margin.data.repository.mapper.AffinityNames
+import com.paulchibamba.margin.data.repository.mapper.SourceNames
 import com.paulchibamba.margin.domain.feed.FeedHistoryEntry
 import com.paulchibamba.margin.domain.feed.FeedState
 import com.paulchibamba.margin.domain.model.BookSlug
@@ -23,37 +23,38 @@ internal class FeedStateStorage(private val database: MarginDatabase) {
     suspend fun load(): FeedState? {
         val step = metaDao.get(MetaKey.FEED_STEP)?.toInt() ?: return null
         return FeedState(
-            delightAtStep = metaDao.get(MetaKey.DELIGHT_AT)?.toInt() ?: step,
+            rewardAtStep = rewardAtStep() ?: step,
             step = step,
             conceptProgress = database.conceptProgressDao().all().associate(ConceptProgressMapper::toDomain),
             seenPosts = feedStateDao.seenPosts().associate { PostId(it.postId) to it.lastSeenStep },
             history = feedStateDao.history().map(FeedHistoryMapper::toDomain),
             bookLastNewStep = bookLastNewSteps(),
             lastPreviewAtStep = metaDao.get(MetaKey.LAST_PREVIEW_AT)?.toInt(),
-            affinity = FormatAffinity(affinityValues()),
+            affinity = affinity(),
             savedPosts = feedStateDao.savedPosts().map { PostId(it.postId) }.toSet(),
         )
     }
 
     suspend fun save(state: FeedState, now: Instant) {
         metaDao.put(metaEntries(state))
+        metaDao.delete(MetaKey.LEGACY_DELIGHT_AT)
         database.conceptProgressDao().upsert(state.conceptProgress.map { (id, progress) ->
             ConceptProgressMapper.toEntity(id, progress)
         })
-        feedStateDao.upsertAffinity(state.affinity.values.map { (format, value) ->
-            FormatAffinityEntity(FormatNames.nameOf(format), value)
-        })
+        feedStateDao.upsertAffinity(AffinityNames.entitiesOf(state.affinity))
         saveNewlyShown(state.history, now)
         saveHistory(state.history)
         state.savedPosts.forEach { post -> feedStateDao.insertSaved(SavedPostEntity(post.value, now.toEpochMilli())) }
     }
 
-    private suspend fun affinityValues() =
-        feedStateDao.affinity().associate { entity -> FormatNames.formatOf(entity.format) to entity.value }
+    private suspend fun rewardAtStep(): Int? =
+        (metaDao.get(MetaKey.REWARD_AT) ?: metaDao.get(MetaKey.LEGACY_DELIGHT_AT))?.toInt()
+
+    private suspend fun affinity(): FormatAffinity = AffinityNames.affinityOf(feedStateDao.affinity())
 
     private fun metaEntries(state: FeedState): List<MetaEntity> = buildList {
         add(MetaEntity(MetaKey.FEED_STEP, state.step.toString()))
-        add(MetaEntity(MetaKey.DELIGHT_AT, state.delightAtStep.toString()))
+        add(MetaEntity(MetaKey.REWARD_AT, state.rewardAtStep.toString()))
         state.lastPreviewAtStep?.let { step -> add(MetaEntity(MetaKey.LAST_PREVIEW_AT, step.toString())) }
         state.bookLastNewStep.forEach { (book, step) ->
             add(MetaEntity(MetaKey.bookLastNew(book.value), step.toString()))
@@ -73,7 +74,7 @@ internal class FeedStateStorage(private val database: MarginDatabase) {
 
     private suspend fun seenAfterShowing(entry: FeedHistoryEntry, now: Instant): PostSeenEntity {
         val at = now.toEpochMilli()
-        val source = entry.source.name.lowercase()
+        val source = SourceNames.nameOf(entry.source)
         val previous = feedStateDao.seen(entry.postId.value)
             ?: return PostSeenEntity(entry.postId.value, at, at, entry.step, 1, null, null, null, source)
         return previous.copy(

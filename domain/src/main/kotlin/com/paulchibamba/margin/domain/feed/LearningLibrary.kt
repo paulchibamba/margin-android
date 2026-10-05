@@ -4,6 +4,7 @@ import com.paulchibamba.margin.domain.model.Book
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.Concept
+import com.paulchibamba.margin.domain.model.ConceptId
 import com.paulchibamba.margin.domain.model.Format
 import com.paulchibamba.margin.domain.model.Note
 import com.paulchibamba.margin.domain.model.NoteId
@@ -11,6 +12,8 @@ import com.paulchibamba.margin.domain.model.Post
 import com.paulchibamba.margin.domain.model.PostContent
 import com.paulchibamba.margin.domain.model.PostId
 import com.paulchibamba.margin.domain.model.PostRole
+import com.paulchibamba.margin.domain.progress.GeneratedPost
+import com.paulchibamba.margin.domain.progress.RewardKind
 import com.paulchibamba.margin.domain.progression.PreviewWindow
 import com.paulchibamba.margin.domain.progression.ReadingOnlyChapters
 import com.paulchibamba.margin.domain.progression.ReadingProgress
@@ -25,6 +28,8 @@ class LearningLibrary(
     private val readingOnlyChapters: ReadingOnlyChapters,
     readingProgress: ReadingProgress,
     private val previewWindow: PreviewWindow = PreviewWindow(),
+    generatedPosts: List<GeneratedPost> = emptyList(),
+    private val strugglingConcepts: Set<ConceptId> = emptySet(),
 ) {
     private val unlockRule = UnlockRule(readingOnlyChapters)
     private val postsByConcept = posts.groupBy(Post::conceptId)
@@ -35,6 +40,10 @@ class LearningLibrary(
     private val frontiers = books.associate { book -> book.slug to readingProgress.frontierOf(book.slug) }
 
     val conceptsInBookOrder: List<Concept> = books.flatMap { book -> conceptsOf(book.slug) }
+
+    private val progressPosts: List<Post> = progressPostsFrom(generatedPosts, concepts)
+
+    val rewardPosts: List<Post> = progressPosts.filter { post -> post.rewardKind?.isReward == true }
 
     val activeBooks: List<Book> = books.filter { book -> isActive(book.slug) }
 
@@ -59,6 +68,16 @@ class LearningLibrary(
 
     fun nonMemePostsOf(concept: Concept): List<Post> = postsOf(concept).filterNot { it.isMeme }
 
+    fun reExplainsOf(concept: Concept): List<Post> = progressPosts.filter { post ->
+        post.conceptId == concept.id && post.rewardKind == RewardKind.ReExplain
+    }
+
+    fun comingUpFor(concept: Concept): Post? = progressPosts.firstOrNull { post ->
+        post.conceptId == concept.id && post.rewardKind == RewardKind.ComingUp
+    }
+
+    fun isStruggling(concept: Concept): Boolean = concept.id in strugglingConcepts
+
     fun sourcePostFor(concept: Concept): Post? {
         val note = concept.sourceNoteId?.let(sourceNotes::get) ?: return null
         val excerpt = NoteExcerpt.of(note.html).ifBlank { return null }
@@ -76,6 +95,13 @@ class LearningLibrary(
 
     private val Post.isMeme: Boolean
         get() = format == Format.MEME
+
+    private fun progressPostsFrom(generatedPosts: List<GeneratedPost>, concepts: List<Concept>): List<Post> {
+        val booksByConcept = concepts.associate { concept -> concept.id to concept.bookSlug }
+        return generatedPosts.mapNotNull { generated ->
+            generated.conceptIds.firstOrNull()?.let(booksByConcept::get)?.let(generated::toPost)
+        }
+    }
 
     private fun inBookOrder(concepts: List<Concept>): List<Concept> =
         concepts.sortedWith(compareBy(Concept::chapter, Concept::order))

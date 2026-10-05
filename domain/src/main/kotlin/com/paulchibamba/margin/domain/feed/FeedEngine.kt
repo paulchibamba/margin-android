@@ -17,14 +17,14 @@ class FeedEngine(
     random: Random,
 ) {
     private val recallEstimate = RecallEstimate(scheduler, config)
-    private val delightSchedule = DelightSchedule(config.delightEvery, random)
+    private val rewardSchedule = RewardSchedule(config.rewardEvery, random)
     private val collector = CandidateCollector.from(config)
     private val filterChain = FilterChain.from(config)
     private val scorer = CandidateScorer(config, recallEstimate, random)
     private val picker = CandidatePicker(config.epsilon, random)
-    private val recorder = FeedStepRecorder(delightSchedule)
+    private val recorder = FeedStepRecorder(rewardSchedule)
 
-    fun startingState(): FeedState = FeedState(delightAtStep = delightSchedule.nextAfter(step = 0))
+    fun startingState(): FeedState = FeedState(rewardAtStep = rewardSchedule.nextAfter(step = 0))
 
     fun next(library: LearningLibrary, state: FeedState, now: Instant): FeedResult {
         val candidates = collector.collect(library, state, now)

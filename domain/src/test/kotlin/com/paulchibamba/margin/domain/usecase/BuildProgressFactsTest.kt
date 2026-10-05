@@ -34,7 +34,7 @@ class BuildProgressFactsTest {
 
     @Test
     fun `facts are built from the stored progress, first-seen times and recent events`() = runTest {
-        progress.feedState.value = FeedState(delightAtStep = 9).withProgress(cia.id, introducedProgress())
+        progress.feedState.value = FeedState(rewardAtStep = 9).withProgress(cia.id, introducedProgress())
         progress.firstSeen[tipOf(cia).id] = Instant.parse("2026-10-03T09:00:00Z")
         val reopen = Event.NoteOpen(cia.sourceNoteId!!, NoteOpenVia.CHAPTER, openCount = 2)
         eventLog.logged += LoggedEvent(Instant.parse("2026-10-05T11:00:00Z"), null, reopen)

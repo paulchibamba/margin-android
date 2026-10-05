@@ -11,6 +11,7 @@ class FormatTest {
     private val expectedRoles = mapOf(
         CAROUSEL to TEACH, FACT to TEACH, TIP to TEACH, ANALOGY to TEACH, DIALOGUE to TEACH, VERSUS to TEACH,
         MYTH to TEACH, CHECKLIST to TEACH, CODE_EXAMPLE to TEACH, MEME to TEACH, SOURCE to TEACH,
+        PROGRESS to TEACH, RE_EXPLAIN to TEACH,
         MCQ to TEST, TRUE_FALSE to TEST, RECALL to TEST, FILL_BLANK to TEST, SPOT_BUG to TEST, SCENARIO to TEST,
     )
 

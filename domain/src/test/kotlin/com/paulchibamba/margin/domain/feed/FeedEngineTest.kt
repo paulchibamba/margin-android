@@ -17,7 +17,7 @@ class FeedEngineTest {
 
     @Test
     fun `the feed starts with the first meme five to nine posts away`() {
-        assertTrue(engine().startingState().delightAtStep in 5..9)
+        assertTrue(engine().startingState().rewardAtStep in 5..9)
     }
 
     @Test
@@ -55,10 +55,12 @@ class FeedEngineTest {
     }
 
     @Test
-    fun `across a session no format appears twice in a row`() {
-        val formats = runSession(engine(), steps = 30).map { it.post.format }
+    fun `across a session a format only repeats when format variety had to relax`() {
+        val items = runSession(engine(), steps = 30)
 
-        assertTrue(formats.zipWithNext().none { (previous, next) -> previous == next }, "formats: $formats")
+        val repeats = items.zipWithNext().filter { (previous, next) -> previous.post.format == next.post.format }
+        val formats = items.map { it.post.format }
+        assertTrue(repeats.all { (_, next) -> "format variety" !in next.appliedFilters }, "formats: $formats")
     }
 
     private fun postIdsFrom(engine: FeedEngine) = runSession(engine, steps = 20).map { it.post.id }
