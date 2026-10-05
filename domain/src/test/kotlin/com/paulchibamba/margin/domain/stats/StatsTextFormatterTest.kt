@@ -7,10 +7,13 @@ import com.paulchibamba.margin.domain.feed.grokking
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.Format
 import com.paulchibamba.margin.domain.model.NotePosition
+import com.paulchibamba.margin.domain.rollup.TimeOfDay
+import com.paulchibamba.margin.domain.usecase.AttentionReport
 import com.paulchibamba.margin.domain.usecase.BookFrontier
 import com.paulchibamba.margin.domain.usecase.StatsReport
 import java.time.LocalDate
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class StatsTextFormatterTest {
@@ -106,5 +109,34 @@ class StatsTextFormatterTest {
             |""".trimMargin()
 
         assertEquals(expected, StatsTextFormatter.format(emptyReport))
+    }
+
+    @Test
+    fun `attention exports after format affinity`() {
+        val attention = AttentionReport(
+            glanceRate = 0.25,
+            deepRate = null,
+            ratioByFormat = listOf(Format.MCQ to 1.0, Format.FACT to 0.5),
+            hotspots = listOf("Least privilege" to 3),
+            paceByBook = listOf(appSec to 212),
+            paceByTimeOfDay = listOf(TimeOfDay.MORNING to 230),
+        )
+        val expected = """
+            |Format affinity
+            |  none
+            |
+            |Attention, last 7 days
+            |  glance rate 25%
+            |  deep reads none
+            |  ratio mcq 1.00
+            |  ratio fact 0.50
+            |  re-read 3 Least privilege
+            |  wpm alice-bob-appsec 212
+            |  wpm morning 230
+            |
+            |Reviews by grade
+            |""".trimMargin()
+
+        assertContains(StatsTextFormatter.format(emptyReport, attention), expected)
     }
 }

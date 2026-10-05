@@ -8,6 +8,8 @@ import com.paulchibamba.margin.domain.model.Concept
 import com.paulchibamba.margin.domain.model.ConceptId
 import com.paulchibamba.margin.domain.model.Format
 import com.paulchibamba.margin.domain.model.NotePosition
+import com.paulchibamba.margin.domain.rollup.TimeOfDay
+import com.paulchibamba.margin.domain.usecase.AttentionReport
 import com.paulchibamba.margin.domain.usecase.BookFrontier
 import com.paulchibamba.margin.domain.usecase.StatsReport
 import java.time.LocalDate
@@ -36,6 +38,24 @@ object StatsPreviewData {
         lostConcepts = emptyList(),
         reviewCounts = emptyMap(),
         frontiers = listOf(BookFrontier(appSec, null), BookFrontier(tangledWeb, null)),
+    )
+
+    val busyAttention = AttentionReport(
+        glanceRate = 0.18,
+        deepRate = 0.42,
+        ratioByFormat = listOf(Format.SPOT_BUG to 1.12, Format.DIALOGUE to 0.84, Format.FACT to 0.41),
+        hotspots = listOf("Least privilege" to 4, "Ch 1 · Confidentiality" to 3),
+        paceByBook = listOf(appSec to 212, tangledWeb to 188),
+        paceByTimeOfDay = listOf(TimeOfDay.MORNING to 230, TimeOfDay.EVENING to 175),
+    )
+
+    val emptyAttention = AttentionReport(
+        glanceRate = null,
+        deepRate = null,
+        ratioByFormat = emptyList(),
+        hotspots = emptyList(),
+        paceByBook = emptyList(),
+        paceByTimeOfDay = emptyList(),
     )
 
     private fun lostConcept(index: Int) = Concept(

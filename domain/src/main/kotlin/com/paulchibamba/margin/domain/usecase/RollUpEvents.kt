@@ -27,6 +27,11 @@ class RollUpEvents @Inject constructor(
         return rollUp(dateOf(clock.now()), readingTimes())
     }
 
+    suspend fun throughToday(): DailyRollup {
+        missedDays()
+        return today()
+    }
+
     suspend fun missedDays(): List<LocalDate> {
         sink.flush()
         val days = missedDaysUntil(dateOf(clock.now()).minusDays(1))
