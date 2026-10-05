@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.paulchibamba.margin.feature.appearance.ProvideAppearance
 import com.paulchibamba.margin.feature.tracking.SessionLifecycle
+import com.paulchibamba.margin.feature.tracking.UserPresence
 import com.paulchibamba.margin.navigation.MarginApp
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -18,6 +19,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var sessionLifecycle: SessionLifecycle
+
+    @Inject
+    lateinit var userPresence: UserPresence
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -33,7 +37,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-        if (event.actionMasked == MotionEvent.ACTION_DOWN) sessionLifecycle.onInput()
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) userPresence.onInput()
         return super.dispatchTouchEvent(event)
     }
 }

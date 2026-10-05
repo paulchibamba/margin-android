@@ -11,6 +11,8 @@ import com.paulchibamba.margin.domain.repository.Clock
 import com.paulchibamba.margin.domain.signals.ExpectedReadTime
 import com.paulchibamba.margin.domain.signals.GradeMapper
 import com.paulchibamba.margin.domain.signals.PostExit
+import com.paulchibamba.margin.domain.tracking.InteractionKind
+import com.paulchibamba.margin.domain.tracking.PostAttention
 import com.paulchibamba.margin.feature.feed.post.TestResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +33,7 @@ class FeedViewModel @Inject constructor(
     private val useCases: FeedUseCases,
     random: Random,
     private val clock: Clock,
+    private val attention: PostAttention,
 ) : ViewModel() {
 
     private val skinRotation = SkinRotation(random)
@@ -40,6 +43,7 @@ class FeedViewModel @Inject constructor(
     val uiState: StateFlow<FeedUiState> = state.asStateFlow()
 
     init {
+        attention.onFeedOpened()
         viewModelScope.launch {
             useCases.observeStreak().collect { streak -> state.update { it.copy(streak = streak.currentStreak) } }
         }
@@ -54,6 +58,7 @@ class FeedViewModel @Inject constructor(
     fun onPageEntered(index: Int) {
         state.update { it.copy(currentIndex = index, nudge = it.nudgeOn(index)) }
         updatePage(index) { it.copy(enteredAt = clock.now()) }
+        noteAttention(index)
         loadIntervals(index)
         loadPagesAhead()
     }
@@ -76,6 +81,7 @@ class FeedViewModel @Inject constructor(
         val page = state.value.pages.getOrNull(index)?.takeIf { it.answer == null } ?: return
         val answer = answerOf(page, response) ?: return
         updatePage(index) { it.copy(answer = answer) }
+        attention.onAnswer(page.item.post.id, answer.outcome.isCorrect, answer.timeToAnswer, answer.rating)
         showWhenSeenAgain(index, page, answer.rating)
     }
 
@@ -87,6 +93,7 @@ class FeedViewModel @Inject constructor(
         val page = state.value.pages.getOrNull(index) ?: return
         if (!page.viewState.canChoose(action)) return
         updatePage(index) { it.copy(viewState = it.viewState.afterChoosing(action)) }
+        attention.onAction(page.item.post.id, action)
         viewModelScope.launch {
             val nudge = useCases.applyAction(page.item.post, action).nudge ?: return@launch
             state.update { it.copy(nudge = FeedNudge.of(index, nudge, page.context.conceptTitle)) }
@@ -94,6 +101,15 @@ class FeedViewModel @Inject constructor(
     }
 
     fun onReadSource(index: Int) = onAction(index, PostAction.READ)
+
+    fun onInteraction(index: Int, kind: InteractionKind) {
+        val page = state.value.pages.getOrNull(index) ?: return
+        attention.onInteraction(page.item.post.id, kind)
+    }
+
+    fun onFeedShown(isShown: Boolean) = attention.onFeedShown(isShown)
+
+    fun onScrolling(isScrolling: Boolean) = attention.onScrolling(isScrolling)
 
     fun onMore() {
         state.update { it.copy(sheetPageIndex = it.currentIndex.takeIf { index -> index < it.pages.size }) }
@@ -116,6 +132,11 @@ class FeedViewModel @Inject constructor(
             pageLoading.withLock { if (state.value.isCaughtUp) appendNext() }
             loadPagesAhead()
         }
+    }
+
+    private fun noteAttention(index: Int) {
+        val page = state.value.pages.getOrNull(index)
+        if (page == null) attention.onLeftPosts() else attention.onSettled(page.visitAt(index))
     }
 
     private fun answerOf(page: FeedPage, response: TestResponse): TestAnswer? {

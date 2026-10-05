@@ -7,6 +7,9 @@ import com.paulchibamba.margin.domain.model.BookCover
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.FeedTone
 import com.paulchibamba.margin.domain.signals.PostExit
+import com.paulchibamba.margin.domain.tracking.Event
+import com.paulchibamba.margin.domain.tracking.InteractionKind
+import com.paulchibamba.margin.domain.tracking.PostAttention
 import com.paulchibamba.margin.domain.usecase.StreakSummary
 import java.time.Instant
 import java.time.LocalDate
@@ -32,6 +35,8 @@ class FeedViewModelTest {
 
     private val useCases = FakeFeedUseCases()
     private val clock = FakeClock()
+    private val recorded = mutableListOf<Event>()
+    private val attention = PostAttention(clock, recorded::add)
 
     @Before
     fun setUp() {
@@ -208,6 +213,34 @@ class FeedViewModelTest {
     }
 
     @Test
+    fun `settling on posts records impressions and the attention paid to the page left`() {
+        val viewModel = feedViewModel()
+        viewModel.onFeedShown(true)
+        viewModel.onPageEntered(0)
+        clock.advanceBy(3.seconds)
+
+        viewModel.onPageEntered(1)
+
+        val impressions = recorded.filterIsInstance<Event.PostImpression>().map { it.postId.value }
+        assertEquals(listOf("post-0", "post-1"), impressions)
+        val exposure = recorded.filterIsInstance<Event.PostExposure>().single()
+        assertEquals("post-0", exposure.postId.value)
+        assertEquals(3.seconds, exposure.activeTime)
+    }
+
+    @Test
+    fun `interactions and actions on a page are recorded`() {
+        val viewModel = feedViewModel()
+        viewModel.onPageEntered(0)
+
+        viewModel.onInteraction(0, InteractionKind.TICK)
+        viewModel.onAction(0, PostAction.SAVE)
+
+        assertEquals(listOf(InteractionKind.TICK), recorded.filterIsInstance<Event.PostInteraction>().map { it.kind })
+        assertEquals(listOf(PostAction.SAVE), recorded.filterIsInstance<Event.PostActionTaken>().map { it.action })
+    }
+
+    @Test
     fun `reading the source is recorded as a Read action`() {
         val viewModel = feedViewModel()
 
@@ -311,7 +344,7 @@ class FeedViewModelTest {
         assertEquals(Skins.Ink, viewModel.uiState.value.pages.last().skin)
     }
 
-    private fun feedViewModel() = FeedViewModel(useCases, Random(seed = 17), clock)
+    private fun feedViewModel() = FeedViewModel(useCases, Random(seed = 17), clock, attention)
 
     private fun postIdsOf(viewModel: FeedViewModel) = viewModel.uiState.value.pages.map { it.item.post.id.value }
 }

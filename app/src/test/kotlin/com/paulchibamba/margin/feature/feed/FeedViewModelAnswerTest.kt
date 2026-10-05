@@ -3,6 +3,8 @@ package com.paulchibamba.margin.feature.feed
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.signals.AnswerOutcome
 import com.paulchibamba.margin.domain.signals.ExpectedReadTime
+import com.paulchibamba.margin.domain.tracking.Event
+import com.paulchibamba.margin.domain.tracking.PostAttention
 import com.paulchibamba.margin.feature.feed.post.TestResponse
 import org.junit.After
 import org.junit.Before
@@ -25,6 +27,8 @@ class FeedViewModelAnswerTest {
 
     private val useCases = FakeFeedUseCases(listOf(mcqPost(0), recallPost(1), mcqPost(2)))
     private val clock = FakeClock()
+    private val recorded = mutableListOf<Event>()
+    private val attention = PostAttention(clock, recorded::add)
     private val expectedReadTime = ExpectedReadTime.of(mcqPost(0).content)
 
     @Before
@@ -45,6 +49,19 @@ class FeedViewModelAnswerTest {
         viewModel.onRespond(0, TestResponse.Choice(0))
 
         assertEquals(Rating.AGAIN, answerOn(viewModel, 0)?.rating)
+    }
+
+    @Test
+    fun `an answer is recorded with whether it was right, how long it took and its grade`() {
+        val viewModel = feedViewModelOnFirstPage()
+        clock.advanceBy(3.seconds)
+
+        viewModel.onRespond(0, TestResponse.Choice(0))
+
+        val answer = recorded.filterIsInstance<Event.PostAnswer>().single()
+        assertEquals(false, answer.isCorrect)
+        assertEquals(3.seconds, answer.timeToAnswer)
+        assertEquals(Rating.AGAIN, answer.grade)
     }
 
     @Test
@@ -136,7 +153,7 @@ class FeedViewModelAnswerTest {
     }
 
     private fun feedViewModelOnFirstPage(): FeedViewModel =
-        FeedViewModel(useCases, Random(seed = 17), clock).apply { onPageEntered(0) }
+        FeedViewModel(useCases, Random(seed = 17), clock, attention).apply { onPageEntered(0) }
 
     private fun answerOn(viewModel: FeedViewModel, index: Int): TestAnswer? =
         viewModel.uiState.value.pages[index].answer
