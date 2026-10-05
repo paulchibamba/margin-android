@@ -25,11 +25,13 @@ class FakeProgressRepository : ProgressRepository {
     val activity = MutableStateFlow<List<DailyActivity>>(emptyList())
     val exits = mutableListOf<Pair<PostId, Double>>()
     val badges = mutableSetOf<Badge>()
+    val firstSeen = mutableMapOf<PostId, Instant>()
 
     override suspend fun loadFeedState() = feedState.value
     override suspend fun saveFeedState(state: FeedState, now: Instant) { feedState.value = state }
     override fun observeFeedState(): Flow<FeedState?> = feedState
     override suspend fun recordExit(post: PostId, exit: PostExit, engagement: Double) { exits += post to engagement }
+    override suspend fun firstSeenTimes(): Map<PostId, Instant> = firstSeen.toMap()
 
     override suspend fun appendAction(entry: ActionLogEntry) { actions.value += entry }
     override suspend fun appendReview(entry: ReviewLogEntry) { reviews.value += entry }
@@ -79,5 +81,6 @@ class FakeProgressRepository : ProgressRepository {
         activity.value = emptyList()
         exits.clear()
         badges.clear()
+        firstSeen.clear()
     }
 }

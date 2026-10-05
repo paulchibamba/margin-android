@@ -50,6 +50,9 @@ class RoomProgressRepository @Inject constructor(private val database: MarginDat
         database.feedStateDao().recordExit(post.value, exit.dwell.inWholeMilliseconds, engagement, isCorrect(exit))
     }
 
+    override suspend fun firstSeenTimes(): Map<PostId, Instant> = database.feedStateDao().seenPosts()
+        .associate { seen -> PostId(seen.postId) to Instant.ofEpochMilli(seen.firstSeenAt) }
+
     override suspend fun appendAction(entry: ActionLogEntry) {
         database.feedLogDao().insertAction(LogMapper.toEntity(entry))
     }
