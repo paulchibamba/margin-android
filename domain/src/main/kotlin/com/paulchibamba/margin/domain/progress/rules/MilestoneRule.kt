@@ -20,7 +20,7 @@ class MilestoneRule : RewardRule {
 
     private fun chapterMilestonesOf(chapters: List<ChapterProgress>): List<Milestone> = chapters.flatMap { chapter ->
         reachedKindsOf(chapter.isFullyIntroduced, chapter.isFullyRemembered).map { kind ->
-            milestoneOf(SCOPE_CHAPTER, chapter.chapter.title, chapter.bookTitle, kind, listOf(chapter))
+            milestoneOf(SCOPE_CHAPTER, ChapterName.of(chapter.chapter.title), chapter.bookTitle, kind, listOf(chapter))
         }
     }
 
