@@ -10,7 +10,7 @@ import com.paulchibamba.margin.domain.usecase.AttentionReport
 @Composable
 fun ReadingPaceCard(attention: AttentionReport, modifier: Modifier = Modifier) {
     StatsCard("Reading pace", modifier) {
-        if (attention.paceByBook.isEmpty()) EmptyStatsLine("No notes read yet")
+        if (attention.paceByBook.isEmpty()) EmptyStatsLine("No timed reading yet")
         attention.paceByBook.forEach { (book, wordsPerMinute) -> StatsCountRow(book.title, paceLabel(wordsPerMinute)) }
         attention.paceByTimeOfDay.forEach { (time, wordsPerMinute) ->
             StatsCountRow(time.label(), paceLabel(wordsPerMinute))
