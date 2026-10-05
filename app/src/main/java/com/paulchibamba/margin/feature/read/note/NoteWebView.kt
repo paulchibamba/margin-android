@@ -5,20 +5,35 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import com.paulchibamba.margin.designsystem.LocalSurfacePalette
+import com.paulchibamba.margin.domain.tracking.ScrollPosition
 import kotlin.math.roundToInt
 
 const val NOTE_BASE_URL = "file:///android_asset/pack/"
 private const val PERCENT = 100
 
 @Composable
-fun NoteWebView(html: String, modifier: Modifier = Modifier) {
+fun NoteWebView(
+    html: String,
+    modifier: Modifier = Modifier,
+    onScroll: (ScrollPosition) -> Unit = {},
+    onZoomedIn: () -> Unit = {},
+) {
     val background = LocalSurfacePalette.current.card.toArgb()
+    val scrolled by rememberUpdatedState(onScroll)
+    val zoomedIn by rememberUpdatedState(onZoomedIn)
     AndroidView(
-        factory = ::lockedDownWebView,
+        factory = { context ->
+            lockedDownWebView(context).apply {
+                this.onScroll = { position -> scrolled(position) }
+                this.onZoomedIn = { zoomedIn() }
+            }
+        },
         modifier = modifier,
         update = { webView ->
             webView.setBackgroundColor(background)
@@ -28,7 +43,7 @@ fun NoteWebView(html: String, modifier: Modifier = Modifier) {
     )
 }
 
-fun lockedDownWebView(context: Context): WebView = WebView(context).apply {
+fun lockedDownWebView(context: Context): NoteBodyView = NoteBodyView(context).apply {
     settings.javaScriptEnabled = false
     settings.allowFileAccess = false
     settings.allowContentAccess = false
@@ -50,4 +65,12 @@ private fun loadIfChanged(webView: WebView, html: String) {
 
 private class StayOnNoteClient : WebViewClient() {
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean = true
+
+    override fun onPageFinished(view: WebView, url: String?) {
+        (view as? NoteBodyView)?.onPageShown()
+    }
+
+    override fun onScaleChanged(view: WebView, oldScale: Float, newScale: Float) {
+        (view as? NoteBodyView)?.onScaleChanged(newScale)
+    }
 }

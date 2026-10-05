@@ -15,6 +15,7 @@ import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
 import com.paulchibamba.margin.designsystem.SurfacePalette
 import com.paulchibamba.margin.designsystem.SurfacePaletteProvider
 import com.paulchibamba.margin.designsystem.SurfacePreview
+import com.paulchibamba.margin.domain.tracking.ScrollPosition
 
 @Composable
 fun NoteScreen(
@@ -23,8 +24,10 @@ fun NoteScreen(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
+    onScroll: (ScrollPosition) -> Unit = {},
+    onZoomedIn: () -> Unit = {},
     body: @Composable (html: String, modifier: Modifier) -> Unit = { html, bodyModifier ->
-        NoteWebView(html, bodyModifier)
+        NoteWebView(html, bodyModifier, onScroll, onZoomedIn)
     },
 ) {
     val palette = LocalSurfacePalette.current

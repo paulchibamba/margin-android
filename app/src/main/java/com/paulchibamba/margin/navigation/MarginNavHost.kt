@@ -8,6 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.paulchibamba.margin.domain.model.NoteId
+import com.paulchibamba.margin.domain.model.PostId
+import com.paulchibamba.margin.domain.tracking.NoteOpenVia
 import com.paulchibamba.margin.feature.celebration.CelebrationRoute
 import com.paulchibamba.margin.feature.feed.FeedRoute
 import com.paulchibamba.margin.feature.read.book.BookRoute
@@ -36,9 +39,14 @@ fun MarginNavHost(navController: NavHostController, modifier: Modifier = Modifie
 private fun NavGraphBuilder.feedGraph(navController: NavHostController) {
     navigation<TabGraph.Feed>(startDestination = MarginDestination.Feed) {
         composable<MarginDestination.Feed> {
-            FeedRoute(onOpenNote = { note, post -> navController.navigate(MarginDestination.Note.of(note, post)) })
+            FeedRoute(onOpenNote = { note, post -> navController.navigate(noteFromFeed(note, post)) })
         }
     }
+}
+
+private fun noteFromFeed(note: NoteId, post: PostId?): MarginDestination.Note {
+    val via = if (post == null) NoteOpenVia.CONTINUE else NoteOpenVia.FEED_READ
+    return MarginDestination.Note.of(note, via, post)
 }
 
 private fun NavGraphBuilder.readGraph(navController: NavHostController) {
@@ -46,14 +54,14 @@ private fun NavGraphBuilder.readGraph(navController: NavHostController) {
         composable<MarginDestination.Read> {
             ReadHomeRoute(
                 onOpenBook = { book -> navController.navigate(MarginDestination.Book.of(book)) },
-                onOpenNote = { note -> navController.navigate(MarginDestination.Note.of(note)) },
+                onOpenNote = { note -> navController.navigate(MarginDestination.Note.of(note, NoteOpenVia.CONTINUE)) },
             )
         }
         composable<MarginDestination.Book> { entry ->
             val book = entry.toRoute<MarginDestination.Book>()
             BookRoute(
                 onBack = navController::navigateUp,
-                onOpenNote = { note -> navController.navigate(MarginDestination.Note.of(note)) },
+                onOpenNote = { note -> navController.navigate(MarginDestination.Note.of(note, NoteOpenVia.CHAPTER)) },
                 onSearchCover = { title -> navController.navigate(MarginDestination.CoverSearch(book.slug, title)) },
             )
         }

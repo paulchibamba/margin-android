@@ -7,6 +7,11 @@ import com.paulchibamba.margin.domain.model.Note
 import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.model.NotePosition
 import com.paulchibamba.margin.domain.model.PostId
+import com.paulchibamba.margin.domain.tracking.Event
+import com.paulchibamba.margin.domain.tracking.FakeEventLog
+import com.paulchibamba.margin.domain.tracking.NoteAttention
+import com.paulchibamba.margin.domain.tracking.NoteOpenVia
+import com.paulchibamba.margin.domain.tracking.RecordingEventSink
 import com.paulchibamba.margin.domain.usecase.ConsumeNewBadges
 import com.paulchibamba.margin.domain.usecase.FakeContentRepository
 import com.paulchibamba.margin.domain.usecase.FakeProgressRepository
@@ -51,6 +56,8 @@ class NoteViewModelTest {
     private val content = FakeContentRepository(notes = notes)
     private val progress = FakeProgressRepository()
     private val celebrations = CelebrationQueue()
+    private val recorded = mutableListOf<Event>()
+    private val attention = NoteAttention(clock, recorded::add, RecordingEventSink(), FakeEventLog())
 
     @Before
     fun setUp() {
@@ -182,20 +189,51 @@ class NoteViewModelTest {
         assertNull(progress.reading.value.lastNote)
     }
 
+    @Test
+    fun `opening a note records how it was opened, and moving on records the visit and the next open`() =
+        runTest(dispatcher) {
+            val viewModel = noteViewModel(noteId(appSec, 1, 1), via = NoteOpenVia.CONTINUE)
+            runCurrent()
+
+            wait(8.seconds)
+            viewModel.onNext()
+            runCurrent()
+
+            val opens = recorded.filterIsInstance<Event.NoteOpen>()
+            assertEquals(listOf(NoteOpenVia.CONTINUE, NoteOpenVia.NEXT), opens.map { it.via })
+            val exposure = recorded.filterIsInstance<Event.NoteExposure>().single()
+            assertEquals(noteId(appSec, 1, 1), exposure.noteId)
+            assertTrue(exposure.isMarkedRead)
+        }
+
+    @Test
+    fun `going back records the visit as not marked read and the earlier note as opened from previous`() =
+        runTest(dispatcher) {
+            val viewModel = noteViewModel(noteId(appSec, 1, 2))
+            runCurrent()
+
+            viewModel.onPrevious()
+            runCurrent()
+
+            assertFalse(recorded.filterIsInstance<Event.NoteExposure>().single().isMarkedRead)
+            assertEquals(NoteOpenVia.PREVIOUS, recorded.filterIsInstance<Event.NoteOpen>().last().via)
+        }
+
     private fun TestScope.wait(duration: Duration) {
         clock.advanceBy(duration)
         advanceTimeBy(duration)
         runCurrent()
     }
 
-    private fun noteViewModel(note: NoteId, fromPost: String? = null) =
+    private fun noteViewModel(note: NoteId, fromPost: String? = null, via: NoteOpenVia = NoteOpenVia.CHAPTER) =
         NoteViewModel(
-            SavedStateHandle(mapOf("noteId" to note.value, "fromPost" to fromPost)),
+            SavedStateHandle(mapOf("noteId" to note.value, "fromPost" to fromPost, "via" to via.name)),
             ObserveNote(content, progress),
             MarkNoteRead(progress, clock),
             RememberLastNote(progress),
             CelebrationTrigger(celebrations, consumeNewBadges()),
             clock,
+            attention,
         )
 
     private fun consumeNewBadges() = ConsumeNewBadges(content, progress, FakeSettingsRepository(), FeedStateLock())
