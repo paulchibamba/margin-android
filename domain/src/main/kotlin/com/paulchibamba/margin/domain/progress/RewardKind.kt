@@ -1,14 +1,14 @@
 package com.paulchibamba.margin.domain.progress
 
-sealed class RewardKind(val key: String, val isSupport: Boolean = false) {
+sealed class RewardKind(val key: String, val isSupport: Boolean = false, val expiresOnEvent: Boolean = false) {
     data object ZoomOut : RewardKind("zoom_out")
-    data object ComingUp : RewardKind("coming_up")
+    data object ComingUp : RewardKind("coming_up", expiresOnEvent = true)
     data object Callback : RewardKind("callback")
     data object Comeback : RewardKind("comeback")
     data object Quote : RewardKind("quote")
     data object NowYouCan : RewardKind("now_you_can")
     data object Milestone : RewardKind("milestone")
-    data object ReExplain : RewardKind("re_explain", isSupport = true)
+    data object ReExplain : RewardKind("re_explain", isSupport = true, expiresOnEvent = true)
 
     val isReward: Boolean
         get() = !isSupport

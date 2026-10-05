@@ -76,5 +76,6 @@ class ContentDaoTest : DatabaseTest() {
         database.settingsDao().readingOnlyChapters().first(),
         database.metaDao().get(MetaKey.FEED_STEP),
         database.activityDao().all().first(),
+        database.generatedPostDao().all(),
     )
 }

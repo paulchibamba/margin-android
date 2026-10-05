@@ -1,11 +1,13 @@
 package com.paulchibamba.margin.data.di
 
+import com.paulchibamba.margin.data.progress.RoomGeneratedPostRepository
 import com.paulchibamba.margin.data.repository.RoomBookCoverRepository
 import com.paulchibamba.margin.data.repository.RoomContentRepository
 import com.paulchibamba.margin.data.repository.RoomProgressRepository
 import com.paulchibamba.margin.data.repository.RoomSettingsRepository
 import com.paulchibamba.margin.domain.repository.BookCoverRepository
 import com.paulchibamba.margin.domain.repository.ContentRepository
+import com.paulchibamba.margin.domain.repository.GeneratedPostRepository
 import com.paulchibamba.margin.domain.repository.ProgressRepository
 import com.paulchibamba.margin.domain.repository.SettingsRepository
 import dagger.Binds
@@ -28,4 +30,7 @@ interface RepositoryModule {
 
     @Binds
     fun bookCoverRepository(repository: RoomBookCoverRepository): BookCoverRepository
+
+    @Binds
+    fun generatedPostRepository(repository: RoomGeneratedPostRepository): GeneratedPostRepository
 }

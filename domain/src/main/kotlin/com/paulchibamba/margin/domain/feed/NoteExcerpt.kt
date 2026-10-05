@@ -9,7 +9,7 @@ internal object NoteExcerpt {
 
     fun of(html: String): String = plainText(html).split(' ').take(WORD_LIMIT).joinToString(" ")
 
-    private fun plainText(html: String): String =
+    fun plainText(html: String): String =
         decodeEntities(html.replace(TAG, " ")).replace(WHITESPACE, " ").trim()
 
     private fun decodeEntities(text: String): String =

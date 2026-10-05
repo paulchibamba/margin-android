@@ -2,6 +2,7 @@ package com.paulchibamba.margin.data.repository
 
 import com.paulchibamba.margin.data.database.DatabaseTest
 import com.paulchibamba.margin.data.database.MetaKey
+import com.paulchibamba.margin.data.database.generatedPost
 import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.domain.actions.ActionLogEntry
 import com.paulchibamba.margin.domain.actions.PostAction
@@ -202,6 +203,7 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         repository.markChapterKnown(ChapterRef(book, 3), now)
         repository.addActivity(LocalDate.of(2026, 10, 1), postsSeen = 4, notesRead = 1)
         repository.markBadgesShown(setOf(Badge(book, BadgeKind.INTRODUCED)))
+        database.generatedPostDao().insert(listOf(generatedPost()))
         PROGRESS_TABLES.forEach { table -> assertTrue(rowsIn(table) > 0, "$table was not filled") }
     }
 
@@ -248,7 +250,7 @@ class RoomProgressRepositoryTest : DatabaseTest() {
     private companion object {
         val PROGRESS_TABLES = listOf(
             "concept_progress", "review_log", "post_seen", "action_log", "format_affinity",
-            "note_read", "chapter_known", "saved_post", "feed_history", "daily_activity",
+            "note_read", "chapter_known", "saved_post", "feed_history", "daily_activity", "generated_post",
         )
     }
 }
