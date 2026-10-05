@@ -11,6 +11,7 @@ import com.paulchibamba.margin.data.database.entity.ConceptProgressEntity
 import com.paulchibamba.margin.data.database.entity.DailyActivityEntity
 import com.paulchibamba.margin.data.database.entity.FeedHistoryEntity
 import com.paulchibamba.margin.data.database.entity.FormatAffinityEntity
+import com.paulchibamba.margin.data.database.entity.GeneratedPostEntity
 import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.data.database.entity.NoteEntity
 import com.paulchibamba.margin.data.database.entity.NoteReadEntity
@@ -105,7 +106,25 @@ suspend fun MarginDatabase.fillProgressTables() {
     metaDao().put(listOf(MetaEntity(MetaKey.FEED_STEP, "12")))
     activityDao().upsert(DailyActivityEntity("2026-10-01", postsSeen = 6, notesRead = 1))
     bookCoverDao().upsert(BookCoverEntity(BOOK, fileName = "$BOOK-6000.webp", updatedAt = 6_000))
+    generatedPostDao().insert(listOf(generatedPost()))
 }
+
+fun generatedPost(id: String = "gen/comeback/abc", conceptIds: String = "[\"$CONCEPT\"]") = GeneratedPostEntity(
+    id = id,
+    kind = "comeback",
+    conceptIds = conceptIds,
+    noteId = null,
+    title = "Comeback",
+    body = "It used to beat you.",
+    sourceLine = null,
+    factsJson = "{}",
+    factsHash = id.substringAfterLast('/'),
+    writer = "template",
+    createdAt = 7_000,
+    expiresAt = 8_000,
+    shownAt = null,
+    lessPressed = false,
+)
 
 fun bookSettings(active: Boolean, priority: String) =
     BookSettingsEntity(BOOK, active, priority)
