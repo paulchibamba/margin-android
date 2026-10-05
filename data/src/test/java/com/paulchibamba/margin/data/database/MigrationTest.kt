@@ -60,6 +60,23 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun `moving from version 4 to 5 keeps the rollups and adds empty screen-time tables`() {
+        helper.createDatabase(NAME, 4).use { database ->
+            database.execSQL("INSERT INTO note_read (noteId, readAt) VALUES ('$NOTE', 4000)")
+            database.execSQL(
+                "INSERT INTO daily_rollup (date, metrics, computedAt, schemaVersion) VALUES ('2026-10-04', '{}', 5, 1)",
+            )
+        }
+
+        helper.runMigrationsAndValidate(NAME, 5, true).use { database ->
+            assertEquals(4000L, database.longOf("SELECT readAt FROM note_read WHERE noteId = '$NOTE'"))
+            assertEquals(1L, database.longOf("SELECT COUNT(*) FROM daily_rollup"))
+            assertEquals(0L, database.longOf("SELECT COUNT(*) FROM screen_time_daily"))
+            assertEquals(0L, database.longOf("SELECT COUNT(*) FROM app_category_override"))
+        }
+    }
+
     private fun SupportSQLiteDatabase.longOf(sql: String): Long =
         query(sql).use { cursor ->
             cursor.moveToFirst()

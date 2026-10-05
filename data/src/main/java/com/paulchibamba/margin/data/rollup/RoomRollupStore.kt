@@ -16,6 +16,8 @@ class RoomRollupStore @Inject constructor(private val database: MarginDatabase) 
 
     override suspend fun save(rollup: DailyRollup) = rollupDao.upsert(entityOf(rollup))
 
+    override suspend fun on(date: LocalDate): DailyRollup? = rollupDao.on(date.toString())?.let(::rollupOf)
+
     override suspend fun computedTimes(): Map<LocalDate, Instant> = rollupDao.stamps().associate { stamp ->
         LocalDate.parse(stamp.date) to Instant.ofEpochMilli(stamp.computedAt)
     }

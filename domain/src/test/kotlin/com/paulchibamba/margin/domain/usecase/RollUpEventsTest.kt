@@ -2,6 +2,7 @@ package com.paulchibamba.margin.domain.usecase
 
 import com.paulchibamba.margin.domain.repository.EventSink
 import com.paulchibamba.margin.domain.rollup.FakeRollupStore
+import com.paulchibamba.margin.domain.screentime.FakeScreenTimeStore
 import com.paulchibamba.margin.domain.tracking.EventFixtures
 import com.paulchibamba.margin.domain.tracking.EventType
 import com.paulchibamba.margin.domain.tracking.FakeEventLog
@@ -27,7 +28,8 @@ class RollUpEventsTest {
         }
     }
     private val store = FakeRollupStore()
-    private val rollUp = RollUpEvents(clock, sink, log, store, FakeContentRepository())
+    private val screenTime = FakeScreenTimeStore()
+    private val rollUp = RollUpEvents(clock, sink, log, store, FakeContentRepository(), screenTime)
 
     private fun impressionAt(at: String) =
         LoggedEvent(Instant.parse(at), null, EventFixtures.forType(EventType.POST_IMPRESSION))

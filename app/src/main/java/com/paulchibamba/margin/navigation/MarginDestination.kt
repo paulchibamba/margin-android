@@ -44,6 +44,9 @@ sealed interface MarginDestination {
     data object ReadingOnlyChapters : MarginDestination
 
     @Serializable
+    data object DoomApps : MarginDestination
+
+    @Serializable
     data object Stats : MarginDestination
 
     @Serializable

@@ -10,6 +10,8 @@ object MetaKey {
     const val REVIEW_REMINDER = "review_reminder"
     const val DARK_MODE = "dark_mode"
     const val DARK_POSTS = "dark_posts"
+    const val SCREEN_TIME_INGESTED_THROUGH = "screen_time_ingested_through"
+    const val SCREEN_TIME_INGEST_FROM = "screen_time_ingest_from"
     private const val BOOK_LAST_NEW = "book_last_new:"
     private const val BADGE_SHOWN = "badge_shown:"
 

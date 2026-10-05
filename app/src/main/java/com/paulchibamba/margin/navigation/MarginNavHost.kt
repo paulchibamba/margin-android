@@ -19,6 +19,7 @@ import com.paulchibamba.margin.feature.read.home.ReadHomeRoute
 import com.paulchibamba.margin.feature.read.note.NoteRoute
 import com.paulchibamba.margin.feature.settings.SettingsRoute
 import com.paulchibamba.margin.feature.settings.chapters.ReadingOnlyChaptersRoute
+import com.paulchibamba.margin.feature.settings.screentime.DoomAppsRoute
 import com.paulchibamba.margin.feature.stats.StatsRoute
 
 @Composable
@@ -74,11 +75,13 @@ private fun NavGraphBuilder.settingsGraph(navController: NavHostController) {
             SettingsRoute(
                 onOpenReadingOnlyChapters = { navController.navigate(MarginDestination.ReadingOnlyChapters) },
                 onOpenStats = { navController.navigate(MarginDestination.Stats) },
+                onOpenDoomApps = { navController.navigate(MarginDestination.DoomApps) },
             )
         }
         composable<MarginDestination.ReadingOnlyChapters> {
             ReadingOnlyChaptersRoute(onBack = navController::navigateUp)
         }
+        composable<MarginDestination.DoomApps> { DoomAppsRoute(onBack = navController::navigateUp) }
     }
 }
 

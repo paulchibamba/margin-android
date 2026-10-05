@@ -3,6 +3,7 @@ package com.paulchibamba.margin.data.rollup
 import com.paulchibamba.margin.data.database.DatabaseTest
 import com.paulchibamba.margin.data.tracking.RoomEventLog
 import com.paulchibamba.margin.data.tracking.RoomEventSink
+import com.paulchibamba.margin.domain.screentime.FakeScreenTimeStore
 import com.paulchibamba.margin.domain.tracking.EventFixtures
 import com.paulchibamba.margin.domain.tracking.EventType
 import com.paulchibamba.margin.domain.tracking.LoggedEvent
@@ -27,7 +28,8 @@ class EventRetentionTest : DatabaseTest() {
     private val sink by lazy { RoomEventSink(database, TestScope()) }
     private val store by lazy { RoomRollupStore(database) }
     private val prune by lazy {
-        PruneEventLog(clock, log, RollUpEvents(clock, sink, log, store, FakeContentRepository()))
+        val rollUp = RollUpEvents(clock, sink, log, store, FakeContentRepository(), FakeScreenTimeStore())
+        PruneEventLog(clock, log, rollUp)
     }
 
     private fun impressionAt(at: String) =

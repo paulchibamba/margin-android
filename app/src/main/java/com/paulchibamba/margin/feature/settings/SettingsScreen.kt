@@ -29,6 +29,8 @@ import com.paulchibamba.margin.designsystem.SurfacePaletteProvider
 import com.paulchibamba.margin.designsystem.SurfacePreview
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.DarkMode
+import com.paulchibamba.margin.feature.settings.screentime.ScreenTimeCard
+import com.paulchibamba.margin.feature.settings.screentime.ScreenTimeSettingState
 
 @Composable
 fun SettingsScreen(
@@ -42,6 +44,7 @@ fun SettingsScreen(
     onOpenReadingOnlyChapters: () -> Unit,
     onOpenStats: () -> Unit,
     modifier: Modifier = Modifier,
+    screenTimeCard: @Composable () -> Unit = {},
 ) {
     val palette = LocalSurfacePalette.current
     MarginTheme(palette.skin) {
@@ -63,6 +66,8 @@ fun SettingsScreen(
                 SettingsLinksCard(onOpenReadingOnlyChapters, onOpenStats)
                 SectionTitle("Reminders", Modifier.padding(start = 4.dp, top = 4.dp))
                 ReviewReminderCard(state.isReviewReminderOn, onReviewReminderChange)
+                SectionTitle("Screen time", Modifier.padding(start = 4.dp, top = 4.dp))
+                screenTimeCard()
                 SectionTitle("Appearance", Modifier.padding(start = 4.dp, top = 4.dp))
                 DarkModeCard(state.darkMode, onDarkModeChange)
                 DarkPostsCard(state.isDarkPostsOn, onDarkPostsChange)
@@ -83,7 +88,7 @@ private fun SettingsTitle() {
     }
 }
 
-@Preview(widthDp = 360, heightDp = 980)
+@Preview(widthDp = 360, heightDp = 1180)
 @Composable
 private fun SettingsScreenPreview(@PreviewParameter(SurfacePaletteProvider::class) palette: SurfacePalette) {
     SurfacePreview(palette) {
@@ -97,6 +102,14 @@ private fun SettingsScreenPreview(@PreviewParameter(SurfacePaletteProvider::clas
             onDarkPostsChange = {},
             onOpenReadingOnlyChapters = {},
             onOpenStats = {},
+            screenTimeCard = {
+                ScreenTimeCard(
+                    ScreenTimeSettingState(),
+                    onUseScreenTimeClick = {},
+                    onOpenDoomApps = {},
+                    onDeleteClick = {},
+                )
+            },
         )
     }
 }

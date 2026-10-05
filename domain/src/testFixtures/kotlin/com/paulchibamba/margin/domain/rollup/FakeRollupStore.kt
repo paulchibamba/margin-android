@@ -16,6 +16,8 @@ class FakeRollupStore : RollupStore {
         rollups.value += rollup.date to rollup
     }
 
+    override suspend fun on(date: LocalDate): DailyRollup? = saved[date]
+
     override suspend fun computedTimes(): Map<LocalDate, Instant> = saved.mapValues { it.value.computedAt }
 
     override fun observeFrom(date: LocalDate): Flow<List<DailyRollup>> =

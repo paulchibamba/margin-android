@@ -11,8 +11,11 @@ import com.paulchibamba.margin.domain.model.NotePosition
 import com.paulchibamba.margin.domain.rollup.TimeOfDay
 import com.paulchibamba.margin.domain.usecase.AttentionReport
 import com.paulchibamba.margin.domain.usecase.BookFrontier
+import com.paulchibamba.margin.domain.usecase.ScreenTimeDay
+import com.paulchibamba.margin.domain.usecase.ScreenTimeReport
 import com.paulchibamba.margin.domain.usecase.StatsReport
 import java.time.LocalDate
+import kotlin.time.Duration.Companion.minutes
 
 object StatsPreviewData {
     private val appSec = Book(BookSlug("alice-bob-appsec"), "Alice & Bob Learn AppSec")
@@ -56,6 +59,12 @@ object StatsPreviewData {
         hotspots = emptyList(),
         paceByBook = emptyList(),
         paceByTimeOfDay = emptyList(),
+    )
+
+    val screenTime = ScreenTimeReport(
+        (0L..6L).map { day ->
+            ScreenTimeDay(LocalDate.of(2026, 9, 29).plusDays(day), (day * 4 + 3).minutes, (95 - day * 9).minutes)
+        },
     )
 
     private fun lostConcept(index: Int) = Concept(

@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paulchibamba.margin.domain.stats.StatsTextFormatter
+import com.paulchibamba.margin.domain.usecase.IngestScreenTime
 import com.paulchibamba.margin.domain.usecase.ObserveAttention
+import com.paulchibamba.margin.domain.usecase.ObserveScreenTime
 import com.paulchibamba.margin.domain.usecase.ObserveStats
 import com.paulchibamba.margin.domain.usecase.RollUpEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +29,8 @@ private const val TAG = "MarginStats"
 class StatsViewModel @Inject constructor(
     observeStats: ObserveStats,
     observeAttention: ObserveAttention,
+    observeScreenTime: ObserveScreenTime,
+    private val ingestScreenTime: IngestScreenTime,
     private val rollUpEvents: RollUpEvents,
 ) : ViewModel() {
 
@@ -34,15 +38,19 @@ class StatsViewModel @Inject constructor(
     private var copiedConfirmation: Job? = null
 
     init {
-        viewModelScope.launch { rollUpToday() }
+        viewModelScope.launch {
+            ingestScreenTimeSoFar()
+            rollUpToday()
+        }
     }
 
     val uiState: StateFlow<StatsUiState> = combine(
         observeStats(),
         observeAttention(),
+        observeScreenTime(),
         isCopied,
-    ) { report, attention, isCopied ->
-        StatsUiState(report, attention, StatsTextFormatter.format(report, attention), isCopied)
+    ) { report, attention, screenTime, isCopied ->
+        StatsUiState(report, attention, screenTime, StatsTextFormatter.format(report, attention), isCopied)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), StatsUiState())
 
     fun onCopied() {
@@ -52,6 +60,10 @@ class StatsViewModel @Inject constructor(
             delay(COPIED_CONFIRMATION)
             isCopied.value = false
         }
+    }
+
+    private suspend fun ingestScreenTimeSoFar() {
+        runCatching { ingestScreenTime() }.onFailure { error -> Log.w(TAG, "Couldn't read screen time", error) }
     }
 
     private suspend fun rollUpToday() {

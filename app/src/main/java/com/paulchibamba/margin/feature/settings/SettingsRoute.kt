@@ -12,11 +12,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.paulchibamba.margin.feature.settings.screentime.ScreenTimeSettings
 
 @Composable
 fun SettingsRoute(
     onOpenReadingOnlyChapters: () -> Unit,
     onOpenStats: () -> Unit,
+    onOpenDoomApps: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -30,6 +32,7 @@ fun SettingsRoute(
         onDarkPostsChange = viewModel::onDarkPostsChange,
         onOpenReadingOnlyChapters = onOpenReadingOnlyChapters,
         onOpenStats = onOpenStats,
+        screenTimeCard = { ScreenTimeSettings(onOpenDoomApps) },
     )
 }
 

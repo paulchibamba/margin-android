@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.domain.usecase
 
 import com.paulchibamba.margin.domain.rollup.FakeRollupStore
+import com.paulchibamba.margin.domain.screentime.FakeScreenTimeStore
 import com.paulchibamba.margin.domain.tracking.EventFixtures
 import com.paulchibamba.margin.domain.tracking.EventType
 import com.paulchibamba.margin.domain.tracking.FakeEventLog
@@ -17,7 +18,8 @@ class PruneEventLogTest {
     private val clock = FixedClock(Instant.parse("2026-10-05T09:00:00Z"))
     private val log = FakeEventLog()
     private val store = FakeRollupStore()
-    private val rollUp = RollUpEvents(clock, RecordingEventSink(), log, store, FakeContentRepository())
+    private val rollUp =
+        RollUpEvents(clock, RecordingEventSink(), log, store, FakeContentRepository(), FakeScreenTimeStore())
     private val prune = PruneEventLog(clock, log, rollUp)
 
     private fun impressionAt(at: String) =

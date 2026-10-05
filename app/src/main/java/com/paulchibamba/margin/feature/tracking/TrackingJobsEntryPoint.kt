@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.feature.tracking
 
+import com.paulchibamba.margin.domain.usecase.IngestScreenTime
 import com.paulchibamba.margin.domain.usecase.PruneEventLog
 import com.paulchibamba.margin.domain.usecase.RollUpEvents
 import dagger.hilt.EntryPoint
@@ -11,4 +12,5 @@ import dagger.hilt.components.SingletonComponent
 interface TrackingJobsEntryPoint {
     fun rollUpEvents(): RollUpEvents
     fun pruneEventLog(): PruneEventLog
+    fun ingestScreenTime(): IngestScreenTime
 }

@@ -12,6 +12,9 @@ interface RollupDao {
     @Upsert
     suspend fun upsert(rollup: DailyRollupEntity)
 
+    @Query("SELECT * FROM daily_rollup WHERE date = :date")
+    suspend fun on(date: String): DailyRollupEntity?
+
     @Query("SELECT date, computedAt FROM daily_rollup")
     suspend fun stamps(): List<RollupStamp>
 

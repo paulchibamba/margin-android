@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.MarginTheme
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
-import com.paulchibamba.margin.domain.usecase.AttentionReport
 import com.paulchibamba.margin.domain.usecase.StatsReport
 
 @Composable
@@ -34,17 +33,18 @@ fun StatsScreen(state: StatsUiState, onBack: () -> Unit, onCopy: () -> Unit, mod
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             StatsTopBar(state.isCopied, onBack, onCopy = { if (!state.isLoading) onCopy() })
-            state.report?.let { report -> StatsSections(report, state.attention, Modifier.padding(start = 12.dp)) }
+            state.report?.let { report -> StatsSections(state, report, Modifier.padding(start = 12.dp)) }
         }
     }
 }
 
 @Composable
-private fun StatsSections(report: StatsReport, attention: AttentionReport?, modifier: Modifier = Modifier) {
+private fun StatsSections(state: StatsUiState, report: StatsReport, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         StatsTiles(report)
         FormatAffinityCard(report.affinityByStrength)
-        attention?.let { AttentionSection(it) }
+        state.attention?.let { AttentionSection(it) }
+        state.screenTime?.let { ScreenTimeSection(it) }
         ReviewGradesCard(report)
         FrontierCard(report.frontiers)
         ActionsCard(report)
@@ -54,7 +54,8 @@ private fun StatsSections(report: StatsReport, attention: AttentionReport?, modi
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun StatsScreenBusyPreview() {
-    StatsScreen(StatsUiState(StatsPreviewData.busy, StatsPreviewData.busyAttention), onBack = {}, onCopy = {})
+    val state = StatsUiState(StatsPreviewData.busy, StatsPreviewData.busyAttention, StatsPreviewData.screenTime)
+    StatsScreen(state, onBack = {}, onCopy = {})
 }
 
 @Preview(widthDp = 360, heightDp = 780)

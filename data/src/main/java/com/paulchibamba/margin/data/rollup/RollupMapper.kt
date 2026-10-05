@@ -14,6 +14,7 @@ import com.paulchibamba.margin.domain.rollup.RereadHotspot
 import com.paulchibamba.margin.domain.rollup.RereadMetrics
 import com.paulchibamba.margin.domain.rollup.RereadSubject
 import com.paulchibamba.margin.domain.rollup.RollupMetrics
+import com.paulchibamba.margin.domain.rollup.ScreenTimeMetrics
 import com.paulchibamba.margin.domain.rollup.SessionMetrics
 import com.paulchibamba.margin.domain.rollup.TimeMetrics
 import com.paulchibamba.margin.domain.rollup.TimeOfDay
@@ -59,6 +60,11 @@ object RollupMapper {
             wpmByTimeOfDay = reading.paceByTimeOfDay.entries.associate { (time, pace) ->
                 keyOf(time) to paceJsonOf(pace)
             },
+            screenMin = screenTime?.screen?.let(::minutesOf),
+            doomMin = screenTime?.doom?.let(::minutesOf),
+            marginMin = screenTime?.margin?.let(::minutesOf),
+            marginShare = screenTime?.marginShare,
+            topDoomApps = screenTime?.topDoomApps,
         )
     }
 
@@ -85,7 +91,18 @@ object RollupMapper {
                 enumValueOf<TimeOfDay>(time.uppercase()) to paceOf(pace)
             },
         ),
+        screenTime = screenTimeOf(json),
     )
+
+    private fun screenTimeOf(json: RollupJson): ScreenTimeMetrics? {
+        val screenMin = json.screenMin ?: return null
+        return ScreenTimeMetrics(
+            screen = screenMin.minutes,
+            doom = (json.doomMin ?: 0.0).minutes,
+            margin = (json.marginMin ?: 0.0).minutes,
+            topDoomApps = json.topDoomApps.orEmpty(),
+        )
+    }
 
     private fun ratiosOf(json: RollupJson): Map<Format, FormatAttention> =
         json.ratioByFormat.entries.associate { (name, ratio) ->
