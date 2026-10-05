@@ -139,6 +139,8 @@ private fun FeedScreenOf(state: FeedUiState, pagerState: PagerState) {
         onReadAhead = {},
         onEngaged = {},
         onRespond = { _, _ -> },
+        onInteraction = { _, _ -> },
+        onScrolling = {},
         onReadOn = {},
         onMore = {},
         onSheetDismiss = {},

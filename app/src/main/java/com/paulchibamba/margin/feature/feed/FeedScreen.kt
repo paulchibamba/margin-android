@@ -22,6 +22,7 @@ import com.paulchibamba.margin.designsystem.Skin
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
 import com.paulchibamba.margin.domain.actions.PostAction
+import com.paulchibamba.margin.domain.tracking.InteractionKind
 import com.paulchibamba.margin.domain.usecase.NextNote
 import com.paulchibamba.margin.feature.debug.DebugToolsSheet
 import com.paulchibamba.margin.feature.feed.post.TestResponse
@@ -42,6 +43,8 @@ fun FeedScreen(
     onReadAhead: (Int) -> Unit,
     onEngaged: (Int) -> Unit,
     onRespond: (Int, TestResponse) -> Unit,
+    onInteraction: (Int, InteractionKind) -> Unit,
+    onScrolling: (Boolean) -> Unit,
     onReadOn: (NextNote) -> Unit,
     onMore: () -> Unit,
     onSheetDismiss: () -> Unit,
@@ -55,6 +58,7 @@ fun FeedScreen(
         if (state.isLoading) return@Box
         MarginTheme(skinAt(state, pagerState.currentPage)) { StatusBarFollowsSkin() }
         PageVisits(state, pagerState, onPageEntered, onPageLeft)
+        ScrollActivity(pagerState, onScrolling)
         VerticalPager(
             pagerState,
             Modifier.fillMaxSize().testTag("feed-pager"),
@@ -72,6 +76,7 @@ fun FeedScreen(
                     onReadAhead = { onReadAhead(index) },
                     onEngaged = { onEngaged(index) },
                     onRespond = { response -> onRespond(index, response) },
+                    onInteraction = { kind -> onInteraction(index, kind) },
                 ),
                 onReadOn = onReadOn,
                 onMore = onMore,
@@ -137,6 +142,14 @@ private fun PageVisits(
     }
 }
 
+@Composable
+private fun ScrollActivity(pagerState: PagerState, onScrolling: (Boolean) -> Unit) {
+    val scrolling by rememberUpdatedState(onScrolling)
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.isScrollInProgress }.distinctUntilChanged().collect { scrolling(it) }
+    }
+}
+
 private class PageVisit(val key: Int, val start: TimeMark) {
     val isPost: Boolean get() = key != CAUGHT_UP_KEY
 }
@@ -156,6 +169,8 @@ private fun FeedScreenPreviewOf(state: FeedUiState) {
         onReadAhead = {},
         onEngaged = {},
         onRespond = { _, _ -> },
+        onInteraction = { _, _ -> },
+        onScrolling = {},
         onReadOn = {},
         onMore = {},
         onSheetDismiss = {},

@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.model.NoteId
@@ -19,6 +20,10 @@ fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = 
     ReportDrawnWhen { state.pages.isNotEmpty() || state.isCaughtUp }
     val pageCount by rememberUpdatedState(state.pageCount)
     val pagerState = rememberPagerState(initialPage = state.currentIndex) { pageCount }
+    LifecycleResumeEffect(viewModel) {
+        viewModel.onFeedShown(true)
+        onPauseOrDispose { viewModel.onFeedShown(false) }
+    }
     FeedScreen(
         state = state,
         pagerState = pagerState,
@@ -31,6 +36,8 @@ fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = 
         onReadAhead = { index -> readAhead(state, index, onOpenNote) },
         onEngaged = viewModel::onEngaged,
         onRespond = viewModel::onRespond,
+        onInteraction = viewModel::onInteraction,
+        onScrolling = viewModel::onScrolling,
         onReadOn = { next -> onOpenNote(next.outline.id, null) },
         onMore = viewModel::onMore,
         onSheetDismiss = viewModel::onSheetDismiss,

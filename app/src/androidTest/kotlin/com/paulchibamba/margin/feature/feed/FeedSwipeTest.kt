@@ -78,6 +78,8 @@ class FeedSwipeTest {
             onReadAhead = {},
             onEngaged = {},
             onRespond = { _, _ -> },
+            onInteraction = { _, _ -> },
+            onScrolling = {},
             onReadOn = {},
             onMore = {},
             onSheetDismiss = {},

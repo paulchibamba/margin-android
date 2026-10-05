@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -17,6 +20,7 @@ import com.paulchibamba.margin.designsystem.LocalSkin
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.domain.model.PostContent
+import kotlinx.coroutines.flow.drop
 
 @Composable
 fun CarouselPost(
@@ -24,9 +28,12 @@ fun CarouselPost(
     carousel: CarouselState,
     onEngaged: () -> Unit,
     modifier: Modifier = Modifier,
+    onSlide: () -> Unit = {},
 ) {
     val skin = LocalSkin.current
+    val slid by rememberUpdatedState(onSlide)
     LaunchedEffect(carousel.isOnLastSlide) { if (carousel.isOnLastSlide) onEngaged() }
+    LaunchedEffect(carousel) { snapshotFlow { carousel.slide }.drop(1).collect { slid() } }
     PostColumn(modifier.tapToStep(carousel), top = 43.dp) {
         Text(carousel.counterLabel, style = MarginTypography.mono, color = skin.mutedContent)
         PostTitle(content.title)

@@ -3,6 +3,7 @@ package com.paulchibamba.margin.feature.feed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.paulchibamba.margin.domain.model.PostContent
+import com.paulchibamba.margin.domain.tracking.InteractionKind
 import com.paulchibamba.margin.feature.feed.post.AnalogyPost
 import com.paulchibamba.margin.feature.feed.post.CarouselPost
 import com.paulchibamba.margin.feature.feed.post.CarouselState
@@ -54,11 +55,13 @@ private fun FormatBody(
         is PostContent.CodeExample -> CodeExamplePost(content, modifier)
         is PostContent.Meme -> MemePost(content, modifier)
         is PostContent.Source -> SourcePost(content, callbacks.onReadSource, modifier)
-        is PostContent.Carousel -> CarouselPost(content, carousel, callbacks.onEngaged, modifier)
+        is PostContent.Carousel -> CarouselPost(content, carousel, callbacks.onEngaged, modifier) {
+            callbacks.onInteraction(InteractionKind.SLIDE)
+        }
         is PostContent.Dialogue -> DialoguePost(content, modifier)
         is PostContent.Versus -> VersusPost(content, modifier)
-        is PostContent.Myth -> MythPost(content, callbacks.onEngaged, modifier)
-        is PostContent.Checklist -> ChecklistPost(content, callbacks.onEngaged, modifier)
+        is PostContent.Myth -> MythPost(content, callbacks.engagedBy(InteractionKind.REVEAL), modifier)
+        is PostContent.Checklist -> ChecklistPost(content, callbacks.engagedBy(InteractionKind.TICK), modifier)
         else -> TestBody(content, callbacks, test, modifier)
     }
 }
@@ -66,13 +69,14 @@ private fun FormatBody(
 @Composable
 private fun TestBody(content: PostContent, callbacks: PostBodyCallbacks, test: TestPostState, modifier: Modifier) {
     val respond = callbacks.onRespond
+    val reveal = callbacks.engagedBy(InteractionKind.REVEAL)
     when (content) {
         is PostContent.Mcq -> McqPost(content, test, respond, modifier)
         is PostContent.Scenario -> ScenarioPost(content, test, respond, modifier)
         is PostContent.SpotBug -> SpotBugPost(content, test, respond, modifier)
         is PostContent.TrueFalse -> TrueFalsePost(content, test, respond, modifier)
-        is PostContent.Recall -> RecallPost(content, test, callbacks.onEngaged, respond, modifier)
-        is PostContent.FillBlank -> FillBlankPost(content, test, callbacks.onEngaged, respond, modifier)
+        is PostContent.Recall -> RecallPost(content, test, reveal, respond, modifier)
+        is PostContent.FillBlank -> FillBlankPost(content, test, reveal, respond, modifier)
         else -> FallbackPostBody(content, modifier)
     }
 }
