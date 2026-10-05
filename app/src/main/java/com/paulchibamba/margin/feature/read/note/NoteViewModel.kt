@@ -8,6 +8,10 @@ import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.model.PostId
 import com.paulchibamba.margin.domain.progression.ReadRule
 import com.paulchibamba.margin.domain.repository.Clock
+import com.paulchibamba.margin.domain.tracking.NoteAttention
+import com.paulchibamba.margin.domain.tracking.NoteOpenVia
+import com.paulchibamba.margin.domain.tracking.NoteVisit
+import com.paulchibamba.margin.domain.tracking.ScrollPosition
 import com.paulchibamba.margin.domain.usecase.MarkNoteRead
 import com.paulchibamba.margin.domain.usecase.NoteReading
 import com.paulchibamba.margin.domain.usecase.ObserveNote
@@ -37,6 +41,7 @@ import java.time.Duration as JavaDuration
 
 private const val NOTE_ID_KEY = "noteId"
 private const val FROM_POST_KEY = "fromPost"
+private const val VIA_KEY = "via"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -47,6 +52,7 @@ class NoteViewModel @Inject constructor(
     private val rememberLastNote: RememberLastNote,
     private val celebrations: CelebrationTrigger,
     private val clock: Clock,
+    private val attention: NoteAttention,
 ) : ViewModel() {
 
     private val readRule = ReadRule()
@@ -54,6 +60,7 @@ class NoteViewModel @Inject constructor(
     private val currentNote = MutableStateFlow(NoteId(checkNotNull(savedStateHandle.get<String>(NOTE_ID_KEY))))
     private val isReadRuleMet = MutableStateFlow(false)
     private var openedAt: Instant = clock.now()
+    private var openedVia = viaOf(savedStateHandle.get<String>(VIA_KEY))
 
     private val reading: StateFlow<NoteReading?> = currentNote.flatMapLatest(observeNote::invoke)
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -71,21 +78,35 @@ class NoteViewModel @Inject constructor(
     fun onNext() {
         val current = reading.value ?: return
         viewModelScope.launch {
-            markIfRead(current)
-            current.next?.let(::moveTo)
+            attention.onClosed(isMarkedRead = markIfRead(current))
+            current.next?.let { next -> moveTo(next, NoteOpenVia.NEXT) }
         }
     }
 
     fun onPrevious() {
-        reading.value?.previous?.let(::moveTo)
+        val previous = reading.value?.previous ?: return
+        attention.onClosed(isMarkedRead = false)
+        moveTo(previous, NoteOpenVia.PREVIOUS)
     }
 
-    private fun moveTo(note: NoteId) {
+    fun onShown(isShown: Boolean) = attention.onShown(isShown)
+
+    fun onScrolled(position: ScrollPosition) = attention.onScrolled(position)
+
+    fun onZoomedIn() = attention.onZoomedIn()
+
+    override fun onCleared() {
+        attention.onClosed(isMarkedRead = false)
+    }
+
+    private fun moveTo(note: NoteId, via: NoteOpenVia) {
         isReadRuleMet.value = false
+        openedVia = via
         currentNote.value = note
     }
 
     private suspend fun onOpened(note: Note) {
+        attention.onOpened(NoteVisit(note.id, note.wordCount, openedVia, note.hasImages))
         openedAt = clock.now()
         isReadRuleMet.value = false
         if (fromPost == null) rememberLastNote(note.id)
@@ -93,12 +114,16 @@ class NoteViewModel @Inject constructor(
         isReadRuleMet.value = true
     }
 
-    private suspend fun markIfRead(current: NoteReading) {
-        if (current.isRead || !readRule.isRead(dwellSinceOpened(), current.note.wordCount)) return
+    private suspend fun markIfRead(current: NoteReading): Boolean {
+        if (current.isRead || !readRule.isRead(dwellSinceOpened(), current.note.wordCount)) return false
         withContext(NonCancellable) {
             celebrations.onStreakSignal(markNoteRead(current.note.id).isStreakExtended)
         }
+        return true
     }
+
+    private fun viaOf(name: String?): NoteOpenVia =
+        NoteOpenVia.entries.firstOrNull { it.name == name } ?: NoteOpenVia.CHAPTER
 
     private fun dwellSinceOpened(): Duration = JavaDuration.between(openedAt, clock.now()).toKotlinDuration()
 }

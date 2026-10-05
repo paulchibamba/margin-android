@@ -3,10 +3,12 @@ package com.paulchibamba.margin.data.tracking
 import com.paulchibamba.margin.data.database.DatabaseTest
 import com.paulchibamba.margin.data.database.entity.NoteReadEntity
 import com.paulchibamba.margin.data.database.entity.PostSeenEntity
+import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.tracking.Event
 import com.paulchibamba.margin.domain.tracking.EventFixtures
 import com.paulchibamba.margin.domain.tracking.EventType
 import com.paulchibamba.margin.domain.tracking.LoggedEvent
+import com.paulchibamba.margin.domain.tracking.NoteOpenVia
 import com.paulchibamba.margin.domain.tracking.SessionCounts
 import com.paulchibamba.margin.domain.tracking.SessionEndReason
 import com.paulchibamba.margin.domain.tracking.SessionEntry
@@ -62,6 +64,17 @@ class RoomEventLogTest : DatabaseTest() {
         store(2_000, "a", EventFixtures.forType(EventType.SETTING_CHANGED))
 
         assertEquals(listOf("setting_changed", "session_start"), log.recent(limit = 5).map { it.typeKey })
+    }
+
+    @Test
+    fun `events are counted by type and subject`() = runTest {
+        val open = Event.NoteOpen(EventFixtures.note, NoteOpenVia.CHAPTER, openCount = 1)
+        store(1_000, "a", open)
+        store(2_000, "a", open)
+        store(3_000, "a", Event.NoteOpen(NoteId("other"), NoteOpenVia.NEXT, openCount = 1))
+
+        assertEquals(2, log.countOf(EventType.NOTE_OPEN, EventFixtures.note.value))
+        assertEquals(0, log.countOf(EventType.NOTE_EXPOSURE, EventFixtures.note.value))
     }
 
     @Test

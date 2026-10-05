@@ -2,6 +2,7 @@ package com.paulchibamba.margin.data.tracking
 
 import com.paulchibamba.margin.data.database.MarginDatabase
 import com.paulchibamba.margin.domain.repository.EventLog
+import com.paulchibamba.margin.domain.tracking.EventType
 import com.paulchibamba.margin.domain.tracking.RecentEvent
 import com.paulchibamba.margin.domain.tracking.SessionId
 import com.paulchibamba.margin.domain.tracking.UnfinishedSession
@@ -24,4 +25,6 @@ class RoomEventLog @Inject constructor(private val database: MarginDatabase) : E
     }
 
     override suspend fun recent(limit: Int): List<RecentEvent> = eventDao.latest(limit).map(EventMapper::toRecent)
+
+    override suspend fun countOf(type: EventType, subjectId: String): Int = eventDao.countOf(type.key, subjectId)
 }
