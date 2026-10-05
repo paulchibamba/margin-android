@@ -3,6 +3,7 @@ package com.paulchibamba.margin.data.tracking
 import com.paulchibamba.margin.data.database.entity.EventEntity
 import com.paulchibamba.margin.domain.tracking.LoggedEvent
 import com.paulchibamba.margin.domain.tracking.RecentEvent
+import com.paulchibamba.margin.domain.tracking.SessionId
 import java.time.Instant
 
 object EventMapper {
@@ -16,6 +17,11 @@ object EventMapper {
         props = EventProps.of(logged.event).toString(),
         schemaVersion = SCHEMA_VERSION,
     )
+
+    fun toLogged(entity: EventEntity): LoggedEvent? {
+        val event = EventParser.parse(entity.type, entity.subjectId, entity.props) ?: return null
+        return LoggedEvent(Instant.ofEpochMilli(entity.at), entity.sessionId?.let(::SessionId), event)
+    }
 
     fun toRecent(entity: EventEntity) = RecentEvent(
         at = Instant.ofEpochMilli(entity.at),

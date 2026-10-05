@@ -2,15 +2,17 @@ package com.paulchibamba.margin.domain.stats
 
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.model.NotePosition
+import com.paulchibamba.margin.domain.usecase.AttentionReport
 import com.paulchibamba.margin.domain.usecase.StatsReport
 import java.util.Locale
 import kotlin.math.roundToInt
 
 object StatsTextFormatter {
 
-    fun format(report: StatsReport): String = listOf(
+    fun format(report: StatsReport, attention: AttentionReport? = null): String = listOfNotNull(
         summaryOf(report),
         section("Format affinity", affinityLinesOf(report)),
+        attention?.let { section("Attention, last ${AttentionReport.DAYS} days", attentionLinesOf(it)) },
         section("Reviews by grade", gradeLinesOf(report)),
         section("Frontier per book", frontierLinesOf(report)),
         section("Actions by type", actionLinesOf(report)),
@@ -35,6 +37,14 @@ object StatsTextFormatter {
 
     private fun affinityLinesOf(report: StatsReport): List<String> =
         report.affinityByStrength.map { (format, value) -> "${format.name.lowercase()} ${decimalOf(value)}" }
+
+    private fun attentionLinesOf(attention: AttentionReport): List<String> = listOf(
+        "glance rate ${attention.glanceRate?.let(::percentOf) ?: "none"}",
+        "deep reads ${attention.deepRate?.let(::percentOf) ?: "none"}",
+    ) + attention.ratioByFormat.map { (format, ratio) -> "ratio ${format.name.lowercase()} ${decimalOf(ratio)}" } +
+        attention.hotspots.map { (title, count) -> "re-read $count $title" } +
+        attention.paceByBook.map { (book, wordsPerMinute) -> "wpm ${book.slug.value} $wordsPerMinute" } +
+        attention.paceByTimeOfDay.map { (time, wordsPerMinute) -> "wpm ${time.name.lowercase()} $wordsPerMinute" }
 
     private fun gradeLinesOf(report: StatsReport): List<String> = StatsReport.GRADES.map { grade ->
         "${grade.name.lowercase()} ${report.countOf(grade)} (${percentOf(report.shareOf(grade))})"

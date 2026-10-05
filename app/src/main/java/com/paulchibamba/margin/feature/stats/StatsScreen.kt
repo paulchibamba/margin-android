@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.MarginTheme
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
+import com.paulchibamba.margin.domain.usecase.AttentionReport
 import com.paulchibamba.margin.domain.usecase.StatsReport
 
 @Composable
@@ -33,16 +34,17 @@ fun StatsScreen(state: StatsUiState, onBack: () -> Unit, onCopy: () -> Unit, mod
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             StatsTopBar(state.isCopied, onBack, onCopy = { if (!state.isLoading) onCopy() })
-            state.report?.let { report -> StatsSections(report, Modifier.padding(start = 12.dp)) }
+            state.report?.let { report -> StatsSections(report, state.attention, Modifier.padding(start = 12.dp)) }
         }
     }
 }
 
 @Composable
-private fun StatsSections(report: StatsReport, modifier: Modifier = Modifier) {
+private fun StatsSections(report: StatsReport, attention: AttentionReport?, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         StatsTiles(report)
         FormatAffinityCard(report.affinityByStrength)
+        attention?.let { AttentionSection(it) }
         ReviewGradesCard(report)
         FrontierCard(report.frontiers)
         ActionsCard(report)
@@ -52,11 +54,11 @@ private fun StatsSections(report: StatsReport, modifier: Modifier = Modifier) {
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun StatsScreenBusyPreview() {
-    StatsScreen(StatsUiState(StatsPreviewData.busy), onBack = {}, onCopy = {})
+    StatsScreen(StatsUiState(StatsPreviewData.busy, StatsPreviewData.busyAttention), onBack = {}, onCopy = {})
 }
 
 @Preview(widthDp = 360, heightDp = 780)
 @Composable
 private fun StatsScreenEmptyPreview() {
-    StatsScreen(StatsUiState(StatsPreviewData.empty), onBack = {}, onCopy = {})
+    StatsScreen(StatsUiState(StatsPreviewData.empty, StatsPreviewData.emptyAttention), onBack = {}, onCopy = {})
 }

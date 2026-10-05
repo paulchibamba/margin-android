@@ -2,11 +2,13 @@ package com.paulchibamba.margin.data.di
 
 import android.util.Log
 import com.paulchibamba.margin.data.database.MarginDatabase
+import com.paulchibamba.margin.data.rollup.RoomRollupStore
 import com.paulchibamba.margin.data.tracking.RoomEventLog
 import com.paulchibamba.margin.data.tracking.RoomEventSink
 import com.paulchibamba.margin.data.tracking.RoomSessionTally
 import com.paulchibamba.margin.domain.repository.EventLog
 import com.paulchibamba.margin.domain.repository.EventSink
+import com.paulchibamba.margin.domain.repository.RollupStore
 import com.paulchibamba.margin.domain.repository.SessionTally
 import com.paulchibamba.margin.domain.tracking.EventRecorder
 import com.paulchibamba.margin.domain.tracking.SessionId
@@ -34,6 +36,9 @@ object TrackingModule {
 
     @Provides
     fun eventLog(log: RoomEventLog): EventLog = log
+
+    @Provides
+    fun rollupStore(store: RoomRollupStore): RollupStore = store
 
     @Provides
     fun sessionTally(tally: RoomSessionTally): SessionTally = tally
