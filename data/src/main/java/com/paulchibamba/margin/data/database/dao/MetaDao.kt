@@ -18,6 +18,9 @@ interface MetaDao {
     @Query("SELECT value FROM meta WHERE `key` = :key")
     fun observe(key: String): Flow<String?>
 
+    @Query("DELETE FROM meta WHERE `key` = :key")
+    suspend fun delete(key: String)
+
     @Query("SELECT * FROM meta WHERE `key` LIKE :prefix || '%'")
     suspend fun withPrefix(prefix: String): List<MetaEntity>
 }

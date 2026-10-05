@@ -21,6 +21,7 @@ class FilterChain(private val filters: List<FeedFilter>) {
                 NotRecentlyShown(config.recentlyShownWindow),
                 NoConceptRepeat(config.noRepeatConcept),
                 NoFormatRepeat(),
+                NoRewardKindRepeat(),
                 TestStreakCap(config.maxTestsInRow),
                 PreviewSpacing(config.previewEvery),
             ),

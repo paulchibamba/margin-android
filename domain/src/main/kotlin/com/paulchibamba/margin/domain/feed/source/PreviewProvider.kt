@@ -16,8 +16,9 @@ class PreviewProvider : CandidateProvider {
 
     private fun teaserFrom(book: Book, library: LearningLibrary, state: FeedState): Candidate? {
         val concept = conceptComingUp(book, library, state) ?: return null
-        val unseenPost = library.teachPostsOf(concept).firstOrNull { post -> !state.hasSeen(post.id) } ?: return null
-        return Candidate(unseenPost, CandidateSource.PREVIEW)
+        val comingUp = library.comingUpFor(concept)?.takeUnless { post -> state.hasSeen(post.id) }
+        val unseenPost = comingUp ?: library.teachPostsOf(concept).firstOrNull { post -> !state.hasSeen(post.id) }
+        return unseenPost?.let { post -> Candidate(post, CandidateSource.PREVIEW) }
     }
 
     private fun conceptComingUp(book: Book, library: LearningLibrary, state: FeedState): Concept? =

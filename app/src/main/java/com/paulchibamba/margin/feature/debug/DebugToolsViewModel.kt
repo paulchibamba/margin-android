@@ -3,6 +3,7 @@ package com.paulchibamba.margin.feature.debug
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paulchibamba.margin.domain.time.OffsetClock
+import com.paulchibamba.margin.domain.usecase.BakeTemplatePosts
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
 import com.paulchibamba.margin.domain.usecase.GetRecentEvents
 import com.paulchibamba.margin.domain.usecase.ResetProgress
@@ -23,6 +24,7 @@ class DebugToolsViewModel @Inject constructor(
     private val reminderScheduler: ReminderScheduler,
     private val resetProgress: ResetProgress,
     private val getRecentEvents: GetRecentEvents,
+    private val bakeTemplatePosts: BakeTemplatePosts,
 ) : ViewModel() {
 
     private val state = MutableStateFlow(DebugToolsUiState(offset = clock.offset))
@@ -53,6 +55,13 @@ class DebugToolsViewModel @Inject constructor(
         viewModelScope.launch {
             val lines = getRecentEvents().map { event -> RecentEventLabels.lineFor(event, clock.zone()) }
             state.update { it.copy(recentEvents = lines) }
+        }
+    }
+
+    fun onBakeProgressPosts() {
+        viewModelScope.launch {
+            val baked = bakeTemplatePosts()
+            state.update { it.copy(bakedPosts = baked) }
         }
     }
 

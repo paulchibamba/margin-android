@@ -15,6 +15,8 @@ enum class Format(val role: PostRole, val isInteractive: Boolean) {
     CODE_EXAMPLE(TEACH, isInteractive = false),
     MEME(TEACH, isInteractive = false),
     SOURCE(TEACH, isInteractive = false),
+    PROGRESS(TEACH, isInteractive = false),
+    RE_EXPLAIN(TEACH, isInteractive = false),
     MCQ(TEST, isInteractive = true),
     TRUE_FALSE(TEST, isInteractive = true),
     RECALL(TEST, isInteractive = true),

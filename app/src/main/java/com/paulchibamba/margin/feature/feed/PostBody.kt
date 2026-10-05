@@ -16,6 +16,7 @@ import com.paulchibamba.margin.feature.feed.post.McqPost
 import com.paulchibamba.margin.feature.feed.post.MemePost
 import com.paulchibamba.margin.feature.feed.post.MythPost
 import com.paulchibamba.margin.feature.feed.post.PreviewTreatment
+import com.paulchibamba.margin.feature.feed.post.ProgressPost
 import com.paulchibamba.margin.feature.feed.post.RecallPost
 import com.paulchibamba.margin.feature.feed.post.ScenarioPost
 import com.paulchibamba.margin.feature.feed.post.SourcePost
@@ -55,6 +56,7 @@ private fun FormatBody(
         is PostContent.CodeExample -> CodeExamplePost(content, modifier)
         is PostContent.Meme -> MemePost(content, modifier)
         is PostContent.Source -> SourcePost(content, callbacks.onReadSource, modifier)
+        is PostContent.Progress -> ProgressPost(content, callbacks.onReadSource, modifier)
         is PostContent.Carousel -> CarouselPost(content, carousel, callbacks.onEngaged, modifier) {
             callbacks.onInteraction(InteractionKind.SLIDE)
         }

@@ -1,5 +1,7 @@
 package com.paulchibamba.margin.domain.model
 
+import com.paulchibamba.margin.domain.progress.RewardKind
+
 data class Post(
     val id: PostId,
     val conceptId: ConceptId,
@@ -11,4 +13,10 @@ data class Post(
 
     val role: PostRole
         get() = format.role
+
+    val rewardKind: RewardKind?
+        get() = (content as? PostContent.Progress)?.kind
+
+    val affinityKey: AffinityKey
+        get() = rewardKind?.let { kind -> AffinityKey.OfRewardKind(kind.key) } ?: AffinityKey.OfFormat(format)
 }

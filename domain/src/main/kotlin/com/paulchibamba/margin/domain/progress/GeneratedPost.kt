@@ -1,7 +1,10 @@
 package com.paulchibamba.margin.domain.progress
 
+import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.ConceptId
 import com.paulchibamba.margin.domain.model.NoteId
+import com.paulchibamba.margin.domain.model.Post
+import com.paulchibamba.margin.domain.model.PostContent
 import com.paulchibamba.margin.domain.model.PostId
 import java.time.Duration
 import java.time.Instant
@@ -29,6 +32,11 @@ data class GeneratedPost(
 
     fun toPastReward() = PastReward(kind, conceptIds, noteId, facts, title, createdAt, shownAt)
 
+    fun toPost(book: BookSlug): Post? {
+        val concept = conceptIds.firstOrNull() ?: return null
+        return Post(id, concept, book, PostContent.Progress(kind, title, body, sourceLine, noteId))
+    }
+
     companion object {
         const val TEMPLATE_WRITER = "template"
         private const val ID_PREFIX = "gen"
@@ -37,6 +45,9 @@ data class GeneratedPost(
         fun idOf(kind: RewardKind, factsHash: String) = PostId("$ID_PREFIX/${kind.key}/$factsHash")
 
         fun isGenerated(post: PostId): Boolean = post.value.startsWith("$ID_PREFIX/")
+
+        fun kindOf(post: PostId): RewardKind? =
+            if (isGenerated(post)) RewardKind.fromKey(post.value.split('/')[1]) else null
 
         fun from(seed: RewardSeed, draft: RewardDraft, writer: String, now: Instant) = GeneratedPost(
             kind = seed.kind,

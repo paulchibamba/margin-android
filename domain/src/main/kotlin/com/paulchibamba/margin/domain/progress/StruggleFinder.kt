@@ -10,31 +10,31 @@ import java.time.Instant
 internal object StruggleFinder {
     private const val REOPENED_FROM = 2
 
-    fun of(context: ProgressContext, events: DayEvents, attention: AttentionFacts, since: Instant): List<Struggle> =
-        signalsOf(context, events, attention, since)
-            .mapNotNull { signal -> struggleOf(signal, context) }
-            .filter { struggle -> context.isIntroduced(struggle.concept) }
-            .filterNot { struggle -> context.hasPassedSince(struggle.concept, struggle.at) }
+    fun of(inputs: StruggleInputs, events: DayEvents, attention: AttentionFacts, since: Instant): List<Struggle> =
+        signalsOf(inputs, events, attention, since)
+            .mapNotNull { signal -> struggleOf(signal, inputs) }
+            .filter { struggle -> inputs.isIntroduced(struggle.concept) }
+            .filterNot { struggle -> inputs.hasPassedSince(struggle.concept, struggle.at) }
             .groupBy { struggle -> struggle.concept.id }
             .map { (_, struggles) -> struggles.maxBy(Struggle::at) }
 
-    private fun struggleOf(signal: StruggleSignal, context: ProgressContext): Struggle? =
-        context.conceptOf(signal.conceptId)?.let { concept -> Struggle(concept, signal.trigger, signal.at) }
+    private fun struggleOf(signal: StruggleSignal, inputs: StruggleInputs): Struggle? =
+        inputs.conceptOf(signal.conceptId)?.let { concept -> Struggle(concept, signal.trigger, signal.at) }
 
-    private fun signalsOf(context: ProgressContext, events: DayEvents, attention: AttentionFacts, since: Instant) =
-        lostsOf(context, since) + againsOf(context, since) + rereadsOf(context, events) + glancesOf(events, attention)
+    private fun signalsOf(inputs: StruggleInputs, events: DayEvents, attention: AttentionFacts, since: Instant) =
+        lostsOf(inputs, since) + againsOf(inputs, since) + rereadsOf(inputs, events) + glancesOf(events, attention)
 
-    private fun lostsOf(context: ProgressContext, since: Instant) = context.sources.actions
+    private fun lostsOf(inputs: StruggleInputs, since: Instant) = inputs.actions
         .filter { action -> action.action == PostAction.LOST && !action.at.isBefore(since) }
         .map { action -> StruggleSignal(action.conceptId, StruggleTrigger.LOST, action.at) }
 
-    private fun againsOf(context: ProgressContext, since: Instant) = context.sources.reviews
+    private fun againsOf(inputs: StruggleInputs, since: Instant) = inputs.reviews
         .filter { review -> review.rating == Rating.AGAIN && !review.at.isBefore(since) }
         .map { review -> StruggleSignal(review.conceptId, StruggleTrigger.AGAIN, review.at) }
 
-    private fun rereadsOf(context: ProgressContext, events: DayEvents) = rereadNotesOf(events)
+    private fun rereadsOf(inputs: StruggleInputs, events: DayEvents) = rereadNotesOf(events)
         .flatMap { (note, at) ->
-            context.conceptsByNote[note].orEmpty().map { StruggleSignal(it.id, StruggleTrigger.REREAD, at) }
+            inputs.conceptsOnNote(note).map { StruggleSignal(it.id, StruggleTrigger.REREAD, at) }
         }
 
     private fun rereadNotesOf(events: DayEvents): List<Pair<NoteId, Instant>> {

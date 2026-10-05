@@ -3,6 +3,7 @@ package com.paulchibamba.margin.data.repository
 import com.paulchibamba.margin.data.database.DatabaseTest
 import com.paulchibamba.margin.data.database.MetaKey
 import com.paulchibamba.margin.data.database.generatedPost
+import com.paulchibamba.margin.data.database.entity.FeedHistoryEntity
 import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.domain.actions.ActionLogEntry
 import com.paulchibamba.margin.domain.actions.PostAction
@@ -82,6 +83,29 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         val seen = database.feedStateDao().seen(tip.value)!!
         assertEquals(2, seen.times)
         assertEquals("angle", seen.lastSource)
+    }
+
+    @Test
+    fun `a delight_at value from before the rename becomes reward_at`() = runTest {
+        repository.saveFeedState(feedState(), now)
+        database.metaDao().delete(MetaKey.REWARD_AT)
+        database.metaDao().put(listOf(MetaEntity(MetaKey.LEGACY_DELIGHT_AT, "17")))
+
+        val state = repository.loadFeedState()!!
+        repository.saveFeedState(state, now)
+
+        assertEquals(17, state.rewardAtStep)
+        assertEquals("17", database.metaDao().get(MetaKey.REWARD_AT))
+        assertNull(database.metaDao().get(MetaKey.LEGACY_DELIGHT_AT))
+    }
+
+    @Test
+    fun `history written as delight before the rename reads back as reward`() = runTest {
+        repository.saveFeedState(feedState(), now)
+        val oldEntry = FeedHistoryEntity(3, "meme", cia.value, "meme", "teach", "delight")
+        database.feedStateDao().upsertHistory(listOf(oldEntry))
+
+        assertEquals(CandidateSource.REWARD, repository.loadFeedState()!!.history.last().source)
     }
 
     @Test
@@ -217,7 +241,7 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         FeedHistoryEntry(step, post, cia, format, format.role, source)
 
     private fun feedState() = FeedState(
-        delightAtStep = 8,
+        rewardAtStep = 8,
         step = 2,
         conceptProgress = mapOf(
             cia to ConceptProgress(
@@ -243,7 +267,7 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         ),
         bookLastNewStep = mapOf(book to 1),
         lastPreviewAtStep = 1,
-        affinity = FormatAffinity(mapOf(Format.TIP to 0.62, Format.CODE_EXAMPLE to 0.31)),
+        affinity = FormatAffinity(mapOf(Format.TIP to 0.62, Format.CODE_EXAMPLE to 0.31), mapOf("comeback" to 0.25)),
         savedPosts = setOf(tip),
     )
 

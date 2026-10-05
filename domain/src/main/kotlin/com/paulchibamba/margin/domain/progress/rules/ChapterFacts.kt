@@ -10,7 +10,7 @@ internal object ChapterFacts {
 
     fun of(chapter: ChapterProgress): Map<String, String> = buildMap {
         put(FactKey.BOOK, chapter.bookTitle)
-        put(FactKey.CHAPTER, chapter.chapter.title)
+        put(FactKey.CHAPTER, ChapterName.of(chapter.chapter.title))
         put(FactKey.INTRODUCED, chapter.introduced.size.toString())
         put(FactKey.TOTAL, chapter.total.toString())
         put(FactKey.REMAINING, chapter.remaining.size.toString())
@@ -19,5 +19,6 @@ internal object ChapterFacts {
     }
 
     fun isAbout(reward: PastReward, chapter: ChapterProgress): Boolean =
-        reward.facts[FactKey.BOOK] == chapter.bookTitle && reward.facts[FactKey.CHAPTER] == chapter.chapter.title
+        reward.facts[FactKey.BOOK] == chapter.bookTitle &&
+            reward.facts[FactKey.CHAPTER] == ChapterName.of(chapter.chapter.title)
 }

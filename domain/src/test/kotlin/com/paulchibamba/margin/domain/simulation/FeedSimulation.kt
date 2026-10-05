@@ -11,6 +11,7 @@ import com.paulchibamba.margin.domain.feed.LearningLibrary
 import com.paulchibamba.margin.domain.feed.PostExitHandler
 import com.paulchibamba.margin.domain.memory.FsrsScheduler
 import com.paulchibamba.margin.domain.model.Note
+import com.paulchibamba.margin.domain.progress.GeneratedPost
 import com.paulchibamba.margin.domain.progression.PreviewWindow
 import com.paulchibamba.margin.domain.progression.ReadingProgress
 import com.paulchibamba.margin.domain.signals.EngagementCalculator
@@ -25,6 +26,7 @@ class FeedSimulation(
     readUpToChapter: Int,
     seed: Int,
     private val exitStrategy: ExitStrategy = ExitStrategy.MostlyRight,
+    private val generatedPosts: List<GeneratedPost> = emptyList(),
 ) {
     private val random = Random(seed)
     private val scheduler = FsrsScheduler()
@@ -65,6 +67,7 @@ class FeedSimulation(
         readingOnlyChapters = pack.readingOnlyChapters,
         readingProgress = ReadingProgress(readNotes = notesUpTo(chapter), knownChapterEnds = emptySet()),
         previewWindow = PreviewWindow(pack.previewNotesAhead),
+        generatedPosts = generatedPosts,
     )
 
     private fun notesUpTo(chapter: Int) = pack.notes.filter { it.position.chapter <= chapter }.map(Note::id).toSet()

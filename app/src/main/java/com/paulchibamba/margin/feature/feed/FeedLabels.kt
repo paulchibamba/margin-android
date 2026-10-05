@@ -26,6 +26,8 @@ fun Format.label(): String = when (this) {
     Format.CODE_EXAMPLE -> "Code example"
     Format.MEME -> "Meme"
     Format.SOURCE -> "From the book"
+    Format.PROGRESS -> "Progress"
+    Format.RE_EXPLAIN -> "Another way in"
     Format.MCQ -> "Quiz"
     Format.TRUE_FALSE -> "True or false"
     Format.RECALL -> "Recall"
@@ -39,7 +41,7 @@ fun CandidateSource.label(): String = when (this) {
     CandidateSource.REVIEW -> "Review"
     CandidateSource.ANGLE -> "Another angle"
     CandidateSource.RESURFACE -> "Resurfaced"
-    CandidateSource.DELIGHT -> "Delight"
+    CandidateSource.REWARD -> "Reward"
     CandidateSource.PREVIEW -> "Preview"
 }
 

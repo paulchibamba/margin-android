@@ -1,7 +1,6 @@
 package com.paulchibamba.margin.data.repository.mapper
 
 import com.paulchibamba.margin.data.database.entity.FeedHistoryEntity
-import com.paulchibamba.margin.domain.feed.CandidateSource
 import com.paulchibamba.margin.domain.feed.FeedHistoryEntry
 import com.paulchibamba.margin.domain.model.ConceptId
 import com.paulchibamba.margin.domain.model.Format
@@ -16,7 +15,7 @@ object FeedHistoryMapper {
         conceptId = entry.conceptId.value,
         format = FormatNames.nameOf(entry.format),
         role = entry.role.name.lowercase(),
-        source = entry.source.name.lowercase(),
+        source = SourceNames.nameOf(entry.source),
     )
 
     fun toDomain(entity: FeedHistoryEntity) = FeedHistoryEntry(
@@ -25,6 +24,6 @@ object FeedHistoryMapper {
         conceptId = ConceptId(entity.conceptId),
         format = FormatNames.formatOf(entity.format),
         role = PostRole.valueOf(entity.role.uppercase()),
-        source = CandidateSource.valueOf(entity.source.uppercase()),
+        source = SourceNames.sourceOf(entity.source),
     )
 }

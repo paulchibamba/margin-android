@@ -5,6 +5,7 @@ import com.paulchibamba.margin.domain.feed.CandidateProvider
 import com.paulchibamba.margin.domain.feed.CandidateSource
 import com.paulchibamba.margin.domain.feed.FeedState
 import com.paulchibamba.margin.domain.feed.LearningLibrary
+import com.paulchibamba.margin.domain.feed.ReteachSupport
 import com.paulchibamba.margin.domain.model.Concept
 import com.paulchibamba.margin.domain.model.Post
 import java.time.Instant
@@ -14,6 +15,7 @@ class ReviewProvider : CandidateProvider {
     override fun candidates(library: LearningLibrary, state: FeedState, now: Instant): List<Candidate> =
         library.conceptsInBookOrder
             .filter { concept -> isReadyForReview(concept, state, now) }
+            .filter { concept -> ReteachSupport.pendingFor(concept, library, state) == null }
             .flatMap { concept -> testsToReview(concept, library, state) }
             .map { test -> Candidate(test, CandidateSource.REVIEW) }
 

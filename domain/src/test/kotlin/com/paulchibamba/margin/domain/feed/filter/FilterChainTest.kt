@@ -17,7 +17,10 @@ class FilterChainTest {
 
         assertEquals(listOf(Candidate(mythOf(cia), CandidateSource.NEW)), result.pool)
         assertEquals(
-            listOf("not shown recently", "concept spacing", "format variety", "tests in a row", "preview spacing"),
+            listOf(
+                "not shown recently", "concept spacing", "format variety", "reward variety", "tests in a row",
+                "preview spacing",
+            ),
             result.appliedFilters,
         )
     }

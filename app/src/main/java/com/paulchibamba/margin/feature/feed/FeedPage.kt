@@ -25,7 +25,7 @@ data class FeedPage(
     val answer: TestAnswer? = null,
 ) {
     val isLockedPreview: Boolean
-        get() = item.source == CandidateSource.PREVIEW && context.readingAhead != null
+        get() = item.source == CandidateSource.PREVIEW && context.readingAhead != null && item.post.rewardKind == null
 
     val isTest: Boolean
         get() = item.post.role == PostRole.TEST

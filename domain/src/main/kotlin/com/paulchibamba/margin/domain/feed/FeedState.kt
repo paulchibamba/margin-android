@@ -7,7 +7,7 @@ import com.paulchibamba.margin.domain.model.PostId
 import com.paulchibamba.margin.domain.signals.FormatAffinity
 
 data class FeedState(
-    val delightAtStep: Int,
+    val rewardAtStep: Int,
     val step: Int = 0,
     val conceptProgress: Map<ConceptId, ConceptProgress> = emptyMap(),
     val seenPosts: Map<PostId, Int> = emptyMap(),
@@ -17,8 +17,8 @@ data class FeedState(
     val affinity: FormatAffinity = FormatAffinity(),
     val savedPosts: Set<PostId> = emptySet(),
 ) {
-    val isDelightDue: Boolean
-        get() = step >= delightAtStep
+    val isRewardDue: Boolean
+        get() = step >= rewardAtStep
 
     fun progressOf(concept: ConceptId): ConceptProgress = conceptProgress[concept] ?: ConceptProgress.Untouched
 

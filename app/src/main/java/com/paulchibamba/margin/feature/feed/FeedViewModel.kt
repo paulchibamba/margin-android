@@ -56,6 +56,7 @@ class FeedViewModel @Inject constructor(
     }
 
     fun onPageEntered(index: Int) {
+        noteRewardShown(index)
         state.update { it.copy(currentIndex = index, nudge = it.nudgeOn(index)) }
         updatePage(index) { it.copy(enteredAt = clock.now()) }
         noteAttention(index)
@@ -94,6 +95,7 @@ class FeedViewModel @Inject constructor(
         if (!page.viewState.canChoose(action)) return
         updatePage(index) { it.copy(viewState = it.viewState.afterChoosing(action)) }
         attention.onAction(page.item.post.id, action)
+        page.item.post.rewardKind?.let { kind -> attention.onReward(page.item.post.id, kind, action.name.lowercase()) }
         viewModelScope.launch {
             val nudge = useCases.applyAction(page.item.post, action).nudge ?: return@launch
             state.update { it.copy(nudge = FeedNudge.of(index, nudge, page.context.conceptTitle)) }
@@ -132,6 +134,11 @@ class FeedViewModel @Inject constructor(
             pageLoading.withLock { if (state.value.isCaughtUp) appendNext() }
             loadPagesAhead()
         }
+    }
+
+    private fun noteRewardShown(index: Int) {
+        val page = state.value.pages.getOrNull(index)?.takeIf { it.enteredAt == null } ?: return
+        page.item.post.rewardKind?.let { kind -> attention.onReward(page.item.post.id, kind, REWARD_SHOWN) }
     }
 
     private fun noteAttention(index: Int) {
@@ -202,5 +209,6 @@ class FeedViewModel @Inject constructor(
 
     private companion object {
         const val PAGES_AHEAD = 1
+        const val REWARD_SHOWN = "shown"
     }
 }

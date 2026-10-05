@@ -7,6 +7,7 @@ import com.paulchibamba.margin.domain.feed.FeedConfig
 import com.paulchibamba.margin.domain.feed.FeedState
 import com.paulchibamba.margin.domain.feed.LearningLibrary
 import com.paulchibamba.margin.domain.feed.RecallEstimate
+import com.paulchibamba.margin.domain.feed.ReteachSupport
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.progression.PriorityShare
 import java.time.Instant
@@ -41,7 +42,7 @@ class CandidateScorer(
         fun score(candidate: Candidate) = ScoreBreakdown(
             buildMap {
                 put(ScorePart.SOURCE, config.sourceWeight.getValue(candidate.source))
-                put(ScorePart.FORMAT, config.formatWeight * state.affinity.valueOf(candidate.post.format))
+                put(ScorePart.FORMAT, config.formatWeight * state.affinity.valueOf(candidate.post.affinityKey))
                 put(ScorePart.NOVELTY, novelty(candidate))
                 put(ScorePart.JITTER, random.nextDouble() * config.jitterMax)
                 putAll(sourceSpecificParts(candidate))
@@ -64,11 +65,13 @@ class CandidateScorer(
         }
 
         private fun angleParts(candidate: Candidate): Map<ScorePart, Double> =
-            if (confidenceOf(candidate) == Confidence.LOST) {
-                mapOf(ScorePart.RETEACH to config.reteachWeight)
-            } else {
-                emptyMap()
-            }
+            if (isReteach(candidate)) mapOf(ScorePart.RETEACH to config.reteachWeight) else emptyMap()
+
+        private fun isReteach(candidate: Candidate): Boolean {
+            val concept = library.conceptsInBookOrder.firstOrNull { it.id == candidate.post.conceptId }
+            val isSupport = concept != null && ReteachSupport.pendingFor(concept, library, state) == candidate.post
+            return confidenceOf(candidate) == Confidence.LOST || isSupport
+        }
 
         private fun newConceptParts(book: BookSlug): Map<ScorePart, Double> =
             mapOf(ScorePart.PRIORITY to priority(book), ScorePart.BOOK_WAIT to bookWait(book))

@@ -99,7 +99,7 @@ fun rememberedCard(lastReview: Instant) = MemoryCard.new(lastReview).copy(
 
 class ProgressFixture {
     var now: Instant = NOW
-    var state = FeedState(delightAtStep = 99)
+    var state = FeedState(rewardAtStep = 99)
     var readNotes: Set<NoteId> = emptySet()
     var history = RewardHistory.Empty
     var readingOnlyChapters = ReadingOnlyChapters.None

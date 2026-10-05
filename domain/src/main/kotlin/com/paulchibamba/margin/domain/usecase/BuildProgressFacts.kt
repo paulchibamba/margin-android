@@ -36,7 +36,7 @@ class BuildProgressFacts @Inject constructor(
         activeBooks = settings.bookSettings().filter(BookSettings::isActive).map(BookSettings::bookSlug).toSet(),
         readingOnlyChapters = settings.readingOnlyChapters(),
         reading = progress.reading(),
-        feedState = progress.loadFeedState() ?: FeedState(delightAtStep = 0),
+        feedState = progress.loadFeedState() ?: FeedState(rewardAtStep = 0),
         reviews = progress.observeReviews().first(),
         actions = progress.observeActions().first(),
         firstSeen = progress.firstSeenTimes(),

@@ -20,6 +20,7 @@ object EventProps {
         is Event.NoteOpen -> event.noteId.value
         is Event.NoteExposure -> event.noteId.value
         is Event.ImageZoom -> event.noteId?.value ?: event.postId?.value
+        is Event.RewardEvent -> event.postId.value
     }
 
     fun of(event: Event): JsonObject = buildJsonObject {
@@ -36,6 +37,7 @@ object EventProps {
             is Event.NoteExposure -> noteExposure(event)
             is Event.ImageZoom -> put("inNote", event.isInNote)
             is Event.SettingChanged -> settingChanged(event)
+            is Event.RewardEvent -> rewardEvent(event)
         }
     }
 
@@ -100,6 +102,11 @@ object EventProps {
         put("key", event.key)
         put("old", event.old)
         put("new", event.new)
+    }
+
+    private fun JsonObjectBuilder.rewardEvent(event: Event.RewardEvent) {
+        put("kind", event.kind)
+        put("action", event.action)
     }
 
     private fun keyOf(value: Enum<*>): String = value.name.lowercase()

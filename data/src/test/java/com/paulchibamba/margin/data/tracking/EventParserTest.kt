@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.data.tracking
 
+import com.paulchibamba.margin.domain.feed.CandidateSource
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.tracking.Event
 import com.paulchibamba.margin.domain.tracking.EventFixtures
@@ -22,6 +23,16 @@ class EventParserTest {
         val stored = EventFixtures.all() + Event.ImageZoom(postId = EventFixtures.post, noteId = null)
 
         assertEquals(stored, stored.map(::roundTrip))
+    }
+
+    @Test
+    fun `an impression stored with the old delight source reads back as reward`() {
+        val impression = EventFixtures.forType(EventType.POST_IMPRESSION) as Event.PostImpression
+        val props = EventProps.of(impression).toString().replace("\"new\"", "\"delight\"")
+
+        val parsed = EventParser.parse(impression.type.key, impression.postId.value, props)
+
+        assertEquals(impression.copy(source = CandidateSource.REWARD), parsed)
     }
 
     @Test

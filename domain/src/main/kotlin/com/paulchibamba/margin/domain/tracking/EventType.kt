@@ -13,4 +13,5 @@ enum class EventType(val key: String) {
     NOTE_EXPOSURE("note_exposure"),
     IMAGE_ZOOM("image_zoom"),
     SETTING_CHANGED("setting_changed"),
+    REWARD_EVENT("reward_event"),
 }

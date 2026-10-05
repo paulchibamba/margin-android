@@ -1,5 +1,7 @@
 package com.paulchibamba.margin.domain.model
 
+import com.paulchibamba.margin.domain.progress.RewardKind
+
 sealed interface PostContent {
     val format: Format
     val title: String
@@ -63,6 +65,17 @@ sealed interface PostContent {
     ) : PostContent {
         override val format get() = Format.MEME
         override val readableText get() = listOf(title, caption)
+    }
+
+    data class Progress(
+        val kind: RewardKind,
+        override val title: String,
+        val body: String,
+        val sourceLine: String?,
+        val noteId: NoteId?,
+    ) : PostContent {
+        override val format get() = if (kind.isSupport) Format.RE_EXPLAIN else Format.PROGRESS
+        override val readableText get() = listOfNotNull(title, body, sourceLine)
     }
 
     data class Source(override val title: String, val excerpt: String, val noteId: NoteId) : PostContent {
