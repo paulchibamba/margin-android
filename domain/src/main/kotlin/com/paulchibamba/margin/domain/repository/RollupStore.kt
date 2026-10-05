@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RollupStore {
     suspend fun save(rollup: DailyRollup)
+    suspend fun on(date: LocalDate): DailyRollup?
     suspend fun computedTimes(): Map<LocalDate, Instant>
     fun observeFrom(date: LocalDate): Flow<List<DailyRollup>>
 }

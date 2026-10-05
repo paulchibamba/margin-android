@@ -4,16 +4,20 @@ import com.paulchibamba.margin.data.database.DatabaseTest
 import com.paulchibamba.margin.domain.rollup.DailyRollup
 import com.paulchibamba.margin.domain.rollup.RollupFixture
 import com.paulchibamba.margin.domain.rollup.RollupMetrics
+import com.paulchibamba.margin.domain.rollup.ScreenTimeMetrics
 import java.time.Instant
 import java.time.LocalDate
 import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -49,7 +53,7 @@ class RoomRollupStoreTest : DatabaseTest() {
     }
 
     @Test
-    fun `the stored metrics use the schema names and leave screen time and loop health empty`() = runTest {
+    fun `the stored metrics use the schema names and leave loop health and missing screen time empty`() = runTest {
         store.save(rollupOn("2026-10-04"))
 
         val stored = database.query("SELECT metrics, schemaVersion FROM daily_rollup", null).use { cursor ->
@@ -61,5 +65,25 @@ class RoomRollupStoreTest : DatabaseTest() {
         assertEquals(0.25, stored.getValue("glanceRate").toString().toDouble())
         listOf("screenMin", "doomMin", "marginShare", "topDoomApps", "dropCompleted", "notificationOpenRate")
             .forEach { key -> assertEquals(JsonNull, stored.getValue(key), key) }
+    }
+
+    @Test
+    fun `screen time is stored as screen and doom minutes, margin share and top doom apps`() = runTest {
+        val margin = metrics.time.active
+        val screenTime = ScreenTimeMetrics(screen = 90.minutes, doom = 30.minutes, margin, listOf("Instagram"))
+        store.save(rollupOn("2026-10-04").copy(metrics = metrics.copy(screenTime = screenTime)))
+
+        val stored = storedMetrics()
+        val read = store.on(LocalDate.parse("2026-10-04"))!!.metrics.screenTime!!
+
+        assertEquals(90.0, stored.getValue("screenMin").jsonPrimitive.content.toDouble())
+        assertEquals(30.0, stored.getValue("doomMin").jsonPrimitive.content.toDouble())
+        assertEquals(listOf("Instagram"), stored.getValue("topDoomApps").jsonArray.map { it.jsonPrimitive.content })
+        assertEquals(screenTime.copy(margin = read.margin), read)
+    }
+
+    private fun storedMetrics() = database.query("SELECT metrics FROM daily_rollup", null).use { cursor ->
+        cursor.moveToFirst()
+        Json.parseToJsonElement(cursor.getString(0)).jsonObject
     }
 }

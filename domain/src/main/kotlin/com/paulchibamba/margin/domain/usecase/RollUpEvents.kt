@@ -6,6 +6,7 @@ import com.paulchibamba.margin.domain.repository.ContentRepository
 import com.paulchibamba.margin.domain.repository.EventLog
 import com.paulchibamba.margin.domain.repository.EventSink
 import com.paulchibamba.margin.domain.repository.RollupStore
+import com.paulchibamba.margin.domain.repository.ScreenTimeStore
 import com.paulchibamba.margin.domain.rollup.DailyRollup
 import com.paulchibamba.margin.domain.rollup.DayEvents
 import com.paulchibamba.margin.domain.rollup.RollupMetrics
@@ -20,6 +21,7 @@ class RollUpEvents @Inject constructor(
     private val log: EventLog,
     private val store: RollupStore,
     private val content: ContentRepository,
+    private val screenTime: ScreenTimeStore,
 ) {
 
     suspend fun today(): DailyRollup {
@@ -42,6 +44,16 @@ class RollUpEvents @Inject constructor(
         return days
     }
 
+    suspend fun refreshScreenTime(dates: Collection<LocalDate>) {
+        dates.forEach { date ->
+            val rollup = store.on(date)
+            if (rollup == null) rollUp(date, readingTimes()) else store.save(withScreenTimeOf(rollup))
+        }
+    }
+
+    private suspend fun withScreenTimeOf(rollup: DailyRollup): DailyRollup =
+        rollup.copy(metrics = rollup.metrics.withScreenTime(screenTime.appsOn(rollup.date)))
+
     private suspend fun missedDaysUntil(lastDay: LocalDate): List<LocalDate> {
         val firstDay = log.firstEventAt()?.let(::dateOf) ?: return emptyList()
         val computedTimes = store.computedTimes()
@@ -57,6 +69,7 @@ class RollUpEvents @Inject constructor(
     private suspend fun rollUp(date: LocalDate, readingTimes: Map<NoteId, Duration>): DailyRollup {
         val events = log.between(startOf(date), startOf(date.plusDays(1)))
         val metrics = RollupMetrics.of(DayEvents(events, clock.zone(), readingTimes))
+            .withScreenTime(screenTime.appsOn(date))
         return DailyRollup(date, metrics, clock.now()).also { store.save(it) }
     }
 

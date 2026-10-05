@@ -14,9 +14,11 @@ import com.paulchibamba.margin.data.database.dao.MetaDao
 import com.paulchibamba.margin.data.database.dao.ProgressResetDao
 import com.paulchibamba.margin.data.database.dao.ReadingDao
 import com.paulchibamba.margin.data.database.dao.RollupDao
+import com.paulchibamba.margin.data.database.dao.ScreenTimeDao
 import com.paulchibamba.margin.data.database.dao.SessionTallyDao
 import com.paulchibamba.margin.data.database.dao.SettingsDao
 import com.paulchibamba.margin.data.database.entity.ActionLogEntity
+import com.paulchibamba.margin.data.database.entity.AppCategoryOverrideEntity
 import com.paulchibamba.margin.data.database.entity.BookCoverEntity
 import com.paulchibamba.margin.data.database.entity.BookEntity
 import com.paulchibamba.margin.data.database.entity.BookSettingsEntity
@@ -37,11 +39,17 @@ import com.paulchibamba.margin.data.database.entity.PostSeenEntity
 import com.paulchibamba.margin.data.database.entity.ReadingOnlyChapterEntity
 import com.paulchibamba.margin.data.database.entity.ReviewLogEntity
 import com.paulchibamba.margin.data.database.entity.SavedPostEntity
+import com.paulchibamba.margin.data.database.entity.ScreenTimeDailyEntity
 
 @Database(
-    version = 4,
+    version = 5,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4)],
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
+        AutoMigration(from = 4, to = 5),
+    ],
     entities = [
         BookEntity::class,
         ChapterEntity::class,
@@ -64,6 +72,8 @@ import com.paulchibamba.margin.data.database.entity.SavedPostEntity
         BookCoverEntity::class,
         EventEntity::class,
         DailyRollupEntity::class,
+        ScreenTimeDailyEntity::class,
+        AppCategoryOverrideEntity::class,
     ],
 )
 abstract class MarginDatabase : RoomDatabase() {
@@ -80,6 +90,7 @@ abstract class MarginDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
     abstract fun sessionTallyDao(): SessionTallyDao
     abstract fun rollupDao(): RollupDao
+    abstract fun screenTimeDao(): ScreenTimeDao
 
     companion object {
         const val NAME = "margin.db"
