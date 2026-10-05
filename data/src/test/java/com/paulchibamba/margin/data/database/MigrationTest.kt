@@ -43,6 +43,23 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun `moving from version 3 to 4 keeps the event log and adds an empty rollup table`() {
+        helper.createDatabase(NAME, 3).use { database ->
+            database.execSQL("INSERT INTO note_read (noteId, readAt) VALUES ('$NOTE', 4000)")
+            database.execSQL(
+                "INSERT INTO event_log (at, sessionId, type, subjectId, props, schemaVersion) " +
+                    "VALUES (5, 's', 'session_start', NULL, '{}', 1)",
+            )
+        }
+
+        helper.runMigrationsAndValidate(NAME, 4, true).use { database ->
+            assertEquals(4000L, database.longOf("SELECT readAt FROM note_read WHERE noteId = '$NOTE'"))
+            assertEquals(1L, database.longOf("SELECT COUNT(*) FROM event_log"))
+            assertEquals(0L, database.longOf("SELECT COUNT(*) FROM daily_rollup"))
+        }
+    }
+
     private fun SupportSQLiteDatabase.longOf(sql: String): Long =
         query(sql).use { cursor ->
             cursor.moveToFirst()

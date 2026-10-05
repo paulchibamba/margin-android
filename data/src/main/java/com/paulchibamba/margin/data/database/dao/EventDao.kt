@@ -25,4 +25,13 @@ interface EventDao {
 
     @Query("SELECT COUNT(*) FROM event_log WHERE type = :type AND subjectId = :subjectId")
     suspend fun countOf(type: String, subjectId: String): Int
+
+    @Query("SELECT * FROM event_log WHERE at >= :from AND at < :until ORDER BY at, id")
+    suspend fun between(from: Long, until: Long): List<EventEntity>
+
+    @Query("SELECT MIN(at) FROM event_log")
+    suspend fun firstAt(): Long?
+
+    @Query("DELETE FROM event_log WHERE at < :cutoff")
+    suspend fun deleteBefore(cutoff: Long): Int
 }
