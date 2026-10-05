@@ -44,6 +44,7 @@ fun itemOf(post: Post) = FeedItem(
     wasExploration = false,
     appliedFilters = emptyList(),
     memory = null,
+    step = 1,
 )
 
 fun contextOf(post: Post) = PostContext(

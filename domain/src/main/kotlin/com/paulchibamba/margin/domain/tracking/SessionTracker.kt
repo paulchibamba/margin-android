@@ -5,6 +5,7 @@ import com.paulchibamba.margin.domain.repository.EventLog
 import com.paulchibamba.margin.domain.repository.EventSink
 import com.paulchibamba.margin.domain.repository.SessionTally
 import java.time.Instant
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.minutes
@@ -22,6 +23,7 @@ class SessionTracker @Inject constructor(
     private val sessionIds: SessionIdFactory,
 ) : EventRecorder {
     private val mutex = Mutex()
+    private val listeners = CopyOnWriteArrayList<SessionListener>()
 
     @Volatile
     private var openSession: OpenSession? = null
@@ -29,6 +31,10 @@ class SessionTracker @Inject constructor(
     private var away: Away? = null
     private var lastInputAt: Instant = Instant.EPOCH
     private var hasClosedUnfinished = false
+
+    fun addListener(listener: SessionListener) {
+        listeners += listener
+    }
 
     override fun record(event: Event) {
         sink.append(LoggedEvent(clock.now(), openSession?.id, event))
@@ -85,12 +91,18 @@ class SessionTracker @Inject constructor(
         val session = OpenSession(sessionIds.newSessionId(), clock.now())
         openSession = session
         sink.append(LoggedEvent(session.startedAt, session.id, Event.SessionStart(entry)))
+        appendAll(listeners.flatMap(SessionListener::eventsAtStart), session.startedAt, session.id)
     }
 
     private suspend fun end(session: OpenSession, at: Instant, reason: SessionEndReason) {
         openSession = null
+        appendAll(listeners.flatMap(SessionListener::eventsAtEnd), at, session.id)
         sink.append(LoggedEvent(at, session.id, sessionEnd(session.startedAt, at, reason)))
         sink.flush()
+    }
+
+    private fun appendAll(events: List<Event>, at: Instant, sessionId: SessionId) {
+        events.forEach { event -> sink.append(LoggedEvent(at, sessionId, event)) }
     }
 
     private suspend fun sessionEnd(startedAt: Instant, endedAt: Instant, reason: SessionEndReason): Event.SessionEnd {

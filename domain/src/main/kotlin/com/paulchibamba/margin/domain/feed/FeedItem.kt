@@ -12,4 +12,5 @@ data class FeedItem(
     val wasExploration: Boolean,
     val appliedFilters: List<String>,
     val memory: MemorySnapshot?,
+    val step: Int,
 )

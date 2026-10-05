@@ -156,6 +156,25 @@ class SessionTrackerTest {
     }
 
     @Test
+    fun `listeners add their events right after a session starts and right before it ends`() = runTest {
+        val opened = Event.SettingChanged("opened", null, "yes")
+        val closed = Event.SettingChanged("closed", null, "yes")
+        tracker.addListener(object : SessionListener {
+            override fun eventsAtStart() = listOf(opened)
+            override fun eventsAtEnd() = listOf(closed)
+        })
+
+        tracker.onForeground(SessionEntry.LAUNCHER)
+        advance(6.minutes)
+        tracker.endIfIdle()
+
+        val order = listOf("session_start", "setting_changed", "setting_changed", "session_end")
+        assertEquals(order, events().map { it.type.key })
+        assertEquals(listOf(opened, closed), only<Event.SettingChanged>())
+        assertTrue(sink.all.all { it.sessionId == SessionId("s1") })
+    }
+
+    @Test
     fun `going to the background and ending a session flush the buffer`() = runTest {
         tracker.onForeground(SessionEntry.LAUNCHER)
         tracker.onBackground(isScreenOn = true)

@@ -51,6 +51,7 @@ class FeedEngine(
         wasExploration = pick.wasExploration,
         appliedFilters = appliedFilters,
         memory = memoryOf(pick.chosen.candidate.post.conceptId, state, now),
+        step = state.step,
     )
 
     private fun memoryOf(concept: ConceptId, state: FeedState, now: Instant): MemorySnapshot? {

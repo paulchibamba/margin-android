@@ -54,6 +54,7 @@ internal object FeedPreviewData {
         wasExploration = false,
         appliedFilters = listOf("concept spacing", "tests in a row"),
         memory = MemorySnapshot(CardState.REVIEW, 6.2, 5.1, recall = 0.83, dueIn = 2.days, reps = 4, lapses = 0),
+        step = 42,
     )
 
     val context = PostContext(
