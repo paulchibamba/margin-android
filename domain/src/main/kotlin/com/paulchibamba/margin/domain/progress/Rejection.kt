@@ -8,4 +8,5 @@ enum class Rejection {
     TITLE_NOT_IN_FACTS,
     QUOTE_NOT_VERBATIM,
     COPIED_FROM_EXCERPT,
+    MARKUP,
 }

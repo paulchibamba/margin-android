@@ -12,7 +12,15 @@ import com.paulchibamba.margin.domain.memory.CardState
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.PostId
 import com.paulchibamba.margin.domain.progress.RewardKind
-import com.paulchibamba.margin.domain.usecase.BakeTemplatePosts
+import com.paulchibamba.margin.domain.bake.FakeBakeStateStore
+import com.paulchibamba.margin.domain.bake.ProgressPostWriter
+import com.paulchibamba.margin.domain.llm.FakeApiKeyStore
+import com.paulchibamba.margin.domain.llm.FakeLlmClient
+import com.paulchibamba.margin.domain.llm.FakeLlmLedger
+import com.paulchibamba.margin.domain.llm.FakeLlmSettingsRepository
+import com.paulchibamba.margin.domain.usecase.BakeProgressPosts
+import com.paulchibamba.margin.domain.usecase.CallLlm
+import com.paulchibamba.margin.domain.usecase.DescribeBakes
 import com.paulchibamba.margin.domain.usecase.BuildProgressFacts
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
 import com.paulchibamba.margin.domain.usecase.FakeContentRepository
@@ -58,6 +66,8 @@ class DebugToolsViewModelTest {
     private val eventLog = FakeEventLog()
     private val generatedPosts = FakeGeneratedPostRepository()
     private val content = FakeContentRepository()
+    private val bakeState = FakeBakeStateStore()
+    private val ledger = FakeLlmLedger()
     private val viewModel by lazy {
         DebugToolsViewModel(
             clock,
@@ -65,13 +75,17 @@ class DebugToolsViewModelTest {
             scheduler,
             ResetProgress(progress),
             GetRecentEvents(eventSink, eventLog),
-            bakeTemplatePosts(),
+            bakeProgressPosts(),
+            DescribeBakes(bakeState, generatedPosts, ledger, clock),
         )
     }
 
-    private fun bakeTemplatePosts(): BakeTemplatePosts {
+    private fun bakeProgressPosts(): BakeProgressPosts {
         val buildFacts = BuildProgressFacts(content, progress, FakeSettingsRepository(), eventLog, clock)
-        return BakeTemplatePosts(buildFacts, generatedPosts, content, clock, Random(1))
+        val llmSettings = FakeLlmSettingsRepository()
+        val callLlm = CallLlm(FakeApiKeyStore(), llmSettings, ledger, FakeLlmClient(), clock)
+        val writer = ProgressPostWriter(callLlm, llmSettings, { false }, Random(1))
+        return BakeProgressPosts(buildFacts, generatedPosts, content, bakeState, writer, clock, Random(1))
     }
 
     @Before
@@ -97,7 +111,7 @@ class DebugToolsViewModelTest {
     }
 
     @Test
-    fun `baking stores template progress posts and says how many`() = runTest {
+    fun `baking now stores template progress posts and lists them with their writer`() = runTest {
         val start = systemClock.instant
         listOf(Rating.AGAIN to 6L, Rating.GOOD to 3L, Rating.GOOD to 1L).forEach { (rating, daysAgo) ->
             val at = start.minus(daysAgo, ChronoUnit.DAYS)
@@ -108,7 +122,14 @@ class DebugToolsViewModelTest {
 
         val baked = generatedPosts.posts
         assertTrue(baked.any { it.kind == RewardKind.Comeback })
-        assertEquals("Baked ${baked.size} progress posts", viewModel.uiState.value.bakedPostsLabel)
+        val state = viewModel.uiState.value
+        assertEquals("Baked ${baked.size} progress posts", state.bakeReport)
+        assertTrue(state.bakeLines.first().startsWith("Last bake: "))
+        assertEquals("Spent today: $0.00 · 0 calls", state.bakeLines[1])
+        assertTrue(state.bakeLines.any { line -> line.startsWith("comeback · template · ") })
+
+        viewModel.onBakeProgressPosts()
+        assertEquals("Nothing new since the last bake", viewModel.uiState.value.bakeReport)
     }
 
     @Test

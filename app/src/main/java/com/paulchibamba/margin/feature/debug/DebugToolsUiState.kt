@@ -8,7 +8,8 @@ data class DebugToolsUiState(
     val isProgressResetArmed: Boolean = false,
     val isProgressCleared: Boolean = false,
     val recentEvents: List<String>? = null,
-    val bakedPosts: Int? = null,
+    val bakeReport: String? = null,
+    val bakeLines: List<String> = emptyList(),
 ) {
 
     val clockLabel: String
@@ -16,14 +17,6 @@ data class DebugToolsUiState(
 
     val resetProgressLabel: String
         get() = if (isProgressResetArmed) "Tap again to erase all progress" else "Reset progress"
-
-    val bakedPostsLabel: String?
-        get() = when (bakedPosts) {
-            null -> null
-            0 -> "No new progress posts"
-            1 -> "Baked 1 progress post"
-            else -> "Baked $bakedPosts progress posts"
-        }
 
     val dueCountLabel: String?
         get() = when (dueCount) {

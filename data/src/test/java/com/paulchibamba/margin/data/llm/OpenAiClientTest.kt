@@ -9,6 +9,7 @@ import com.paulchibamba.margin.domain.llm.LlmPurpose
 import com.paulchibamba.margin.domain.llm.LlmRequest
 import com.paulchibamba.margin.domain.llm.LlmSchema
 import com.paulchibamba.margin.domain.llm.LlmUsage
+import com.paulchibamba.margin.domain.llm.ReasoningEffort
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URL
@@ -42,6 +43,20 @@ class OpenAiClientTest {
         assertEquals("json_schema", format?.get("type")?.jsonPrimitive?.content)
         assertEquals("true", format?.get("strict")?.jsonPrimitive?.content)
         assertEquals("object", format?.get("schema")?.jsonObject?.get("type")?.jsonPrimitive?.content)
+        assertEquals(null, body["reasoning"])
+    }
+
+    @Test
+    fun `a request can ask for low reasoning effort`() = runTest {
+        val client = OpenAiClient(
+            open = { url -> ScriptedConnection(url, Reply.Status(200, answered("{}"))).also(connections::add) },
+            dispatcher = Dispatchers.Unconfined,
+        )
+
+        client.send(ApiKey(FAKE_KEY), LlmModel.GPT_5_NANO, request.copy(reasoningEffort = ReasoningEffort.LOW))
+
+        val body = Json.parseToJsonElement(connections.single().body).jsonObject
+        assertEquals("low", body["reasoning"]?.jsonObject?.get("effort")?.jsonPrimitive?.content)
     }
 
     @Test

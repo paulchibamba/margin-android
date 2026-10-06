@@ -186,4 +186,19 @@ class SessionTrackerTest {
         assertEquals(2, sink.flushCount)
         assertTrue(sink.pending.isEmpty())
     }
+
+    @Test
+    fun `end listeners hear about each session end once the events are flushed`() = runTest {
+        var ends = 0
+        tracker.addEndListener { ends += 1 }
+
+        tracker.onForeground(SessionEntry.LAUNCHER)
+        tracker.onBackground(isScreenOn = false)
+        assertEquals(0, ends)
+        advance(1.minutes)
+        tracker.endIfAway()
+
+        assertEquals(1, ends)
+        assertTrue(sink.pending.isEmpty())
+    }
 }

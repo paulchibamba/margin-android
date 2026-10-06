@@ -16,10 +16,16 @@ object MetaKey {
     const val LLM_MODEL_BAKE = "llm_model_bake"
     const val LLM_DAILY_CAP_MICROS = "llm_daily_cap_micros"
     const val SEND_EXCERPTS = "send_excerpts"
+    const val LAST_BAKE_AT = "last_bake_at"
+    const val BAKE_SEEN_SEEDS = "bake_seen_seeds"
+    const val NEXT_DROP_HEADLINE = "next_drop_headline"
     private const val BOOK_LAST_NEW = "book_last_new:"
     private const val BADGE_SHOWN = "badge_shown:"
 
-    val PROGRESS_KEYS = listOf(FEED_STEP, REWARD_AT, LEGACY_DELIGHT_AT, LAST_PREVIEW_AT, LAST_NOTE)
+    val PROGRESS_KEYS = listOf(
+        FEED_STEP, REWARD_AT, LEGACY_DELIGHT_AT, LAST_PREVIEW_AT, LAST_NOTE,
+        LAST_BAKE_AT, BAKE_SEEN_SEEDS, NEXT_DROP_HEADLINE,
+    )
     val PROGRESS_PREFIXES = listOf(BOOK_LAST_NEW, BADGE_SHOWN)
 
     fun bookLastNew(bookSlug: String): String = "$BOOK_LAST_NEW$bookSlug"

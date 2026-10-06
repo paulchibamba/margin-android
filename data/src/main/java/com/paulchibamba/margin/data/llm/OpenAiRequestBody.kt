@@ -17,6 +17,7 @@ object OpenAiRequestBody {
         put("input", request.input)
         put("max_output_tokens", request.maxOutputTokens)
         put("store", false)
+        request.reasoningEffort?.let { effort -> putJsonObject("reasoning") { put("effort", effort.key) } }
         putJsonObject("text") { put("format", formatOf(request.schema)) }
     }.toString()
 

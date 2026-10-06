@@ -5,6 +5,7 @@ import com.paulchibamba.margin.designsystem.SystemDarkTheme
 import com.paulchibamba.margin.domain.actions.ActionOutcome
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.FeedResult
+import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.Post
 import com.paulchibamba.margin.domain.signals.PostExit
 import com.paulchibamba.margin.domain.usecase.ApplyPostAction
@@ -17,6 +18,7 @@ import com.paulchibamba.margin.domain.usecase.ObserveStreak
 import com.paulchibamba.margin.domain.usecase.PreviewIntervals
 import com.paulchibamba.margin.domain.usecase.RecordPostExit
 import com.paulchibamba.margin.domain.usecase.RecordedExit
+import com.paulchibamba.margin.feature.bake.BakeScheduler
 import com.paulchibamba.margin.feature.celebration.CelebrationTrigger
 import javax.inject.Inject
 import kotlinx.coroutines.flow.first
@@ -34,6 +36,7 @@ class DomainFeedUseCases @Inject constructor(
     private val celebrations: CelebrationTrigger,
     private val observeAppearance: ObserveAppearance,
     private val systemDarkTheme: SystemDarkTheme,
+    private val bakeScheduler: BakeScheduler,
 ) : FeedUseCases {
 
     override fun observeStreak() = observeStreak.invoke()
@@ -49,13 +52,18 @@ class DomainFeedUseCases @Inject constructor(
 
     override suspend fun recordExit(post: Post, exit: PostExit): RecordedExit {
         val recorded = recordPostExit(post, exit)
+        if (recorded.outcome.reviewLogEntry?.rating == Rating.AGAIN) bakeScheduler.bakeReExplainsNow()
         celebrations.onStreakSignal(recorded.isStreakExtended)
         celebrations.checkBadges()
         return recorded
     }
 
-    override suspend fun applyAction(post: Post, action: PostAction): ActionOutcome =
-        applyPostAction(post, action).also { celebrations.checkBadges() }
+    override suspend fun applyAction(post: Post, action: PostAction): ActionOutcome {
+        val outcome = applyPostAction(post, action)
+        if (action == PostAction.LOST) bakeScheduler.bakeReExplainsNow()
+        celebrations.checkBadges()
+        return outcome
+    }
 
     override suspend fun caughtUp() = getCaughtUp()
 

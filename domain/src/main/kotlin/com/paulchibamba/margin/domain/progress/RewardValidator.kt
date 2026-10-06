@@ -13,6 +13,7 @@ class RewardValidator {
         }
         if (isMisquoted(draft, seed, sources)) add(Rejection.QUOTE_NOT_VERBATIM)
         if (isCopiedReExplain(draft, seed, sources)) add(Rejection.COPIED_FROM_EXCERPT)
+        if (MARKUP.containsMatchIn("${draft.title}\n${draft.body}")) add(Rejection.MARKUP)
     }
 
     fun isValid(draft: RewardDraft, seed: RewardSeed, sources: ValidationSources): Boolean =
@@ -39,5 +40,6 @@ class RewardValidator {
         const val MAX_TITLE = 60
         const val MAX_BODY = 280
         private val WHITESPACE = Regex("""\s+""")
+        private val MARKUP = Regex("""</?[A-Za-z!]|\]\(|`|&[a-z]+;|\*\*""")
     }
 }
