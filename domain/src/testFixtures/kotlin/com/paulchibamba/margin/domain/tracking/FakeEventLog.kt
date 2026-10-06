@@ -18,6 +18,11 @@ class FakeEventLog : EventLog {
     override suspend fun between(from: Instant, until: Instant): List<LoggedEvent> =
         logged.filter { !it.at.isBefore(from) && it.at.isBefore(until) }
 
+    override suspend fun sessionStarts(from: Instant, until: Instant): List<SessionStarted> =
+        between(from, until).mapNotNull { logged ->
+            (logged.event as? Event.SessionStart)?.let { SessionStarted(logged.at, it.entry) }
+        }
+
     override suspend fun firstEventAt(): Instant? = logged.minOfOrNull(LoggedEvent::at)
 
     override suspend fun deleteBefore(cutoff: Instant): Int {
