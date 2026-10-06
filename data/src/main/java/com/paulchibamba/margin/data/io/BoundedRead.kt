@@ -1,4 +1,4 @@
-package com.paulchibamba.margin.data.cover
+package com.paulchibamba.margin.data.io
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -13,6 +13,6 @@ internal fun InputStream.readAtMost(maxBytes: Int): ByteArray {
         val count = read(buffer)
         if (count < 0) return bytes.toByteArray()
         bytes.write(buffer, 0, count)
-        if (bytes.size() > maxBytes) throw IOException("The image is over $maxBytes bytes")
+        if (bytes.size() > maxBytes) throw IOException("The download is over $maxBytes bytes")
     }
 }

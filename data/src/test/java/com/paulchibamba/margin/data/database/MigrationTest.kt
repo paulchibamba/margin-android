@@ -96,6 +96,27 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun `moving from version 6 to 7 keeps generated posts and settings and adds an empty llm ledger`() {
+        helper.createDatabase(NAME, 6).use { database ->
+            database.execSQL("INSERT INTO note_read (noteId, readAt) VALUES ('$NOTE', 4000)")
+            database.execSQL("INSERT INTO meta (`key`, value) VALUES ('${MetaKey.DESIRED_RETENTION}', '0.9')")
+            database.execSQL(
+                "INSERT INTO generated_post (id, kind, conceptIds, noteId, title, body, sourceLine, factsJson, " +
+                    "factsHash, writer, createdAt, expiresAt, shownAt, lessPressed) " +
+                    "VALUES ('gen/x', 'milestone', '[]', NULL, 't', 'b', NULL, '{}', 'h', 'template', " +
+                    "1, NULL, NULL, 0)",
+            )
+        }
+
+        helper.runMigrationsAndValidate(NAME, 7, true).use { database ->
+            assertEquals(4000L, database.longOf("SELECT readAt FROM note_read WHERE noteId = '$NOTE'"))
+            assertEquals(1L, database.longOf("SELECT COUNT(*) FROM generated_post"))
+            assertEquals(1L, database.longOf("SELECT COUNT(*) FROM meta"))
+            assertEquals(0L, database.longOf("SELECT COUNT(*) FROM llm_call"))
+        }
+    }
+
     private fun SupportSQLiteDatabase.longOf(sql: String): Long =
         query(sql).use { cursor ->
             cursor.moveToFirst()

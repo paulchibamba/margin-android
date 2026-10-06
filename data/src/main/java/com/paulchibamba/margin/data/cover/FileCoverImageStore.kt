@@ -3,17 +3,18 @@ package com.paulchibamba.margin.data.cover
 import android.content.ContentResolver
 import android.graphics.ImageDecoder
 import android.net.Uri
+import com.paulchibamba.margin.data.io.readAtMost
 import com.paulchibamba.margin.domain.model.BookSlug
 import com.paulchibamba.margin.domain.model.CoverSource
 import com.paulchibamba.margin.domain.repository.CoverImageStore
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.time.Instant
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class FileCoverImageStore(
     private val contentResolver: ContentResolver,

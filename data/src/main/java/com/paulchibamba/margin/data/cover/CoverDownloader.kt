@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.data.cover
 
+import com.paulchibamba.margin.data.io.readAtMost
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI

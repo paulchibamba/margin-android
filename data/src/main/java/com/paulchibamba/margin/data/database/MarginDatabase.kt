@@ -11,6 +11,7 @@ import com.paulchibamba.margin.data.database.dao.EventDao
 import com.paulchibamba.margin.data.database.dao.FeedLogDao
 import com.paulchibamba.margin.data.database.dao.FeedStateDao
 import com.paulchibamba.margin.data.database.dao.GeneratedPostDao
+import com.paulchibamba.margin.data.database.dao.LlmCallDao
 import com.paulchibamba.margin.data.database.dao.MetaDao
 import com.paulchibamba.margin.data.database.dao.ProgressResetDao
 import com.paulchibamba.margin.data.database.dao.ReadingDao
@@ -33,6 +34,7 @@ import com.paulchibamba.margin.data.database.entity.EventEntity
 import com.paulchibamba.margin.data.database.entity.FeedHistoryEntity
 import com.paulchibamba.margin.data.database.entity.FormatAffinityEntity
 import com.paulchibamba.margin.data.database.entity.GeneratedPostEntity
+import com.paulchibamba.margin.data.database.entity.LlmCallEntity
 import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.data.database.entity.NoteEntity
 import com.paulchibamba.margin.data.database.entity.NoteReadEntity
@@ -44,7 +46,7 @@ import com.paulchibamba.margin.data.database.entity.SavedPostEntity
 import com.paulchibamba.margin.data.database.entity.ScreenTimeDailyEntity
 
 @Database(
-    version = 6,
+    version = 7,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
@@ -52,6 +54,7 @@ import com.paulchibamba.margin.data.database.entity.ScreenTimeDailyEntity
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6),
+        AutoMigration(from = 6, to = 7),
     ],
     entities = [
         BookEntity::class,
@@ -78,6 +81,7 @@ import com.paulchibamba.margin.data.database.entity.ScreenTimeDailyEntity
         ScreenTimeDailyEntity::class,
         AppCategoryOverrideEntity::class,
         GeneratedPostEntity::class,
+        LlmCallEntity::class,
     ],
 )
 abstract class MarginDatabase : RoomDatabase() {
@@ -96,6 +100,7 @@ abstract class MarginDatabase : RoomDatabase() {
     abstract fun rollupDao(): RollupDao
     abstract fun screenTimeDao(): ScreenTimeDao
     abstract fun generatedPostDao(): GeneratedPostDao
+    abstract fun llmCallDao(): LlmCallDao
 
     companion object {
         const val NAME = "margin.db"

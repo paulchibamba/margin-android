@@ -4,6 +4,7 @@ import com.paulchibamba.margin.data.database.DatabaseTest
 import com.paulchibamba.margin.data.database.MetaKey
 import com.paulchibamba.margin.data.database.generatedPost
 import com.paulchibamba.margin.data.database.entity.FeedHistoryEntity
+import com.paulchibamba.margin.data.database.entity.LlmCallEntity
 import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.domain.actions.ActionLogEntry
 import com.paulchibamba.margin.domain.actions.PostAction
@@ -198,7 +199,7 @@ class RoomProgressRepositoryTest : DatabaseTest() {
     }
 
     @Test
-    fun `clearing progress empties every progress table and keeps the settings`() = runTest {
+    fun `clearing progress empties every progress table and keeps the settings and llm ledger`() = runTest {
         fillProgress()
         val settings = listOf(
             MetaEntity(MetaKey.PACK_VERSION, "7"),
@@ -206,7 +207,11 @@ class RoomProgressRepositoryTest : DatabaseTest() {
             MetaEntity(MetaKey.REVIEW_REMINDER, "true"),
             MetaEntity(MetaKey.DARK_MODE, "ALWAYS"),
             MetaEntity(MetaKey.DARK_POSTS, "true"),
+            MetaEntity(MetaKey.LLM_MODEL_BAKE, "gpt-5-mini"),
+            MetaEntity(MetaKey.LLM_DAILY_CAP_MICROS, "50000"),
+            MetaEntity(MetaKey.SEND_EXCERPTS, "false"),
         )
+        database.llmCallDao().insert(llmCall())
         database.metaDao().put(settings)
         database.settingsDao().replaceReadingOnlyChapters(book.value, listOf(10, 11))
 
@@ -216,7 +221,20 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         assertNull(repository.loadFeedState())
         assertEquals(settings.toSet(), database.metaDao().withPrefix("").toSet())
         assertEquals(2, rowsIn("reading_only_chapter"))
+        assertEquals(1, rowsIn("llm_call"))
     }
+
+    private fun llmCall() = LlmCallEntity(
+        at = 1,
+        purpose = "bake",
+        model = "gpt-5-nano",
+        tokensIn = 2_000,
+        tokensCached = 0,
+        tokensOut = 600,
+        costMicros = 340,
+        ok = true,
+        error = null,
+    )
 
     private suspend fun fillProgress() {
         repository.saveFeedState(feedState(), now)
