@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.feature.feed
 
+import com.paulchibamba.margin.feature.drop.FakeDropUseCases
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.signals.AnswerOutcome
 import com.paulchibamba.margin.domain.signals.ExpectedReadTime
@@ -26,6 +27,7 @@ import kotlin.time.Duration.Companion.seconds
 class FeedViewModelAnswerTest {
 
     private val useCases = FakeFeedUseCases(listOf(mcqPost(0), recallPost(1), mcqPost(2)))
+    private val drops = FakeDropUseCases()
     private val clock = FakeClock()
     private val recorded = mutableListOf<Event>()
     private val attention = PostAttention(clock, recorded::add)
@@ -153,7 +155,7 @@ class FeedViewModelAnswerTest {
     }
 
     private fun feedViewModelOnFirstPage(): FeedViewModel =
-        FeedViewModel(useCases, Random(seed = 17), clock, attention).apply { onPageEntered(0) }
+        FeedViewModel(useCases, drops, Random(seed = 17), clock, attention).apply { onPageEntered(0) }
 
     private fun answerOn(viewModel: FeedViewModel, index: Int): TestAnswer? =
         viewModel.uiState.value.pages[index].answer

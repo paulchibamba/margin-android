@@ -12,6 +12,7 @@ import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.model.PostId
 import com.paulchibamba.margin.domain.tracking.NoteOpenVia
 import com.paulchibamba.margin.feature.celebration.CelebrationRoute
+import com.paulchibamba.margin.feature.drop.DropRoute
 import com.paulchibamba.margin.feature.feed.FeedRoute
 import com.paulchibamba.margin.feature.read.book.BookRoute
 import com.paulchibamba.margin.feature.read.cover.CoverSearchRoute
@@ -40,7 +41,16 @@ fun MarginNavHost(navController: NavHostController, modifier: Modifier = Modifie
 private fun NavGraphBuilder.feedGraph(navController: NavHostController) {
     navigation<TabGraph.Feed>(startDestination = MarginDestination.Feed) {
         composable<MarginDestination.Feed> {
-            FeedRoute(onOpenNote = { note, post -> navController.navigate(noteFromFeed(note, post)) })
+            FeedRoute(
+                onOpenNote = { note, post -> navController.navigate(noteFromFeed(note, post)) },
+                onOpenDrop = { navController.navigate(MarginDestination.Drop) { launchSingleTop = true } },
+            )
+        }
+        composable<MarginDestination.Drop> {
+            DropRoute(
+                onClose = { navController.popBackStack<MarginDestination.Drop>(inclusive = true) },
+                onOpenNote = { note, post -> navController.navigate(noteFromFeed(note, post)) },
+            )
         }
     }
 }

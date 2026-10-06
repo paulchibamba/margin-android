@@ -1,6 +1,6 @@
-package com.paulchibamba.margin.feature.feed
+package com.paulchibamba.margin.feature.drop
 
-import androidx.activity.compose.ReportDrawnWhen
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -11,27 +11,31 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.model.NoteId
 import com.paulchibamba.margin.domain.model.PostId
-import com.paulchibamba.margin.feature.debug.DebugTools
-import com.paulchibamba.margin.feature.debug.DebugToolsRoute
+import com.paulchibamba.margin.feature.feed.readAhead
+import com.paulchibamba.margin.feature.feed.readSource
 
 @Composable
-fun FeedRoute(
+fun DropRoute(
+    onClose: () -> Unit,
     onOpenNote: (NoteId, PostId?) -> Unit,
-    onOpenDrop: () -> Unit,
-    viewModel: FeedViewModel = hiltViewModel(),
+    viewModel: DropViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    ReportDrawnWhen { state.pages.isNotEmpty() || state.isCaughtUp }
     val pageCount by rememberUpdatedState(state.pageCount)
     val pagerState = rememberPagerState(initialPage = state.currentIndex) { pageCount }
+    val keepGoing = { viewModel.onContinue(); onClose() }
+    val close = { viewModel.onDismiss(); onClose() }
+    BackHandler(onBack = close)
     LifecycleResumeEffect(viewModel) {
         viewModel.onFeedShown(true)
         onPauseOrDispose { viewModel.onFeedShown(false) }
     }
-    FeedScreen(
+    DropScreen(
         state = state,
         pagerState = pagerState,
-        onPageEntered = viewModel::onPageEntered,
+        onPageEntered = { index ->
+            if (state.isDropContinuePage(index)) keepGoing() else viewModel.onPageEntered(index)
+        },
         onPageLeft = { index, dwell -> viewModel.onPageLeft(index, dwell) },
         onAction = { index, action ->
             if (action == PostAction.READ) readSource(state, index, viewModel, onOpenNote)
@@ -42,33 +46,8 @@ fun FeedRoute(
         onRespond = viewModel::onRespond,
         onInteraction = viewModel::onInteraction,
         onScrolling = viewModel::onScrolling,
-        onReadOn = { next -> onOpenNote(next.outline.id, null) },
-        onMore = viewModel::onMore,
-        onSheetDismiss = viewModel::onSheetDismiss,
         onNudgeDismiss = viewModel::onNudgeDismiss,
-        onCaughtUpShown = viewModel::onCaughtUpShown,
-        onOpenDrop = onOpenDrop,
-        debugTools = debugToolsFor(viewModel),
+        onKeepGoing = keepGoing,
+        onClose = close,
     )
-}
-
-private fun debugToolsFor(viewModel: FeedViewModel): DebugToolsSlot? =
-    if (DebugTools.isEnabled) { modifier -> DebugToolsRoute(viewModel::onClockChanged, modifier) } else null
-
-internal fun readSource(
-    state: FeedUiState,
-    index: Int,
-    viewModel: PostPagerViewModel,
-    onOpenNote: (NoteId, PostId?) -> Unit,
-) {
-    val page = state.pages.getOrNull(index) ?: return
-    val note = page.context.sourceNote ?: return
-    viewModel.onReadSource(index)
-    onOpenNote(note, page.item.post.id)
-}
-
-internal fun readAhead(state: FeedUiState, index: Int, onOpenNote: (NoteId, PostId?) -> Unit) {
-    val page = state.pages.getOrNull(index) ?: return
-    val note = page.context.readingAhead?.firstNote ?: return
-    onOpenNote(note, page.item.post.id)
 }

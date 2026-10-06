@@ -1,6 +1,8 @@
 package com.paulchibamba.margin.feature.feed
 
 import com.paulchibamba.margin.designsystem.Skins
+import com.paulchibamba.margin.domain.drop.DropStatus
+import com.paulchibamba.margin.feature.drop.FakeDropUseCases
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.Confidence
 import com.paulchibamba.margin.domain.model.BookCover
@@ -34,6 +36,7 @@ import org.junit.Test
 class FeedViewModelTest {
 
     private val useCases = FakeFeedUseCases()
+    private val drops = FakeDropUseCases()
     private val clock = FakeClock()
     private val recorded = mutableListOf<Event>()
     private val attention = PostAttention(clock, recorded::add)
@@ -54,6 +57,18 @@ class FeedViewModelTest {
 
         assertEquals(listOf("post-0", "post-1"), postIdsOf(viewModel))
         assertEquals(2, useCases.nextPostCalls)
+    }
+
+    @Test
+    fun `the feed prepares today's drop and shows its pill until it is finished`() {
+        val viewModel = feedViewModel()
+
+        drops.status.value = DropStatus(done = 2, size = 6)
+        assertEquals("Today's drop · 2/6", viewModel.uiState.value.dropPillLabel)
+
+        drops.status.value = DropStatus(done = 6, size = 6)
+        assertNull(viewModel.uiState.value.dropPillLabel)
+        assertEquals(1, drops.prepareCalls)
     }
 
     @Test
@@ -344,7 +359,7 @@ class FeedViewModelTest {
         assertEquals(Skins.Ink, viewModel.uiState.value.pages.last().skin)
     }
 
-    private fun feedViewModel() = FeedViewModel(useCases, Random(seed = 17), clock, attention)
+    private fun feedViewModel() = FeedViewModel(useCases, drops, Random(seed = 17), clock, attention)
 
     private fun postIdsOf(viewModel: FeedViewModel) = viewModel.uiState.value.pages.map { it.item.post.id.value }
 }

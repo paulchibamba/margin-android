@@ -37,6 +37,7 @@ import com.paulchibamba.margin.designsystem.MarginTheme
 import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.component.FeedTopBar
+import com.paulchibamba.margin.designsystem.component.TopBarDrop
 import com.paulchibamba.margin.domain.usecase.CaughtUp
 import com.paulchibamba.margin.domain.usecase.NextNote
 import com.paulchibamba.margin.feature.read.BookCover
@@ -55,11 +56,12 @@ fun CaughtUpState(
     onShown: () -> Unit,
     modifier: Modifier = Modifier,
     coverPath: String? = null,
+    drop: TopBarDrop? = null,
 ) {
     LaunchedEffect(Unit) { onShown() }
     MarginTheme(Skins.Ink) {
         Column(modifier.fillMaxSize().background(Skins.Ink.background).statusBarsPadding()) {
-            FeedTopBar(streak = streak, segments = null, onMoreClick = onMore)
+            FeedTopBar(streak = streak, segments = null, onMoreClick = onMore, drop = drop)
             Column(
                 Modifier.verticalScroll(rememberScrollState()).padding(start = 24.dp, top = 70.dp, end = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),

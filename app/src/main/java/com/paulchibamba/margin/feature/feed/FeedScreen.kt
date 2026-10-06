@@ -7,13 +7,10 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,17 +18,13 @@ import com.paulchibamba.margin.designsystem.MarginTheme
 import com.paulchibamba.margin.designsystem.Skin
 import com.paulchibamba.margin.designsystem.Skins
 import com.paulchibamba.margin.designsystem.StatusBarFollowsSkin
+import com.paulchibamba.margin.designsystem.component.TopBarDrop
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.tracking.InteractionKind
 import com.paulchibamba.margin.domain.usecase.NextNote
 import com.paulchibamba.margin.feature.debug.DebugToolsSheet
 import com.paulchibamba.margin.feature.feed.post.TestResponse
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.time.Duration
-import kotlin.time.TimeMark
-import kotlin.time.TimeSource
-
-private const val CAUGHT_UP_KEY = -1
 
 @Composable
 fun FeedScreen(
@@ -51,6 +44,7 @@ fun FeedScreen(
     onNudgeDismiss: () -> Unit,
     onCaughtUpShown: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenDrop: () -> Unit = {},
     debugTools: DebugToolsSlot? = null,
 ) {
     var isDebugSheetOpen by rememberSaveable { mutableStateOf(false) }
@@ -83,6 +77,7 @@ fun FeedScreen(
                 onCaughtUpMore = { isDebugSheetOpen = debugTools != null },
                 onNudgeDismiss = onNudgeDismiss,
                 onCaughtUpShown = onCaughtUpShown,
+                drop = state.dropPillLabel?.let { label -> TopBarDrop.Pill(label, onOpenDrop) },
             )
         }
         state.sheetPage?.let { page -> WhyThisPostSheet(page.item, onSheetDismiss, debugTools) }
@@ -101,11 +96,14 @@ private fun FeedPagerPage(
     onCaughtUpMore: () -> Unit,
     onNudgeDismiss: () -> Unit,
     onCaughtUpShown: () -> Unit,
+    drop: TopBarDrop?,
 ) {
     val caughtUp = state.caughtUp
     if (caughtUp != null && state.isCaughtUpPage(index)) {
         val tag = Modifier.testTag("feed-caught-up")
-        CaughtUpState(caughtUp, state.streak, onReadOn, onCaughtUpMore, onCaughtUpShown, tag, state.caughtUpCoverPath)
+        CaughtUpState(
+            caughtUp, state.streak, onReadOn, onCaughtUpMore, onCaughtUpShown, tag, state.caughtUpCoverPath, drop,
+        )
         return
     }
     FeedPostPage(
@@ -117,44 +115,9 @@ private fun FeedPagerPage(
         onMore = onMore,
         onNudgeDismiss = onNudgeDismiss,
         modifier = Modifier.testTag("feed-page-$index"),
+        drop = drop,
     )
 }
-
-@Composable
-private fun PageVisits(
-    state: FeedUiState,
-    pagerState: PagerState,
-    onPageEntered: (Int) -> Unit,
-    onPageLeft: (Int, Duration) -> Unit,
-) {
-    val latestState by rememberUpdatedState(state)
-    val entered by rememberUpdatedState(onPageEntered)
-    val left by rememberUpdatedState(onPageLeft)
-    LaunchedEffect(pagerState) {
-        var visit: PageVisit? = null
-        snapshotFlow { pagerState.settledPage.let { page -> page to pageKeyOf(latestState, page) } }
-            .distinctUntilChanged()
-            .collect { (page, key) ->
-                visit?.takeIf { it.isPost }?.let { previous -> left(previous.key, previous.start.elapsedNow()) }
-                visit = PageVisit(key, TimeSource.Monotonic.markNow())
-                entered(page)
-            }
-    }
-}
-
-@Composable
-private fun ScrollActivity(pagerState: PagerState, onScrolling: (Boolean) -> Unit) {
-    val scrolling by rememberUpdatedState(onScrolling)
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.isScrollInProgress }.distinctUntilChanged().collect { scrolling(it) }
-    }
-}
-
-private class PageVisit(val key: Int, val start: TimeMark) {
-    val isPost: Boolean get() = key != CAUGHT_UP_KEY
-}
-
-private fun pageKeyOf(state: FeedUiState, index: Int): Int = if (index < state.pages.size) index else CAUGHT_UP_KEY
 
 private fun skinAt(state: FeedUiState, index: Int): Skin = state.pages.getOrNull(index)?.skin ?: Skins.Ink
 

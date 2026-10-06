@@ -12,6 +12,9 @@ sealed interface MarginDestination {
     data object Feed : MarginDestination
 
     @Serializable
+    data object Drop : MarginDestination
+
+    @Serializable
     data object Read : MarginDestination
 
     @Serializable
