@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.domain.usecase
 
+import com.paulchibamba.margin.domain.drop.FakeDailyDropRepository
 import com.paulchibamba.margin.domain.memory.NoFuzz
 import com.paulchibamba.margin.domain.tracking.FakeEventLog
 import kotlin.random.Random
@@ -12,11 +13,13 @@ class UseCaseFixture {
     val eventLog = FakeEventLog()
     val clock = FixedClock()
     val lock = FeedStateLock()
+    val drops = FakeDailyDropRepository()
     val engines = LearningEngines(Random(seed = 42), NoFuzz)
     private val stateSource = FeedStateSource(progress, settings, engines)
 
     val libraryLoader = LibraryLoader(content, progress, settings, generatedPosts, eventLog, clock)
-    val getNextPost = GetNextPost(libraryLoader, stateSource, progress, settings, engines, clock, lock, generatedPosts)
+    val getNextPost =
+        GetNextPost(libraryLoader, stateSource, progress, settings, engines, clock, lock, generatedPosts, drops)
     val recordPostExit = RecordPostExit(stateSource, progress, settings, engines, clock, lock)
     val applyPostAction = ApplyPostAction(stateSource, progress, settings, engines, clock, lock, generatedPosts)
     val markNoteRead = MarkNoteRead(progress, clock)

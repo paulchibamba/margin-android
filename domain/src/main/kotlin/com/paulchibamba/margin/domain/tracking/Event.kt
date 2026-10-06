@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.domain.tracking
 
 import com.paulchibamba.margin.domain.actions.PostAction
+import com.paulchibamba.margin.domain.drop.DropStage
 import com.paulchibamba.margin.domain.feed.CandidateSource
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.ConceptId
@@ -100,6 +101,10 @@ sealed interface Event {
 
     data class RewardEvent(val postId: PostId, val kind: String, val action: String) : Event {
         override val type get() = EventType.REWARD_EVENT
+    }
+
+    data class DropEvent(val stage: DropStage, val position: Int, val size: Int) : Event {
+        override val type get() = EventType.DROP_EVENT
     }
 
     data class SettingChanged(val key: String, val old: String?, val new: String) : Event {

@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,9 +37,16 @@ import com.paulchibamba.margin.designsystem.MarginTypography
 import com.paulchibamba.margin.designsystem.Skins
 
 @Composable
-fun FeedTopBar(streak: Int, segments: SegmentProgress?, onMoreClick: () -> Unit, modifier: Modifier = Modifier) {
+fun FeedTopBar(
+    streak: Int,
+    segments: SegmentProgress?,
+    onMoreClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    drop: TopBarDrop? = null,
+) {
     val colors = FeedChromeColors.of(LocalSkin.current.isLight)
     Column(modifier.fillMaxWidth()) {
+        if (drop is TopBarDrop.Progress) StorySegments(drop.segments, colors)
         if (segments != null) StorySegments(segments, colors)
         Row(
             Modifier.fillMaxWidth().height(48.dp).padding(start = 12.dp, end = 4.dp),
@@ -45,9 +54,43 @@ fun FeedTopBar(streak: Int, segments: SegmentProgress?, onMoreClick: () -> Unit,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             StreakChip(streak, colors)
-            Wordmark(colors)
-            MoreButton(onMoreClick, colors)
+            TopBarTitle(drop, colors)
+            if (drop is TopBarDrop.Progress) CloseButton(drop.onClose, colors) else MoreButton(onMoreClick, colors)
         }
+    }
+}
+
+@Composable
+private fun TopBarTitle(drop: TopBarDrop?, colors: FeedChromeColors) {
+    when (drop) {
+        is TopBarDrop.Pill -> DropPill(drop)
+        is TopBarDrop.Progress -> Text(
+            drop.label,
+            style = MarginTypography.wordmark.withChromeShadow(colors, 4.dp, 0.25f),
+            color = colors.content,
+        )
+        null -> Wordmark(colors)
+    }
+}
+
+@Composable
+private fun DropPill(pill: TopBarDrop.Pill) {
+    Row(
+        Modifier.clip(CircleShape).background(MarginColors.Lime)
+            .clickable(role = Role.Button, onClick = pill.onClick)
+            .padding(PaddingValues(start = 10.dp, top = 7.dp, end = 13.dp, bottom = 7.dp)),
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.size(7.dp).background(MarginColors.InkText, CircleShape))
+        Text(pill.label, style = MarginTypography.chip, color = MarginColors.InkText)
+    }
+}
+
+@Composable
+private fun CloseButton(onClick: () -> Unit, colors: FeedChromeColors) {
+    IconButton(onClick = onClick) {
+        Icon(painterResource(MarginIcons.Close), "Close the drop", Modifier.size(24.dp), colors.content)
     }
 }
 
@@ -122,6 +165,27 @@ private fun FeedTopBarCobaltSegmentsPreview() {
     MarginTheme(Skins.Cobalt) {
         Box(Modifier.background(Skins.Cobalt.background)) {
             FeedTopBar(streak = 7, segments = SegmentProgress(count = 4, current = 1), onMoreClick = {})
+        }
+    }
+}
+
+@Preview(widthDp = 360)
+@Composable
+private fun FeedTopBarDropPillPreview() {
+    MarginTheme(Skins.Ink) {
+        Box(Modifier.background(Skins.Ink.background)) {
+            FeedTopBar(streak = 3, segments = null, onMoreClick = {}, drop = TopBarDrop.Pill("Today's drop · 2/6") {})
+        }
+    }
+}
+
+@Preview(widthDp = 360)
+@Composable
+private fun FeedTopBarDropProgressPreview() {
+    MarginTheme(Skins.Paper) {
+        Box(Modifier.background(Skins.Paper.background)) {
+            val progress = TopBarDrop.Progress("Drop · 3 of 6", SegmentProgress(count = 6, current = 2)) {}
+            FeedTopBar(streak = 3, segments = null, onMoreClick = {}, drop = progress)
         }
     }
 }

@@ -19,6 +19,7 @@ import com.paulchibamba.margin.designsystem.component.NudgeAction
 import com.paulchibamba.margin.designsystem.component.NudgeCard
 import com.paulchibamba.margin.designsystem.component.PostCaption
 import com.paulchibamba.margin.designsystem.component.SegmentProgress
+import com.paulchibamba.margin.designsystem.component.TopBarDrop
 import com.paulchibamba.margin.domain.actions.Nudge
 import com.paulchibamba.margin.domain.actions.PostAction
 import com.paulchibamba.margin.domain.feed.CandidateSource
@@ -41,13 +42,14 @@ fun FeedPostPage(
     onMore: () -> Unit,
     onNudgeDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    drop: TopBarDrop? = null,
 ) {
     val snackbarNudge = nudge?.takeIf { it.kind.isSnackbar }
     SnackbarTimeout(snackbarNudge, onNudgeDismiss)
     val carousel = rememberCarouselState(page.item.post.id, slideCountOf(page))
     MarginTheme(page.skin) {
         FeedLayout(
-            topBar = { FeedTopBar(streak = streak, segments = segmentsOf(page, carousel), onMoreClick = onMore) },
+            topBar = { FeedTopBar(streak, segmentsOf(page, carousel), onMore, drop = drop) },
             body = { PostBody(page, carousel, callbacks) },
             caption = { PageCaption(page, nudge, callbacks.onReadSource, onNudgeDismiss) },
             rail = { ActionRail(railStateOf(page), onAction) },

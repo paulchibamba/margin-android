@@ -15,7 +15,11 @@ import com.paulchibamba.margin.feature.debug.DebugTools
 import com.paulchibamba.margin.feature.debug.DebugToolsRoute
 
 @Composable
-fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = hiltViewModel()) {
+fun FeedRoute(
+    onOpenNote: (NoteId, PostId?) -> Unit,
+    onOpenDrop: () -> Unit,
+    viewModel: FeedViewModel = hiltViewModel(),
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     ReportDrawnWhen { state.pages.isNotEmpty() || state.isCaughtUp }
     val pageCount by rememberUpdatedState(state.pageCount)
@@ -43,6 +47,7 @@ fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = 
         onSheetDismiss = viewModel::onSheetDismiss,
         onNudgeDismiss = viewModel::onNudgeDismiss,
         onCaughtUpShown = viewModel::onCaughtUpShown,
+        onOpenDrop = onOpenDrop,
         debugTools = debugToolsFor(viewModel),
     )
 }
@@ -50,10 +55,10 @@ fun FeedRoute(onOpenNote: (NoteId, PostId?) -> Unit, viewModel: FeedViewModel = 
 private fun debugToolsFor(viewModel: FeedViewModel): DebugToolsSlot? =
     if (DebugTools.isEnabled) { modifier -> DebugToolsRoute(viewModel::onClockChanged, modifier) } else null
 
-private fun readSource(
+internal fun readSource(
     state: FeedUiState,
     index: Int,
-    viewModel: FeedViewModel,
+    viewModel: PostPagerViewModel,
     onOpenNote: (NoteId, PostId?) -> Unit,
 ) {
     val page = state.pages.getOrNull(index) ?: return
@@ -62,7 +67,7 @@ private fun readSource(
     onOpenNote(note, page.item.post.id)
 }
 
-private fun readAhead(state: FeedUiState, index: Int, onOpenNote: (NoteId, PostId?) -> Unit) {
+internal fun readAhead(state: FeedUiState, index: Int, onOpenNote: (NoteId, PostId?) -> Unit) {
     val page = state.pages.getOrNull(index) ?: return
     val note = page.context.readingAhead?.firstNote ?: return
     onOpenNote(note, page.item.post.id)

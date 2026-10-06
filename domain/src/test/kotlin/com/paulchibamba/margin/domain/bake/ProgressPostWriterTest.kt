@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.domain.bake
 
+import com.paulchibamba.margin.domain.drop.DropHeadline
 import com.paulchibamba.margin.domain.feed.leastPrivilege
 import com.paulchibamba.margin.domain.llm.ApiKey
 import com.paulchibamba.margin.domain.llm.FakeApiKeyStore
@@ -138,10 +139,12 @@ class ProgressPostWriterTest {
     }
 
     @Test
-    fun `the headline is kept only when it uses the batch's facts`() = runTest {
+    fun `the headline is kept only when it uses the batch's facts, with the post it was written for`() = runTest {
         val written = post(comeback, "Fail-closed, three times running", "25 Sep: it beat you 2 times. Now 3 passes.")
         answer(written, headline = "3 passes since 25 Sep")
-        assertEquals("3 passes since 25 Sep", writer.writeRewards(listOf(comeback), clock.now()).headline)
+        val headlinePost = GeneratedPost.idOf(comeback.seed.kind, comeback.seed.factsHash)
+        val expected = DropHeadline("3 passes since 25 Sep", headlinePost)
+        assertEquals(expected, writer.writeRewards(listOf(comeback), clock.now()).headline)
 
         answer(written, headline = "9 passes since 25 Sep")
         assertNull(writer.writeRewards(listOf(comeback), clock.now()).headline)

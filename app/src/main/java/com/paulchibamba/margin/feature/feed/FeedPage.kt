@@ -23,6 +23,8 @@ data class FeedPage(
     val enteredAt: Instant? = null,
     val intervals: Map<Rating, Duration> = emptyMap(),
     val answer: TestAnswer? = null,
+    val dropIndex: Int? = null,
+    val isRecordedInDrop: Boolean = false,
 ) {
     val isLockedPreview: Boolean
         get() = item.source == CandidateSource.PREVIEW && context.readingAhead != null && item.post.rewardKind == null

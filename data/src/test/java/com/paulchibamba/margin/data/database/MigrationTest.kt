@@ -117,6 +117,25 @@ class MigrationTest {
         }
     }
 
+    @Test
+    fun `moving from version 7 to 8 keeps progress and the llm ledger and adds an empty daily drop table`() {
+        helper.createDatabase(NAME, 7).use { database ->
+            database.execSQL("INSERT INTO note_read (noteId, readAt) VALUES ('$NOTE', 4000)")
+            database.execSQL("INSERT INTO meta (`key`, value) VALUES ('${MetaKey.NEXT_DROP_HEADLINE}', 'h')")
+            database.execSQL(
+                "INSERT INTO llm_call (at, purpose, model, tokensIn, tokensCached, tokensOut, costMicros, ok, error) " +
+                    "VALUES (1, 'bake', 'gpt-5-nano', 10, 0, 5, 3, 1, NULL)",
+            )
+        }
+
+        helper.runMigrationsAndValidate(NAME, 8, true).use { database ->
+            assertEquals(4000L, database.longOf("SELECT readAt FROM note_read WHERE noteId = '$NOTE'"))
+            assertEquals(1L, database.longOf("SELECT COUNT(*) FROM llm_call"))
+            assertEquals(1L, database.longOf("SELECT COUNT(*) FROM meta"))
+            assertEquals(0L, database.longOf("SELECT COUNT(*) FROM daily_drop"))
+        }
+    }
+
     private fun SupportSQLiteDatabase.longOf(sql: String): Long =
         query(sql).use { cursor ->
             cursor.moveToFirst()

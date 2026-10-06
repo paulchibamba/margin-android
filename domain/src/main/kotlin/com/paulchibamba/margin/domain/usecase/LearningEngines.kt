@@ -1,6 +1,8 @@
 package com.paulchibamba.margin.domain.usecase
 
 import com.paulchibamba.margin.domain.actions.PostActionHandler
+import com.paulchibamba.margin.domain.drop.DropComposer
+import com.paulchibamba.margin.domain.feed.RecallEstimate
 import com.paulchibamba.margin.domain.feed.FeedConfig
 import com.paulchibamba.margin.domain.feed.FeedEngine
 import com.paulchibamba.margin.domain.feed.PostExitHandler
@@ -16,6 +18,11 @@ class LearningEngines @Inject constructor(private val random: Random, private va
 
     fun feedEngine(retention: Double): FeedEngine =
         FeedEngine(FeedConfig(desiredRetention = retention), scheduler(retention), random)
+
+    fun dropComposer(retention: Double): DropComposer {
+        val config = FeedConfig(desiredRetention = retention)
+        return DropComposer(RecallEstimate(scheduler(retention), config), random)
+    }
 
     fun actionHandler(retention: Double): PostActionHandler = PostActionHandler(scheduler(retention))
 

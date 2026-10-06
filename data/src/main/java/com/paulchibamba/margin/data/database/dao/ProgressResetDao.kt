@@ -21,6 +21,7 @@ interface ProgressResetDao {
         clearFeedHistory()
         clearDailyActivity()
         clearGeneratedPosts()
+        clearDailyDrops()
         clearMeta(MetaKey.PROGRESS_KEYS)
         MetaKey.PROGRESS_PREFIXES.forEach { prefix -> clearMetaWithPrefix(prefix) }
     }
@@ -57,6 +58,9 @@ interface ProgressResetDao {
 
     @Query("DELETE FROM generated_post")
     suspend fun clearGeneratedPosts()
+
+    @Query("DELETE FROM daily_drop")
+    suspend fun clearDailyDrops()
 
     @Query("DELETE FROM meta WHERE `key` IN (:keys)")
     suspend fun clearMeta(keys: List<String>)

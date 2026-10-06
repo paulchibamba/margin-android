@@ -1,6 +1,7 @@
 package com.paulchibamba.margin.domain.tracking
 
 import com.paulchibamba.margin.domain.actions.PostAction
+import com.paulchibamba.margin.domain.drop.DropStage
 import com.paulchibamba.margin.domain.feed.CandidateSource
 import com.paulchibamba.margin.domain.memory.Rating
 import com.paulchibamba.margin.domain.model.ConceptId
@@ -34,5 +35,6 @@ object EventFixtures {
         EventType.IMAGE_ZOOM -> Event.ImageZoom(postId = null, noteId = note)
         EventType.SETTING_CHANGED -> Event.SettingChanged("dark_mode", old = "FOLLOW_SYSTEM", new = "ALWAYS")
         EventType.REWARD_EVENT -> Event.RewardEvent(PostId("gen/comeback/0123"), kind = "comeback", action = "shown")
+        EventType.DROP_EVENT -> Event.DropEvent(DropStage.ITEM_DONE, position = 3, size = 6)
     }
 }

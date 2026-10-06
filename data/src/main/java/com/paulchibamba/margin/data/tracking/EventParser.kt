@@ -40,6 +40,7 @@ object EventParser {
         EventType.IMAGE_ZOOM -> imageZoom()
         EventType.SETTING_CHANGED -> Event.SettingChanged(text("key"), optionalText("old"), text("new"))
         EventType.REWARD_EVENT -> Event.RewardEvent(post(), text("kind"), text("action"))
+        EventType.DROP_EVENT -> Event.DropEvent(enum("stage"), int("position"), int("size"))
     }
 
     private fun Props.postImpression() = Event.PostImpression(
