@@ -14,4 +14,5 @@ enum class EventType(val key: String) {
     IMAGE_ZOOM("image_zoom"),
     SETTING_CHANGED("setting_changed"),
     REWARD_EVENT("reward_event"),
+    DROP_EVENT("drop_event"),
 }

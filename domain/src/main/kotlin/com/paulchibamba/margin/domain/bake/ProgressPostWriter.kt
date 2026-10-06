@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.domain.bake
 
+import com.paulchibamba.margin.domain.drop.DropHeadline
 import com.paulchibamba.margin.domain.llm.LlmModel
 import com.paulchibamba.margin.domain.llm.LlmReply
 import com.paulchibamba.margin.domain.progress.GeneratedPost
@@ -27,8 +28,13 @@ class ProgressPostWriter @Inject constructor(
     suspend fun writeRewards(seeds: List<BakeSeed>, now: Instant): WrittenRewards {
         val model = modelBatchFor(seeds)
         val posts = seeds.mapNotNull { seed -> modelPostFor(seed, model, now) ?: templatePostFor(seed, now) }
-        val headline = model?.batch?.headline?.let { HeadlineCheck.validOrNull(it, seeds.map(BakeSeed::seed)) }
-        return WrittenRewards(posts, headline)
+        return WrittenRewards(posts, model?.let { headlineOf(it, seeds) })
+    }
+
+    private fun headlineOf(model: ModelBatch, seeds: List<BakeSeed>): DropHeadline? {
+        val text = HeadlineCheck.validOrNull(model.batch.headline, seeds.map(BakeSeed::seed)) ?: return null
+        val last = model.lastSeed.seed
+        return DropHeadline(text, GeneratedPost.idOf(last.kind, last.factsHash))
     }
 
     suspend fun writeReExplain(seed: BakeSeed, now: Instant): GeneratedPost? {
@@ -43,7 +49,7 @@ class ProgressPostWriter @Inject constructor(
         if (sendable.isEmpty() || !connectivity.isOnline()) return null
         val reply = callLlm(RewardBatchRequest.of(sendable)) as? LlmReply.Answered ?: return null
         val batch = ModelReplies.rewardBatch(reply.json) ?: return null
-        return ModelBatch(batch, reply.model)
+        return ModelBatch(batch, reply.model, sendable.last())
     }
 
     private suspend fun sendableAmong(seeds: List<BakeSeed>): List<BakeSeed> {
@@ -75,5 +81,5 @@ class ProgressPostWriter @Inject constructor(
         TemplateWriter(random, validator).write(seed.seed, seed.sources)
             ?.let { draft -> GeneratedPost.from(seed.seed, draft, GeneratedPost.TEMPLATE_WRITER, now) }
 
-    private class ModelBatch(val batch: ModelRewardBatch, val model: LlmModel)
+    private class ModelBatch(val batch: ModelRewardBatch, val model: LlmModel, val lastSeed: BakeSeed)
 }

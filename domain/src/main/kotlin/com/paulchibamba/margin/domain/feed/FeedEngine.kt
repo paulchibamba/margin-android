@@ -4,6 +4,8 @@ import com.paulchibamba.margin.domain.feed.filter.FilterChain
 import com.paulchibamba.margin.domain.feed.ranking.CandidatePicker
 import com.paulchibamba.margin.domain.feed.ranking.CandidateScorer
 import com.paulchibamba.margin.domain.feed.ranking.Pick
+import com.paulchibamba.margin.domain.feed.ranking.ScoreBreakdown
+import com.paulchibamba.margin.domain.feed.ranking.ScoredCandidate
 import com.paulchibamba.margin.domain.memory.FsrsScheduler
 import com.paulchibamba.margin.domain.model.ConceptId
 import java.time.Instant
@@ -34,6 +36,16 @@ class FeedEngine(
         val pick = picker.pick(ranked)
         val nextState = recorder.record(state, pick.chosen.candidate, now)
         return FeedResult.Next(itemFor(pick, ranked.size, filtered.appliedFilters, nextState, now), nextState)
+    }
+
+    fun show(state: FeedState, candidate: Candidate, now: Instant): FeedResult.Next {
+        val nextState = recorder.record(state, candidate, now)
+        return FeedResult.Next(preview(nextState, candidate, now), nextState)
+    }
+
+    fun preview(state: FeedState, candidate: Candidate, now: Instant): FeedItem {
+        val unranked = Pick(ScoredCandidate(candidate, ScoreBreakdown(emptyMap())), rank = 1, wasExploration = false)
+        return itemFor(unranked, poolSize = 1, appliedFilters = emptyList(), state, now)
     }
 
     private fun itemFor(
