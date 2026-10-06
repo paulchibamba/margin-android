@@ -8,6 +8,7 @@ import com.paulchibamba.margin.domain.usecase.BakeProgressPosts
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
 import com.paulchibamba.margin.domain.usecase.DescribeBakes
 import com.paulchibamba.margin.domain.usecase.GetRecentEvents
+import com.paulchibamba.margin.domain.usecase.LearnDropTime
 import com.paulchibamba.margin.domain.usecase.ResetProgress
 import com.paulchibamba.margin.feature.reminder.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +29,7 @@ class DebugToolsViewModel @Inject constructor(
     private val getRecentEvents: GetRecentEvents,
     private val bakeProgressPosts: BakeProgressPosts,
     private val describeBakes: DescribeBakes,
+    private val learnDropTime: LearnDropTime,
 ) : ViewModel() {
 
     private val state = MutableStateFlow(DebugToolsUiState(offset = clock.offset))
@@ -36,6 +38,7 @@ class DebugToolsViewModel @Inject constructor(
     fun onShown() {
         showOffset()
         viewModelScope.launch { showBakes() }
+        viewModelScope.launch { showDropSlot() }
     }
 
     fun onAdvance(by: Duration) {
@@ -86,6 +89,11 @@ class DebugToolsViewModel @Inject constructor(
     private suspend fun showBakes() {
         val lines = BakeSummaryLabels.linesOf(describeBakes(), clock.zone())
         state.update { it.copy(bakeLines = lines) }
+    }
+
+    private suspend fun showDropSlot() {
+        val slot = learnDropTime()
+        state.update { it.copy(dropSlot = slot) }
     }
 
     private fun showOffset() {

@@ -1,5 +1,7 @@
 package com.paulchibamba.margin.feature.debug
 
+import com.paulchibamba.margin.domain.drop.DropTime
+import com.paulchibamba.margin.domain.drop.LearnedSlot
 import kotlin.time.Duration
 
 data class DebugToolsUiState(
@@ -10,6 +12,7 @@ data class DebugToolsUiState(
     val recentEvents: List<String>? = null,
     val bakeReport: String? = null,
     val bakeLines: List<String> = emptyList(),
+    val dropSlot: LearnedSlot? = null,
 ) {
 
     val clockLabel: String
@@ -24,5 +27,16 @@ data class DebugToolsUiState(
             0 -> "Nothing is due"
             1 -> "1 concept is due"
             else -> "$dueCount concepts are due"
+        }
+
+    val dropSlotLabel: String?
+        get() = dropSlot?.let { slot ->
+            if (slot.isFallback) {
+                "Drop slot: ${slot.start} (default until ${DropTime.MINIMUM_SESSIONS} sessions, " +
+                    "${slot.sessionsCounted} so far)"
+            } else {
+                "Drop slot: ${slot.start} (${slot.sessionsInSlot} of ${slot.sessionsCounted} sessions, " +
+                    "last ${DropTime.WINDOW_DAYS} days)"
+            }
         }
 }

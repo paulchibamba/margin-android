@@ -3,6 +3,7 @@ package com.paulchibamba.margin
 import android.app.Application
 import com.paulchibamba.margin.data.startup.StartupInitializer
 import com.paulchibamba.margin.feature.bake.BakeJobs
+import com.paulchibamba.margin.feature.drop.DropTimeJobs
 import com.paulchibamba.margin.feature.tracking.TrackingJobs
 import com.paulchibamba.margin.feature.tracking.UserPresence
 import dagger.hilt.android.HiltAndroidApp
@@ -27,6 +28,9 @@ class MarginApplication : Application() {
     @Inject
     lateinit var bakeJobs: BakeJobs
 
+    @Inject
+    lateinit var dropTimeJobs: DropTimeJobs
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
@@ -35,5 +39,6 @@ class MarginApplication : Application() {
         userPresence.start()
         trackingJobs.schedule()
         bakeJobs.start()
+        dropTimeJobs.start()
     }
 }

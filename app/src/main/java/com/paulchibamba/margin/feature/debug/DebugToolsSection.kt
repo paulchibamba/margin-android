@@ -20,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.paulchibamba.margin.designsystem.MarginColors
 import com.paulchibamba.margin.designsystem.MarginTypography
+import com.paulchibamba.margin.domain.drop.LearnedSlot
+import java.time.LocalTime
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -55,7 +57,7 @@ fun DebugToolsSection(
             DebugButton("Bake now", onClick = onBakeProgressPosts)
             DebugButton(state.resetProgressLabel, state.isProgressResetArmed, onResetProgress)
         }
-        listOfNotNull(state.dueCountLabel, state.bakeReport).forEach { label ->
+        listOfNotNull(state.dueCountLabel, state.bakeReport, state.dropSlotLabel).forEach { label ->
             Text(label, style = MarginTypography.label, color = MarginColors.Lime)
         }
         if (state.bakeLines.isNotEmpty()) LineList(state.bakeLines)
@@ -102,6 +104,7 @@ private fun DebugToolsSectionPreview() {
             state = DebugToolsUiState(
                 offset = 2.days,
                 dueCount = 3,
+                dropSlot = LearnedSlot(LocalTime.of(21, 0), sessionsInSlot = 4, sessionsCounted = 11),
                 recentEvents = listOf("21:04:05 session_start {\"entry\":\"launcher\"}"),
             ),
             onAdvance = {},
