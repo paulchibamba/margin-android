@@ -1,5 +1,6 @@
 package com.paulchibamba.margin.data.repository
 
+import com.paulchibamba.margin.domain.drop.FakeDailyDropRepository
 import com.paulchibamba.margin.data.database.DatabaseTest
 import com.paulchibamba.margin.data.pack.FileAssetSource
 import com.paulchibamba.margin.data.pack.PackImporter
@@ -73,7 +74,10 @@ class RealPackRepositoryTest : DatabaseTest() {
         val generatedPosts = RoomGeneratedPostRepository(database)
         val libraryLoader = LibraryLoader(content, progress, settings, generatedPosts, RoomEventLog(database), clock)
         val getNextPost =
-            GetNextPost(libraryLoader, stateSource, progress, settings, engines, clock, lock, generatedPosts)
+            GetNextPost(
+                libraryLoader, stateSource, progress, settings, engines, clock, lock, generatedPosts,
+                FakeDailyDropRepository(),
+            )
         val recordPostExit = RecordPostExit(stateSource, progress, settings, engines, clock, lock)
 
         content.chapters().filter { it.number <= 6 }.forEach { chapter ->

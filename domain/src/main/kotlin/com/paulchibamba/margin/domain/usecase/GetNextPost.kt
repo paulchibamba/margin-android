@@ -1,11 +1,14 @@
 package com.paulchibamba.margin.domain.usecase
 
+import com.paulchibamba.margin.domain.drop.DropHold
 import com.paulchibamba.margin.domain.feed.FeedResult
 import com.paulchibamba.margin.domain.progress.GeneratedPost
 import com.paulchibamba.margin.domain.repository.Clock
+import com.paulchibamba.margin.domain.repository.DailyDropRepository
 import com.paulchibamba.margin.domain.repository.GeneratedPostRepository
 import com.paulchibamba.margin.domain.repository.ProgressRepository
 import com.paulchibamba.margin.domain.repository.SettingsRepository
+import com.paulchibamba.margin.domain.time.today
 import java.time.Instant
 import javax.inject.Inject
 
@@ -18,11 +21,15 @@ class GetNextPost @Inject constructor(
     private val clock: Clock,
     private val lock: FeedStateLock,
     private val generatedPosts: GeneratedPostRepository,
+    private val drops: DailyDropRepository,
 ) {
     suspend operator fun invoke(): FeedResult = lock.withLock {
         val now = clock.now()
         val engine = engines.feedEngine(settings.desiredRetention())
-        val result = engine.next(libraryLoader.load(), stateSource.current(), now)
+        val library = libraryLoader.load()
+        val state = stateSource.current()
+        val heldBack = DropHold.of(drops.forDate(clock.today()), state, library)
+        val result = engine.next(library, state, now, heldBack)
         if (result is FeedResult.Next) record(result, now)
         result
     }

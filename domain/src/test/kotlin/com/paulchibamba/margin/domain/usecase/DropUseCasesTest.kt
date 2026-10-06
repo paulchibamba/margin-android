@@ -6,8 +6,9 @@ import com.paulchibamba.margin.domain.drop.DropHeadline
 import com.paulchibamba.margin.domain.drop.DropSlot
 import com.paulchibamba.margin.domain.drop.DropStage
 import com.paulchibamba.margin.domain.drop.DropStatus
-import com.paulchibamba.margin.domain.drop.FakeDailyDropRepository
 import com.paulchibamba.margin.domain.feed.Candidate
+import com.paulchibamba.margin.domain.feed.CandidateSource
+import com.paulchibamba.margin.domain.feed.FeedResult
 import com.paulchibamba.margin.domain.feed.cia
 import com.paulchibamba.margin.domain.feed.generatedPostOf
 import com.paulchibamba.margin.domain.feed.leastPrivilege
@@ -29,7 +30,7 @@ import kotlinx.coroutines.test.runTest
 
 class DropUseCasesTest {
     private val fixture = UseCaseFixture()
-    private val drops = FakeDailyDropRepository()
+    private val drops = fixture.drops
     private val bakeState = FakeBakeStateStore()
     private val events = mutableListOf<Event.DropEvent>()
     private val recorder = EventRecorder { event -> (event as? Event.DropEvent)?.let(events::add) }
@@ -112,6 +113,20 @@ class DropUseCasesTest {
         assertTrue(fixture.progress.activity.value.isEmpty())
         assertEquals(DropStage.COMPLETED, events.last().stage)
         assertNull(assertNotNull(open()).pages.firstOrNull())
+    }
+
+    @Test
+    fun `the feed holds back the drop's remaining items and their reviews`() = runTest {
+        withLearner()
+        val drop = assertNotNull(prepare())
+        val reviewed = drop.items.filter { it.slot == DropSlot.REVIEW }.map { it.postId.value.substringBeforeLast('/') }
+
+        val served = List(8) { fixture.getNextPost() }.filterIsInstance<FeedResult.Next>().map { it.item }
+
+        assertTrue(served.none { item -> item.post.id in drop.items.map { it.postId } })
+        val reviews = served.filter { item -> item.source == CandidateSource.REVIEW }
+        assertTrue(reviews.none { item -> item.post.conceptId.value in reviewed })
+        assertEquals(drop.size, drops.drops.value.values.single().remainingIndices(stateSource.current()).size)
     }
 
     @Test

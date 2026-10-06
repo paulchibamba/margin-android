@@ -28,8 +28,13 @@ class FeedEngine(
 
     fun startingState(): FeedState = FeedState(rewardAtStep = rewardSchedule.nextAfter(step = 0))
 
-    fun next(library: LearningLibrary, state: FeedState, now: Instant): FeedResult {
-        val candidates = collector.collect(library, state, now)
+    fun next(
+        library: LearningLibrary,
+        state: FeedState,
+        now: Instant,
+        heldBack: HeldBack = HeldBack.Nothing,
+    ): FeedResult {
+        val candidates = collector.collect(library, state, now).filterNot(heldBack::holds)
         if (candidates.isEmpty()) return FeedResult.CaughtUp
         val filtered = filterChain.apply(candidates, state)
         val ranked = scorer.scoreAll(filtered.pool, library, state, now).sortedByDescending { it.score.total }
