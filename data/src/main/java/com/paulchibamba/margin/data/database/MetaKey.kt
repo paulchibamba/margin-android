@@ -19,6 +19,7 @@ object MetaKey {
     const val LAST_BAKE_AT = "last_bake_at"
     const val BAKE_SEEN_SEEDS = "bake_seen_seeds"
     const val NEXT_DROP_HEADLINE = "next_drop_headline"
+    const val DROP_TIME_LEARNED = "drop_time_learned"
     private const val BOOK_LAST_NEW = "book_last_new:"
     private const val BADGE_SHOWN = "badge_shown:"
 
