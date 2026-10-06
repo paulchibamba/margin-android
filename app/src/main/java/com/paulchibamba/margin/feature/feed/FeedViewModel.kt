@@ -29,8 +29,10 @@ class FeedViewModel @Inject constructor(
         viewModelScope.launch {
             drops.observeToday().collect { status -> state.update { it.copy(dropStatus = status) } }
         }
-        viewModelScope.launch { drops.prepareToday() }
-        loadPagesAhead()
+        viewModelScope.launch {
+            drops.prepareToday()
+            loadPagesAhead()
+        }
     }
 
     override fun onPageEntered(index: Int) {
