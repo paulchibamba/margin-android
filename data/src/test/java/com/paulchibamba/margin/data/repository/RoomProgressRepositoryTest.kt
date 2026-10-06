@@ -4,6 +4,7 @@ import com.paulchibamba.margin.data.database.DatabaseTest
 import com.paulchibamba.margin.data.database.MetaKey
 import com.paulchibamba.margin.data.database.generatedPost
 import com.paulchibamba.margin.data.database.entity.FeedHistoryEntity
+import com.paulchibamba.margin.data.database.entity.DailyDropEntity
 import com.paulchibamba.margin.data.database.entity.LlmCallEntity
 import com.paulchibamba.margin.data.database.entity.MetaEntity
 import com.paulchibamba.margin.domain.actions.ActionLogEntry
@@ -246,11 +247,13 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         repository.addActivity(LocalDate.of(2026, 10, 1), postsSeen = 4, notesRead = 1)
         repository.markBadgesShown(setOf(Badge(book, BadgeKind.INTRODUCED)))
         database.generatedPostDao().insert(listOf(generatedPost()))
+        database.dailyDropDao().save(DailyDropEntity("2026-10-01", 1, 2, "h", "[]", 0, null, false))
         database.metaDao().put(
             listOf(
                 MetaEntity(MetaKey.LAST_BAKE_AT, "1"),
                 MetaEntity(MetaKey.BAKE_SEEN_SEEDS, "a1"),
                 MetaEntity(MetaKey.NEXT_DROP_HEADLINE, "h"),
+                MetaEntity(MetaKey.NEXT_DROP_HEADLINE_POST, "gen/x"),
             ),
         )
         PROGRESS_TABLES.forEach { table -> assertTrue(rowsIn(table) > 0, "$table was not filled") }
@@ -300,6 +303,7 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         val PROGRESS_TABLES = listOf(
             "concept_progress", "review_log", "post_seen", "action_log", "format_affinity",
             "note_read", "chapter_known", "saved_post", "feed_history", "daily_activity", "generated_post",
+            "daily_drop",
         )
     }
 }

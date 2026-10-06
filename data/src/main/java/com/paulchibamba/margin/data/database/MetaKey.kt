@@ -19,13 +19,14 @@ object MetaKey {
     const val LAST_BAKE_AT = "last_bake_at"
     const val BAKE_SEEN_SEEDS = "bake_seen_seeds"
     const val NEXT_DROP_HEADLINE = "next_drop_headline"
+    const val NEXT_DROP_HEADLINE_POST = "next_drop_headline_post"
     const val DROP_TIME_LEARNED = "drop_time_learned"
     private const val BOOK_LAST_NEW = "book_last_new:"
     private const val BADGE_SHOWN = "badge_shown:"
 
     val PROGRESS_KEYS = listOf(
         FEED_STEP, REWARD_AT, LEGACY_DELIGHT_AT, LAST_PREVIEW_AT, LAST_NOTE,
-        LAST_BAKE_AT, BAKE_SEEN_SEEDS, NEXT_DROP_HEADLINE,
+        LAST_BAKE_AT, BAKE_SEEN_SEEDS, NEXT_DROP_HEADLINE, NEXT_DROP_HEADLINE_POST,
     )
     val PROGRESS_PREFIXES = listOf(BOOK_LAST_NEW, BADGE_SHOWN)
 

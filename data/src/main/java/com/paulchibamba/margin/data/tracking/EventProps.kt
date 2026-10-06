@@ -10,7 +10,7 @@ import kotlinx.serialization.json.put
 object EventProps {
 
     fun subjectOf(event: Event): String? = when (event) {
-        is Event.SessionStart, is Event.SessionEnd, is Event.SettingChanged -> null
+        is Event.SessionStart, is Event.SessionEnd, is Event.SettingChanged, is Event.DropEvent -> null
         is Event.PostImpression -> event.postId.value
         is Event.PostExposure -> event.postId.value
         is Event.PostRevisit -> event.postId.value
@@ -38,6 +38,7 @@ object EventProps {
             is Event.ImageZoom -> put("inNote", event.isInNote)
             is Event.SettingChanged -> settingChanged(event)
             is Event.RewardEvent -> rewardEvent(event)
+            is Event.DropEvent -> dropEvent(event)
         }
     }
 
@@ -107,6 +108,12 @@ object EventProps {
     private fun JsonObjectBuilder.rewardEvent(event: Event.RewardEvent) {
         put("kind", event.kind)
         put("action", event.action)
+    }
+
+    private fun JsonObjectBuilder.dropEvent(event: Event.DropEvent) {
+        put("stage", keyOf(event.stage))
+        put("position", event.position)
+        put("size", event.size)
     }
 
     private fun keyOf(value: Enum<*>): String = value.name.lowercase()
