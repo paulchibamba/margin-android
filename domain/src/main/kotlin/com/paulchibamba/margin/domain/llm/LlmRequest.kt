@@ -6,4 +6,5 @@ data class LlmRequest(
     val input: String,
     val schema: LlmSchema,
     val maxOutputTokens: Int,
+    val reasoningEffort: ReasoningEffort? = null,
 )

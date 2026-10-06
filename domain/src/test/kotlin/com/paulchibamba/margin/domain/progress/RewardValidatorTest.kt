@@ -24,6 +24,13 @@ class RewardValidatorTest {
     ) = validator.rejectionsOf(RewardDraft(title, body), seed, from)
 
     @Test
+    fun `HTML, markdown and entities are rejected as markup`() {
+        val markup = listOf("<b>Bold</b>.", "See [this](https://example.com).", "**Loud**.", "Use `eval`.", "&lt;tag")
+        markup.forEach { body -> assertEquals(setOf(Rejection.MARKUP), rejectionsOf("Comeback", body), body) }
+        assertEquals(emptySet(), rejectionsOf("Comeback", "Plain words, even when a < b and b > a."))
+    }
+
+    @Test
     fun `a title of 60 characters passes and one of 61 is too long`() {
         assertEquals(emptySet(), rejectionsOf("a".repeat(60), "Fine."))
         assertEquals(setOf(Rejection.TITLE_TOO_LONG), rejectionsOf("a".repeat(61), "Fine."))

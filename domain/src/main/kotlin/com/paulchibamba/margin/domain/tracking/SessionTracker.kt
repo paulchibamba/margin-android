@@ -24,6 +24,7 @@ class SessionTracker @Inject constructor(
 ) : EventRecorder {
     private val mutex = Mutex()
     private val listeners = CopyOnWriteArrayList<SessionListener>()
+    private val endListeners = CopyOnWriteArrayList<SessionEndListener>()
 
     @Volatile
     private var openSession: OpenSession? = null
@@ -34,6 +35,10 @@ class SessionTracker @Inject constructor(
 
     fun addListener(listener: SessionListener) {
         listeners += listener
+    }
+
+    fun addEndListener(listener: SessionEndListener) {
+        endListeners += listener
     }
 
     override fun record(event: Event) {
@@ -99,6 +104,7 @@ class SessionTracker @Inject constructor(
         appendAll(listeners.flatMap(SessionListener::eventsAtEnd), at, session.id)
         sink.append(LoggedEvent(at, session.id, sessionEnd(session.startedAt, at, reason)))
         sink.flush()
+        endListeners.forEach(SessionEndListener::onSessionEnded)
     }
 
     private fun appendAll(events: List<Event>, at: Instant, sessionId: SessionId) {

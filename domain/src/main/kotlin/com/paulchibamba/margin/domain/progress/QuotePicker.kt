@@ -8,10 +8,12 @@ internal object QuotePicker {
     private val SENTENCE_END = Regex("""(?<=[.?])\s+""")
     private val BANNED_CHARACTERS = setOf('!', '<', '>', '?')
 
-    fun pick(noteText: String, random: Random): String? = noteText
-        .split(SENTENCE_END)
-        .map(String::trim)
+    fun pick(noteText: String, random: Random): String? = candidates(noteText).randomOrNull(random)
+
+    fun candidates(noteText: String): List<String> = sentencesOf(noteText)
         .filter { sentence -> sentence.length in MIN_LENGTH..MAX_LENGTH && sentence.endsWith('.') }
         .filter { sentence -> sentence.none(BANNED_CHARACTERS::contains) && sentence.first().isUpperCase() }
-        .randomOrNull(random)
+
+    fun sentencesOf(noteText: String): List<String> =
+        noteText.split(SENTENCE_END).map(String::trim).filter(String::isNotEmpty)
 }
