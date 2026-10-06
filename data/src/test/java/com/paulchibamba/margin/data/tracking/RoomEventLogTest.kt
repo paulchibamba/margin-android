@@ -13,6 +13,7 @@ import com.paulchibamba.margin.domain.tracking.SessionCounts
 import com.paulchibamba.margin.domain.tracking.SessionEndReason
 import com.paulchibamba.margin.domain.tracking.SessionEntry
 import com.paulchibamba.margin.domain.tracking.SessionId
+import com.paulchibamba.margin.domain.tracking.SessionStarted
 import com.paulchibamba.margin.domain.tracking.UnfinishedSession
 import java.time.Instant
 import kotlin.test.assertEquals
@@ -75,6 +76,22 @@ class RoomEventLogTest : DatabaseTest() {
 
         assertEquals(2, log.countOf(EventType.NOTE_OPEN, EventFixtures.note.value))
         assertEquals(0, log.countOf(EventType.NOTE_EXPOSURE, EventFixtures.note.value))
+    }
+
+    @Test
+    fun `session starts are read with their entry, inside the range only`() = runTest {
+        store(1_000, "a", Event.SessionStart(SessionEntry.LAUNCHER))
+        store(2_000, "a", Event.SessionEnd(SessionEndReason.IDLE, 1.minutes, 0, 0))
+        store(3_000, "b", Event.SessionStart(SessionEntry.DROP_NOTIFICATION))
+        store(9_000, "c", Event.SessionStart(SessionEntry.LAUNCHER))
+
+        val starts = log.sessionStarts(Instant.ofEpochMilli(1_000), Instant.ofEpochMilli(9_000))
+
+        val expected = listOf(
+            SessionStarted(Instant.ofEpochMilli(1_000), SessionEntry.LAUNCHER),
+            SessionStarted(Instant.ofEpochMilli(3_000), SessionEntry.DROP_NOTIFICATION),
+        )
+        assertEquals(expected, starts)
     }
 
     @Test

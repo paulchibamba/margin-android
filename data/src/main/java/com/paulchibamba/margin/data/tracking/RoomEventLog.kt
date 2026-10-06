@@ -2,10 +2,12 @@ package com.paulchibamba.margin.data.tracking
 
 import com.paulchibamba.margin.data.database.MarginDatabase
 import com.paulchibamba.margin.domain.repository.EventLog
+import com.paulchibamba.margin.domain.tracking.Event
 import com.paulchibamba.margin.domain.tracking.EventType
 import com.paulchibamba.margin.domain.tracking.LoggedEvent
 import com.paulchibamba.margin.domain.tracking.RecentEvent
 import com.paulchibamba.margin.domain.tracking.SessionId
+import com.paulchibamba.margin.domain.tracking.SessionStarted
 import com.paulchibamba.margin.domain.tracking.UnfinishedSession
 import java.time.Instant
 import javax.inject.Inject
@@ -32,7 +34,15 @@ class RoomEventLog @Inject constructor(private val database: MarginDatabase) : E
     override suspend fun between(from: Instant, until: Instant): List<LoggedEvent> =
         eventDao.between(from.toEpochMilli(), until.toEpochMilli()).mapNotNull(EventMapper::toLogged)
 
+    override suspend fun sessionStarts(from: Instant, until: Instant): List<SessionStarted> =
+        eventDao.ofTypeBetween(EventType.SESSION_START.key, from.toEpochMilli(), until.toEpochMilli())
+            .mapNotNull(EventMapper::toLogged)
+            .mapNotNull(::sessionStartedOf)
+
     override suspend fun firstEventAt(): Instant? = eventDao.firstAt()?.let(Instant::ofEpochMilli)
 
     override suspend fun deleteBefore(cutoff: Instant): Int = eventDao.deleteBefore(cutoff.toEpochMilli())
+
+    private fun sessionStartedOf(logged: LoggedEvent): SessionStarted? =
+        (logged.event as? Event.SessionStart)?.let { start -> SessionStarted(logged.at, start.entry) }
 }

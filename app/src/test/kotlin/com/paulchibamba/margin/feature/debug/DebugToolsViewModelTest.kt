@@ -32,6 +32,12 @@ import com.paulchibamba.margin.domain.tracking.RecentEvent
 import com.paulchibamba.margin.domain.tracking.RecordingEventSink
 import com.paulchibamba.margin.domain.usecase.FixedClock
 import com.paulchibamba.margin.domain.usecase.GetRecentEvents
+import com.paulchibamba.margin.domain.usecase.LearnDropTime
+import com.paulchibamba.margin.domain.drop.FakeDropTimeStore
+import com.paulchibamba.margin.domain.tracking.Event
+import com.paulchibamba.margin.domain.tracking.LoggedEvent
+import com.paulchibamba.margin.domain.tracking.SessionEntry
+import java.time.LocalTime
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
@@ -68,6 +74,7 @@ class DebugToolsViewModelTest {
     private val content = FakeContentRepository()
     private val bakeState = FakeBakeStateStore()
     private val ledger = FakeLlmLedger()
+    private val dropTimes = FakeDropTimeStore()
     private val viewModel by lazy {
         DebugToolsViewModel(
             clock,
@@ -77,6 +84,7 @@ class DebugToolsViewModelTest {
             GetRecentEvents(eventSink, eventLog),
             bakeProgressPosts(),
             DescribeBakes(bakeState, generatedPosts, ledger, clock),
+            LearnDropTime(clock, eventSink, eventLog, dropTimes),
         )
     }
 
@@ -130,6 +138,26 @@ class DebugToolsViewModelTest {
 
         viewModel.onBakeProgressPosts()
         assertEquals("Nothing new since the last bake", viewModel.uiState.value.bakeReport)
+    }
+
+    @Test
+    fun `showing the tools learns the drop slot from recent sessions`() {
+        val start = systemClock.instant
+        eventLog.logged += (1L..5L).map { daysAgo ->
+            LoggedEvent(start.minus(daysAgo, ChronoUnit.DAYS), null, Event.SessionStart(SessionEntry.LAUNCHER))
+        }
+
+        viewModel.onShown()
+
+        assertEquals("Drop slot: 08:00 (5 of 5 sessions, last 14 days)", viewModel.uiState.value.dropSlotLabel)
+        assertEquals(LocalTime.of(8, 0), dropTimes.learned.value)
+    }
+
+    @Test
+    fun `without enough sessions the drop slot is the default`() {
+        viewModel.onShown()
+
+        assertEquals("Drop slot: 08:30 (default until 5 sessions, 0 so far)", viewModel.uiState.value.dropSlotLabel)
     }
 
     @Test

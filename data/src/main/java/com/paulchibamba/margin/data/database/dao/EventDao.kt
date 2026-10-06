@@ -29,6 +29,9 @@ interface EventDao {
     @Query("SELECT * FROM event_log WHERE at >= :from AND at < :until ORDER BY at, id")
     suspend fun between(from: Long, until: Long): List<EventEntity>
 
+    @Query("SELECT * FROM event_log WHERE type = :type AND at >= :from AND at < :until ORDER BY at, id")
+    suspend fun ofTypeBetween(type: String, from: Long, until: Long): List<EventEntity>
+
     @Query("SELECT MIN(at) FROM event_log")
     suspend fun firstAt(): Long?
 
