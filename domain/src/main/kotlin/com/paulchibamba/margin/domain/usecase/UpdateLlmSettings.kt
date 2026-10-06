@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class UpdateLlmSettings @Inject constructor(private val settings: LlmSettingsRepository) {
 
-    suspend operator fun invoke(update: LlmSettings) {
-        settings.saveSettings(update)
+    suspend operator fun invoke(change: (LlmSettings) -> LlmSettings) {
+        settings.saveSettings(change(settings.settings()))
     }
 }

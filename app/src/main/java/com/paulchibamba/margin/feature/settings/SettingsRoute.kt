@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.paulchibamba.margin.feature.settings.progressposts.ProgressPostsSettings
 import com.paulchibamba.margin.feature.settings.screentime.ScreenTimeSettings
 
 @Composable
@@ -33,6 +34,7 @@ fun SettingsRoute(
         onOpenReadingOnlyChapters = onOpenReadingOnlyChapters,
         onOpenStats = onOpenStats,
         screenTimeCard = { ScreenTimeSettings(onOpenDoomApps) },
+        progressPostsCard = { ProgressPostsSettings() },
     )
 }
 
