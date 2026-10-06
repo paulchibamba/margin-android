@@ -246,6 +246,13 @@ class RoomProgressRepositoryTest : DatabaseTest() {
         repository.addActivity(LocalDate.of(2026, 10, 1), postsSeen = 4, notesRead = 1)
         repository.markBadgesShown(setOf(Badge(book, BadgeKind.INTRODUCED)))
         database.generatedPostDao().insert(listOf(generatedPost()))
+        database.metaDao().put(
+            listOf(
+                MetaEntity(MetaKey.LAST_BAKE_AT, "1"),
+                MetaEntity(MetaKey.BAKE_SEEN_SEEDS, "a1"),
+                MetaEntity(MetaKey.NEXT_DROP_HEADLINE, "h"),
+            ),
+        )
         PROGRESS_TABLES.forEach { table -> assertTrue(rowsIn(table) > 0, "$table was not filled") }
     }
 
