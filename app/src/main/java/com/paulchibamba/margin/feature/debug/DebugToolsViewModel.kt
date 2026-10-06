@@ -3,8 +3,10 @@ package com.paulchibamba.margin.feature.debug
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paulchibamba.margin.domain.time.OffsetClock
-import com.paulchibamba.margin.domain.usecase.BakeTemplatePosts
+import com.paulchibamba.margin.domain.bake.BakeTrigger
+import com.paulchibamba.margin.domain.usecase.BakeProgressPosts
 import com.paulchibamba.margin.domain.usecase.CountDueReviews
+import com.paulchibamba.margin.domain.usecase.DescribeBakes
 import com.paulchibamba.margin.domain.usecase.GetRecentEvents
 import com.paulchibamba.margin.domain.usecase.ResetProgress
 import com.paulchibamba.margin.feature.reminder.ReminderScheduler
@@ -24,13 +26,17 @@ class DebugToolsViewModel @Inject constructor(
     private val reminderScheduler: ReminderScheduler,
     private val resetProgress: ResetProgress,
     private val getRecentEvents: GetRecentEvents,
-    private val bakeTemplatePosts: BakeTemplatePosts,
+    private val bakeProgressPosts: BakeProgressPosts,
+    private val describeBakes: DescribeBakes,
 ) : ViewModel() {
 
     private val state = MutableStateFlow(DebugToolsUiState(offset = clock.offset))
     val uiState: StateFlow<DebugToolsUiState> = state.asStateFlow()
 
-    fun onShown() = showOffset()
+    fun onShown() {
+        showOffset()
+        viewModelScope.launch { showBakes() }
+    }
 
     fun onAdvance(by: Duration) {
         clock.advance(by)
@@ -60,8 +66,9 @@ class DebugToolsViewModel @Inject constructor(
 
     fun onBakeProgressPosts() {
         viewModelScope.launch {
-            val baked = bakeTemplatePosts()
-            state.update { it.copy(bakedPosts = baked) }
+            val report = bakeProgressPosts(BakeTrigger.MANUAL)
+            state.update { it.copy(bakeReport = BakeSummaryLabels.reportLine(report)) }
+            showBakes()
         }
     }
 
@@ -74,6 +81,11 @@ class DebugToolsViewModel @Inject constructor(
             resetProgress()
             state.update { it.copy(isProgressResetArmed = false, isProgressCleared = true) }
         }
+    }
+
+    private suspend fun showBakes() {
+        val lines = BakeSummaryLabels.linesOf(describeBakes(), clock.zone())
+        state.update { it.copy(bakeLines = lines) }
     }
 
     private fun showOffset() {

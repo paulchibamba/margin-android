@@ -52,20 +52,26 @@ fun DebugToolsSection(
             DebugButton("Show due count", onClick = onShowDueCount)
             DebugButton("Send reminder", onClick = onSendReviewReminder)
             DebugButton("Show events", onClick = onShowEvents)
-            DebugButton("Bake progress posts", onClick = onBakeProgressPosts)
+            DebugButton("Bake now", onClick = onBakeProgressPosts)
             DebugButton(state.resetProgressLabel, state.isProgressResetArmed, onResetProgress)
         }
-        listOfNotNull(state.dueCountLabel, state.bakedPostsLabel).forEach { label ->
+        listOfNotNull(state.dueCountLabel, state.bakeReport).forEach { label ->
             Text(label, style = MarginTypography.label, color = MarginColors.Lime)
         }
+        if (state.bakeLines.isNotEmpty()) LineList(state.bakeLines)
         state.recentEvents?.let { lines -> RecentEventList(lines) }
     }
 }
 
 @Composable
 private fun RecentEventList(lines: List<String>) {
+    if (lines.isEmpty()) Text("No events yet", style = MarginTypography.label, color = MarginColors.Lime)
+    LineList(lines)
+}
+
+@Composable
+private fun LineList(lines: List<String>) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        if (lines.isEmpty()) Text("No events yet", style = MarginTypography.label, color = MarginColors.Lime)
         lines.forEach { line ->
             Text(line, style = MarginTypography.chip, color = MarginColors.White.copy(alpha = 0.8f))
         }
