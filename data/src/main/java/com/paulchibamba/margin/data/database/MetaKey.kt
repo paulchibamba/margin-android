@@ -13,6 +13,9 @@ object MetaKey {
     const val DARK_POSTS = "dark_posts"
     const val SCREEN_TIME_INGESTED_THROUGH = "screen_time_ingested_through"
     const val SCREEN_TIME_INGEST_FROM = "screen_time_ingest_from"
+    const val LLM_MODEL_BAKE = "llm_model_bake"
+    const val LLM_DAILY_CAP_MICROS = "llm_daily_cap_micros"
+    const val SEND_EXCERPTS = "send_excerpts"
     private const val BOOK_LAST_NEW = "book_last_new:"
     private const val BADGE_SHOWN = "badge_shown:"
 

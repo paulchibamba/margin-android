@@ -29,6 +29,8 @@ import com.paulchibamba.margin.designsystem.SurfacePaletteProvider
 import com.paulchibamba.margin.designsystem.SurfacePreview
 import com.paulchibamba.margin.domain.model.BookSettings
 import com.paulchibamba.margin.domain.model.DarkMode
+import com.paulchibamba.margin.feature.settings.progressposts.ProgressPostsCard
+import com.paulchibamba.margin.feature.settings.progressposts.ProgressPostsUiState
 import com.paulchibamba.margin.feature.settings.screentime.ScreenTimeCard
 import com.paulchibamba.margin.feature.settings.screentime.ScreenTimeSettingState
 
@@ -45,6 +47,7 @@ fun SettingsScreen(
     onOpenStats: () -> Unit,
     modifier: Modifier = Modifier,
     screenTimeCard: @Composable () -> Unit = {},
+    progressPostsCard: @Composable () -> Unit = {},
 ) {
     val palette = LocalSurfacePalette.current
     MarginTheme(palette.skin) {
@@ -68,6 +71,8 @@ fun SettingsScreen(
                 ReviewReminderCard(state.isReviewReminderOn, onReviewReminderChange)
                 SectionTitle("Screen time", Modifier.padding(start = 4.dp, top = 4.dp))
                 screenTimeCard()
+                SectionTitle("Progress posts", Modifier.padding(start = 4.dp, top = 4.dp))
+                progressPostsCard()
                 SectionTitle("Appearance", Modifier.padding(start = 4.dp, top = 4.dp))
                 DarkModeCard(state.darkMode, onDarkModeChange)
                 DarkPostsCard(state.isDarkPostsOn, onDarkPostsChange)
@@ -88,7 +93,7 @@ private fun SettingsTitle() {
     }
 }
 
-@Preview(widthDp = 360, heightDp = 1180)
+@Preview(widthDp = 360, heightDp = 1720)
 @Composable
 private fun SettingsScreenPreview(@PreviewParameter(SurfacePaletteProvider::class) palette: SurfacePalette) {
     SurfacePreview(palette) {
@@ -108,6 +113,16 @@ private fun SettingsScreenPreview(@PreviewParameter(SurfacePaletteProvider::clas
                     onUseScreenTimeClick = {},
                     onOpenDoomApps = {},
                     onDeleteClick = {},
+                )
+            },
+            progressPostsCard = {
+                ProgressPostsCard(
+                    ProgressPostsUiState(),
+                    onKeyClick = {},
+                    onTestConnection = {},
+                    onModelChange = {},
+                    onDailyCapChange = {},
+                    onSendExcerptsChange = {},
                 )
             },
         )
