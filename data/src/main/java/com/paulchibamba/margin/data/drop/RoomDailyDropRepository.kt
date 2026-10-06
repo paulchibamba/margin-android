@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.map
 class RoomDailyDropRepository @Inject constructor(private val database: MarginDatabase) : DailyDropRepository {
     private val dao get() = database.dailyDropDao()
 
-    override suspend fun forDate(date: LocalDate): DailyDrop? = dao.forDate(date.toString())?.let(DailyDropMapper::toDomain)
+    override suspend fun forDate(date: LocalDate): DailyDrop? =
+        dao.forDate(date.toString())?.let(DailyDropMapper::toDomain)
 
     override fun observe(date: LocalDate): Flow<DailyDrop?> =
         dao.observe(date.toString()).map { entity -> entity?.let(DailyDropMapper::toDomain) }

@@ -45,7 +45,7 @@ class DropComposer(private val recallEstimate: RecallEstimate, private val rando
         }
 
         fun opening(avoiding: RewardKind?): Pick? {
-            val progress = quotesLast(unseenProgress).firstOrNull { post -> isFree(post) && post.rewardKind != avoiding }
+            val progress = quotesLast(unseenProgress).firstOrNull { isFree(it) && it.rewardKind != avoiding }
             if (progress != null) return take(progress, DropSlot.OPENING, CandidateSource.REWARD)
             val teach = newestIntroduced()?.let(::teachPostOf) ?: return null
             return take(teach, DropSlot.OPENING, CandidateSource.ANGLE)

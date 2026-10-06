@@ -16,7 +16,7 @@ class RoomBakeStateStore @Inject constructor(private val database: MarginDatabas
     override suspend fun load(): BakeState = BakeState(
         lastBakeAt = metaDao.get(MetaKey.LAST_BAKE_AT)?.toLongOrNull()?.let(Instant::ofEpochMilli),
         seenSeeds = seenSeedsOf(metaDao.get(MetaKey.BAKE_SEEN_SEEDS)),
-        nextDropHeadline = headlineOf(metaDao.get(MetaKey.NEXT_DROP_HEADLINE), metaDao.get(MetaKey.NEXT_DROP_HEADLINE_POST)),
+        nextDropHeadline = headlineOf(metaDao.get(NEXT_DROP_HEADLINE), metaDao.get(NEXT_DROP_HEADLINE_POST)),
     )
 
     override suspend fun save(state: BakeState) {
@@ -29,7 +29,7 @@ class RoomBakeStateStore @Inject constructor(private val database: MarginDatabas
     }
 
     private fun headlineEntries(headline: DropHeadline?): List<MetaEntity> = headline?.let {
-        listOf(MetaEntity(MetaKey.NEXT_DROP_HEADLINE, it.text), MetaEntity(MetaKey.NEXT_DROP_HEADLINE_POST, it.postId.value))
+        listOf(MetaEntity(NEXT_DROP_HEADLINE, it.text), MetaEntity(NEXT_DROP_HEADLINE_POST, it.postId.value))
     }.orEmpty()
 
     private fun headlineOf(text: String?, post: String?): DropHeadline? =
@@ -40,6 +40,8 @@ class RoomBakeStateStore @Inject constructor(private val database: MarginDatabas
 
     private companion object {
         const val SEPARATOR = ","
-        val HEADLINE_KEYS = listOf(MetaKey.NEXT_DROP_HEADLINE, MetaKey.NEXT_DROP_HEADLINE_POST)
+        const val NEXT_DROP_HEADLINE = MetaKey.NEXT_DROP_HEADLINE
+        const val NEXT_DROP_HEADLINE_POST = MetaKey.NEXT_DROP_HEADLINE_POST
+        val HEADLINE_KEYS = listOf(NEXT_DROP_HEADLINE, NEXT_DROP_HEADLINE_POST)
     }
 }

@@ -50,7 +50,8 @@ class RoomDailyDropRepositoryTest : DatabaseTest() {
     @Test
     fun `saving again updates progress through the same day's drop`() = runTest {
         repository.save(drop)
-        val finished = drop.left(2).copy(completedAt = Instant.parse("2026-10-06T07:15:00Z"), isContinuedIntoFeed = true)
+        val completedAt = Instant.parse("2026-10-06T07:15:00Z")
+        val finished = drop.left(2).copy(completedAt = completedAt, isContinuedIntoFeed = true)
 
         repository.save(finished)
 
